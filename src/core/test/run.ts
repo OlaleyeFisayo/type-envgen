@@ -28,4 +28,10 @@ assert.match(output, /APP_ID: z\.uuid\(\)/);
 assert.match(output, /API_URL: z\.url\(\)/);
 assert.match(output, /ADMIN_EMAIL: z\.email\(\)/);
 
+// @type annotations
+assert.equal(env.VERBOSE, true); // overrides number inference
+assert.match(output, /LOG_LEVEL: z\.enum\(\["debug","info","warn","error"\]\)/);
+assert.throws(() => generateEnv("# @type nope\nX=1"), /Unknown @type "nope" for X/);
+assert.match(generateEnv("# @type string\n\nX=1"), /X: z\.coerce\.number\(\)\.int\(\)/); // blank line cancels
+
 console.log("✓ generated schema parses the sample .env");
