@@ -8,6 +8,7 @@
     "skipLibCheck": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
     "types": ["node"]
   },
   "include": ["src", "tsup.config.ts"]

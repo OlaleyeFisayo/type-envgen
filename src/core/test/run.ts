@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -46,3 +47,30 @@ assert.throws(() => generateEnv("# @min abc\nX=1"), /@min for X must be a number
 assert.throws(() => generateEnv("# @min 5\n# @max 1\nX=1"), /greater than @max/);
 assert.throws(() => generateEnv("# @type boolean\n# @min 1\nX=true"), /@min is not supported for X/);
 assert.throws(() => generateEnv("# @required\nX=1"), /Unknown tag @required for X/);
+
+// CLI (built dist/cli.js; test:gen runs tsup first)
+const cli = (...args: string[]) =>
+  spawnSync(process.execPath, [join(dir, "../../../dist/cli.js"), ...args], { encoding: "utf8" });
+const pkg = JSON.parse(readFileSync(join(dir, "../../../package.json"), "utf8"));
+
+const cliOut = join(dir, "output", "cli-env.ts");
+const run = cli(envPath, "-o", cliOut);
+assert.equal(run.status, 0, run.stderr);
+assert.match(run.stdout, /^\[type-envgen\] ✓ Generated .* \(\d+ variables\)/);
+assert.equal(readFileSync(cliOut, "utf8"), output);
+
+const help = cli("--help");
+assert.equal(help.status, 0);
+assert.match(help.stdout, /^\[type-envgen\]/);
+assert.match(help.stdout, /Usage:/);
+assert.match(help.stdout, /@optional/);
+
+assert.equal(cli("--version").stdout.trim(), `[type-envgen] ${pkg.version}`);
+
+const missing = cli("does-not-exist.env");
+assert.equal(missing.status, 1);
+assert.match(missing.stderr, /^\[type-envgen\] Input file not found: does-not-exist\.env/);
+
+const badFlag = cli("--nope");
+assert.equal(badFlag.status, 1);
+assert.match(badFlag.stderr, /^\[type-envgen\] .*\nRun type-envgen --help for usage\./);
