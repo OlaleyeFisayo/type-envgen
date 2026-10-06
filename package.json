@@ -4,6 +4,15 @@
   "description": "CLI that generates a typesafe env file validated with zod",
   "type": "module",
   "license": "MIT",
+  "author": "OlaleyeFisayo",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OlaleyeFisayo/type-envgen.git"
+  },
+  "homepage": "https://github.com/OlaleyeFisayo/type-envgen#readme",
+  "bugs": {
+    "url": "https://github.com/OlaleyeFisayo/type-envgen/issues"
+  },
   "bin": {
     "type-envgen": "./dist/cli.js"
   },
