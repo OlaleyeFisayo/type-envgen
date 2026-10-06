@@ -1,0 +1,38 @@
+{
+  "name": "type-envgen",
+  "version": "0.0.0",
+  "description": "CLI that generates a typesafe env file validated with zod",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "type-envgen": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20.12"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test:gen": "node src/core/test/run.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "env",
+    "zod",
+    "typescript",
+    "cli",
+    "dotenv"
+  ],
+  "dependencies": {
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "tsup": "^8.5.1",
+    "typescript": "^7.0.2"
+  }
+}
