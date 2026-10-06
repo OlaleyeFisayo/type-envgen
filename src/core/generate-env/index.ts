@@ -63,22 +63,55 @@ function inferSchema(key: string, value: string): string {
   return TYPES.string;
 }
 
-// parseEnv drops comments, so "# @type" lines are read with a separate line scan.
-// An annotation applies to the next key line; a blank line in between cancels it.
-function readAnnotations(envSource: string): Map<string, string> {
-  const annotations = new Map<string, string>();
-  let pending: string | undefined;
+type Tags = { type?: string; optional?: boolean; required?: boolean; min?: string; max?: string; unknown?: string };
+
+// parseEnv drops comments, so "# @tag" lines are read with a separate line scan.
+// Tags apply to the next key line; a blank line in between cancels them.
+// Raw text only: validation happens per key so errors can name it.
+function readTags(envSource: string): Map<string, Tags> {
+  const tagsByKey = new Map<string, Tags>();
+  let pending: Tags = {};
   for (const line of envSource.split(/\r?\n/)) {
-    const type = line.match(/^\s*#\s*@type\s+(.+?)\s*$/)?.[1];
-    if (type) pending = type;
-    else if (!line.trim()) pending = undefined;
+    const tag = line.match(/^\s*#\s*@(\w+)(?:\s+(.+?))?\s*$/);
+    if (tag) {
+      const [, name, arg = ""] = tag;
+      if (name === "type" || name === "min" || name === "max") pending[name] = arg;
+      else if (name === "optional" || name === "required") pending[name] = true;
+      else pending.unknown = name;
+    } else if (!line.trim()) pending = {};
     else {
       const key = line.match(/^\s*(?:export\s+)?([\w.-]+)\s*=/)?.[1];
-      if (key && pending) annotations.set(key, pending);
-      if (key) pending = undefined;
+      if (key) {
+        tagsByKey.set(key, pending);
+        pending = {};
+      }
     }
   }
-  return annotations;
+  return tagsByKey;
+}
+
+function applyTags(base: string, tags: Tags, key: string): string {
+  if (tags.unknown) throw new Error(`Unknown tag @${tags.unknown} for ${key}`);
+  if (tags.optional && tags.required) throw new Error(`${key} cannot be both @optional and @required`);
+
+  let schema = base;
+  const bounds = { min: tags.min, max: tags.max };
+  const parsed: Partial<Record<"min" | "max", number>> = {};
+  for (const [name, raw] of Object.entries(bounds) as ["min" | "max", string | undefined][]) {
+    if (raw === undefined) continue;
+    const n = Number(raw);
+    if (!raw || !Number.isFinite(n)) throw new Error(`@${name} for ${key} must be a number, got "${raw}"`);
+    // Numbers bound the value, string formats bound the length.
+    if (!/^z\.(coerce\.number|string|url|email|uuid)\(/.test(base)) {
+      throw new Error(`@${name} is not supported for ${key} (${base})`);
+    }
+    parsed[name] = n;
+    schema += `.${name}(${n})`;
+  }
+  if (parsed.min !== undefined && parsed.max !== undefined && parsed.min > parsed.max) {
+    throw new Error(`@min (${parsed.min}) is greater than @max (${parsed.max}) for ${key}`);
+  }
+  return tags.optional ? `${schema}.optional()` : schema;
 }
 
 function annotatedSchema(type: string, key: string, value: string): string {
@@ -101,10 +134,11 @@ function annotatedSchema(type: string, key: string, value: string): string {
 
 /** Takes the contents of a .env file and returns the source of a typesafe, zod-validated env module. */
 export function generateEnv(envSource: string): string {
-  const annotations = readAnnotations(envSource);
+  const tagsByKey = readTags(envSource);
   const fields = Object.entries(parseEnv(envSource)).map(([key, value = ""]) => {
-    const type = annotations.get(key);
-    return `  ${prop(key)}: ${type ? annotatedSchema(type, key, value) : inferSchema(key, value)},`;
+    const tags = tagsByKey.get(key) ?? {};
+    const base = tags.type ? annotatedSchema(tags.type, key, value) : inferSchema(key, value);
+    return `  ${prop(key)}: ${applyTags(base, tags, key)},`;
   });
   const usesJson = fields.some((f) => f.includes(": json("));
 

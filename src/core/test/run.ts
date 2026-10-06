@@ -11,11 +11,10 @@ const outPath = join(dir, "output", "env.ts");
 const output = generateEnv(readFileSync(envPath, "utf8"));
 mkdirSync(join(dir, "output"), { recursive: true });
 writeFileSync(outPath, output);
-console.log(output);
 
 // Round trip: the generated schema must accept the sample it was generated from.
 process.loadEnvFile(envPath);
-const { env } = await import(pathToFileURL(outPath).href);
+const { env, envSchema } = await import(pathToFileURL(outPath).href);
 
 assert.equal(env.PORT, 3000);
 assert.equal(env.DEBUG, true);
@@ -34,4 +33,16 @@ assert.match(output, /LOG_LEVEL: z\.enum\(\["debug","info","warn","error"\]\)/);
 assert.throws(() => generateEnv("# @type nope\nX=1"), /Unknown @type "nope" for X/);
 assert.match(generateEnv("# @type string\n\nX=1"), /X: z\.coerce\.number\(\)\.int\(\)/); // blank line cancels
 
-console.log("✓ generated schema parses the sample .env");
+// @optional / @required / @min / @max
+assert.match(output, /PORT: z\.coerce\.number\(\)\.int\(\)\.min\(1\)\.max\(65535\)/);
+assert.match(output, /APP_NAME: z\.string\(\)\.min\(1\)/);
+assert.match(output, /OPTIONAL_TOKEN: z\.string\(\)\.optional\(\)/);
+assert.match(output, /DATABASE_URL: z\.url\(\),/);
+assert.equal(envSchema.safeParse({ ...process.env, PORT: "0" }).success, false);
+const { OPTIONAL_TOKEN, ...withoutToken } = process.env;
+assert.equal(envSchema.safeParse(withoutToken).success, true);
+assert.throws(() => generateEnv("# @mni 1\nX=1"), /Unknown tag @mni for X/);
+assert.throws(() => generateEnv("# @min abc\nX=1"), /@min for X must be a number/);
+assert.throws(() => generateEnv("# @min 5\n# @max 1\nX=1"), /greater than @max/);
+assert.throws(() => generateEnv("# @type boolean\n# @min 1\nX=true"), /@min is not supported for X/);
+assert.throws(() => generateEnv("# @optional\n# @required\nX=1"), /both @optional and @required/);
