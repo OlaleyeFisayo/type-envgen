@@ -45,4 +45,4 @@ assert.throws(() => generateEnv("# @mni 1\nX=1"), /Unknown tag @mni for X/);
 assert.throws(() => generateEnv("# @min abc\nX=1"), /@min for X must be a number/);
 assert.throws(() => generateEnv("# @min 5\n# @max 1\nX=1"), /greater than @max/);
 assert.throws(() => generateEnv("# @type boolean\n# @min 1\nX=true"), /@min is not supported for X/);
-assert.throws(() => generateEnv("# @optional\n# @required\nX=1"), /both @optional and @required/);
+assert.throws(() => generateEnv("# @required\nX=1"), /Unknown tag @required for X/);
