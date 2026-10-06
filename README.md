@@ -28,14 +28,22 @@ npx type-envgen -o src/env.ts
 ## Requirements
 
 - Node.js **20.12** or newer
-- **zod v4** installed in your project (the generated file imports it)
+- **zod v4**: installed into your project automatically (see below)
 
 ## Installation
 
 ```sh
 npm install --save-dev type-envgen
-npm install zod
 ```
+
+That's it. The generated file imports zod at runtime, so it has to be a regular dependency of your app. The first time you run `type-envgen`, it checks your `package.json` and, if zod is missing, adds `zod@^4` with your package manager (npm, pnpm, yarn or bun, detected from your lockfile):
+
+```
+[type-envgen] zod not found in package.json, installing it with npm...
+[type-envgen] ✓ Installed zod
+```
+
+Prefer to manage it yourself? Pass `--skip-install` and the CLI only prints the install command.
 
 Or run it once without installing:
 
@@ -113,6 +121,7 @@ type-envgen [input] [options]
 | --------------------- | ------------------------ | -------- |
 | `input`               | `.env` file to read      | `.env`   |
 | `-o, --output <path>` | File to write            | `env.ts` |
+| `--skip-install`      | Don't add zod to your project if it's missing |  |
 | `-h, --help`          | Show help                |          |
 | `-v, --version`       | Show version             |          |
 
@@ -124,7 +133,7 @@ type-envgen --help                       # everything the CLI can do
 
 - Missing output folders are created; an existing output file is overwritten.
 - Every message is prefixed with `[type-envgen]`.
-- Exit code `0` on success, `1` on any error (missing input, unknown flag, invalid annotation).
+- Exit code `0` on success, `1` on any error (missing input, unknown flag, invalid annotation, failed zod install).
 
 ## Type inference
 

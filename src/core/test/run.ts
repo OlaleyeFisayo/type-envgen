@@ -49,8 +49,8 @@ assert.throws(() => generateEnv("# @type boolean\n# @min 1\nX=true"), /@min is n
 assert.throws(() => generateEnv("# @required\nX=1"), /Unknown tag @required for X/);
 
 // CLI (built dist/cli.js; test:gen runs tsup first)
-const cli = (...args: string[]) =>
-  spawnSync(process.execPath, [join(dir, "../../../dist/cli.js"), ...args], { encoding: "utf8" });
+const cliPath = join(dir, "../../../dist/cli.js");
+const cli = (...args: string[]) => spawnSync(process.execPath, [cliPath, ...args], { encoding: "utf8" });
 const pkg = JSON.parse(readFileSync(join(dir, "../../../package.json"), "utf8"));
 
 const cliOut = join(dir, "output", "cli-env.ts");
@@ -58,6 +58,19 @@ const run = cli(envPath, "-o", cliOut);
 assert.equal(run.status, 0, run.stderr);
 assert.match(run.stdout, /^\[type-envgen\] ✓ Generated .* \(\d+ variables\)/);
 assert.equal(readFileSync(cliOut, "utf8"), output);
+assert.doesNotMatch(run.stdout, /zod/); // repo already lists zod: no install
+
+// Project without zod + --skip-install: hint only, no install
+const noZodDir = join(dir, "output", "no-zod");
+mkdirSync(noZodDir, { recursive: true });
+writeFileSync(join(noZodDir, "package.json"), "{}");
+const noZod = spawnSync(process.execPath, [cliPath, envPath, "-o", "env.ts", "--skip-install"], {
+  cwd: noZodDir,
+  encoding: "utf8",
+});
+assert.equal(noZod.status, 0, noZod.stderr);
+assert.match(noZod.stdout, /\[type-envgen\] zod is not in your dependencies\. Install it: npm install zod@\^4/);
+assert.equal(readFileSync(join(noZodDir, "package.json"), "utf8"), "{}");
 
 const help = cli("--help");
 assert.equal(help.status, 0);

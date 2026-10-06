@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { parseArgs } from "node:util";
@@ -17,6 +18,7 @@ Arguments:
 
 Options:
   -o, --output <path>  File to write (default: env.ts)
+      --skip-install   Don't add zod to your project if it's missing
   -h, --help           Show this help
   -v, --version        Show version
 
@@ -31,11 +33,42 @@ Examples:
   type-envgen
   type-envgen .env.example -o src/env.ts
 
-The generated file imports zod; install it in your project (npm i zod).`;
+The generated file imports zod. It's added to your project's dependencies
+automatically if missing (use --skip-install to opt out).`;
 
 function fail(message: string): never {
   console.error(`${PREFIX} ${message}`);
   process.exit(1);
+}
+
+// The generated file imports zod at runtime, so it must be a real dependency of the
+// user's project — type-envgen's own copy is skipped by --omit=dev and hidden by pnpm.
+function ensureZod(skipInstall: boolean) {
+  const pkgPath = "package.json";
+  if (existsSync(pkgPath)) {
+    const { dependencies = {}, devDependencies = {} } = JSON.parse(readFileSync(pkgPath, "utf8"));
+    if ("zod" in dependencies || "zod" in devDependencies) return;
+  }
+
+  const pm = existsSync("pnpm-lock.yaml")
+    ? "pnpm add"
+    : existsSync("yarn.lock")
+      ? "yarn add"
+      : existsSync("bun.lock") || existsSync("bun.lockb")
+        ? "bun add"
+        : "npm install";
+  const command = `${pm} zod@^4`;
+
+  if (skipInstall || !existsSync(pkgPath)) {
+    console.log(`${PREFIX} zod is not in your dependencies. Install it: ${command}`);
+    return;
+  }
+
+  console.log(`${PREFIX} zod not found in package.json, installing it with ${pm.split(" ")[0]}...`);
+  // ponytail: fixed command string, shell needed on Windows where npm is npm.cmd
+  const { status } = spawnSync(command, { stdio: "inherit", shell: true });
+  if (status !== 0) fail(`Could not install zod. Run: ${command}`);
+  console.log(`${PREFIX} ✓ Installed zod`);
 }
 
 let args;
@@ -44,6 +77,7 @@ try {
     allowPositionals: true,
     options: {
       output: { type: "string", short: "o", default: "env.ts" },
+      "skip-install": { type: "boolean" },
       help: { type: "boolean", short: "h" },
       version: { type: "boolean", short: "v" },
     },
@@ -72,4 +106,6 @@ if (values.help) {
   } catch (err) {
     fail((err as Error).message);
   }
+
+  ensureZod(values["skip-install"] ?? false);
 }
