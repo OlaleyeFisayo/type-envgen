@@ -9,6 +9,15 @@ Full release notes for every version, including each merged pull request, are on
 
 ## [Unreleased]
 
+### Fixed
+
+- `bin` path in `package.json` normalized (npm was auto-correcting it at publish time).
+
+### Security
+
+- Releases are now published through npm Trusted Publishing (OIDC) with provenance; no long-lived npm token is used.
+- Dev dependency `esbuild` forced to `^0.28.2` to resolve GHSA-g7r4-m6w7-qqqr (dev server only, never shipped in the package).
+
 ## [1.0.0] - 2026-10-07
 
 First public release.
