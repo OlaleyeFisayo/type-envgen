@@ -65,5 +65,8 @@
     "extends": [
       "@commitlint/config-conventional"
     ]
+  },
+  "overrides": {
+    "esbuild": "^0.28.2"
   }
 }
