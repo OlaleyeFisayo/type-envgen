@@ -8,6 +8,8 @@ By taking part you agree to follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
 - **Bugs:** [open a bug report](https://github.com/OlaleyeFisayo/type-envgen/issues/new/choose) with a minimal `.env` that reproduces it.
 - **Features and larger changes:** open a feature request first so we can agree on the approach before you write code.
 - **Security issues:** don't open a public issue — see [SECURITY.md](./SECURITY.md).
+- **Questions and ideas:** ask in [Discussions](https://github.com/OlaleyeFisayo/type-envgen/discussions).
+- **Looking for something to work on?** Check issues labelled [`good first issue`](https://github.com/OlaleyeFisayo/type-envgen/labels/good%20first%20issue) or [`help wanted`](https://github.com/OlaleyeFisayo/type-envgen/labels/help%20wanted). Comment on the issue so others know you're on it.
 
 ## Setup
 
@@ -21,7 +23,7 @@ npm install         # also installs the git hooks
 
 | Command             | What it does                                         |
 | ------------------- | ---------------------------------------------------- |
-| `npm run test:gen`  | Builds, then runs the generator and CLI checks       |
+| `npm test`          | Builds, then runs the generator and CLI checks       |
 | `npm run typecheck` | Type-checks the project                              |
 | `npm run lint`      | Biome: lint + formatting check                       |
 | `npm run format`    | Biome: auto-fix lint and formatting                  |
@@ -84,10 +86,11 @@ Breaking changes get a `!`: `feat!: rename --output to --out`.
 2. Keep the PR focused on **one** change. Unrelated cleanups go in their own PR.
 3. Add or update tests in `src/core/test/` for any behavior change.
 4. Update the README and `--help` if user-facing behavior changes.
-5. Make sure `npm run lint`, `npm run typecheck` and `npm run test:gen` pass.
-6. Give the PR a **Conventional Commit title** — PRs are squash-merged and the title becomes the commit message. A check on the PR verifies it.
-7. Fill in the PR template: what changed, why, and how you tested it.
+5. For user-facing changes, add a line under `## [Unreleased]` in [CHANGELOG.md](./CHANGELOG.md) (`Added`, `Changed`, `Fixed` or `Removed`).
+6. Make sure `npm run lint`, `npm run typecheck` and `npm test` pass.
+7. Give the PR a **Conventional Commit title** — PRs are squash-merged and the title becomes the commit message. A check on the PR verifies it.
+8. Fill in the PR template: what changed, why, and how you tested it.
 
-CI runs lint, typecheck and tests on Node 22 and 24 (plus a Node 20 smoke test). All checks must pass before a PR can be merged.
+CI runs lint, typecheck and tests on Node 22 and 24 on Linux, the tests on Windows, and a Node 20 smoke test. All checks, including the PR title check, must pass before a PR can be merged.
 
 Don't bump the version in your PR — releases are handled by the maintainer (see [docs/releasing.md](./docs/releasing.md)).

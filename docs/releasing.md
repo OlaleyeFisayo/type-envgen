@@ -6,12 +6,29 @@ How to publish a new version to [npm](https://www.npmjs.com/package/type-envgen)
 
 ```sh
 git checkout main && git pull
+# 1. update CHANGELOG.md (see below), then:
+git commit -am "docs: update changelog for v1.1.0"
+# 2. release
 npm run release:patch    # 1.0.0 -> 1.0.1   bug fixes
 npm run release:minor    # 1.0.0 -> 1.1.0   new features
 npm run release:major    # 1.0.0 -> 2.0.0   breaking changes
 ```
 
 That's it. Within a few minutes the new version is on npm and on the [GitHub Releases](https://github.com/OlaleyeFisayo/type-envgen/releases) page.
+
+## Updating the changelog
+
+Contributors add lines under `## [Unreleased]` in [CHANGELOG.md](../CHANGELOG.md) as part of their PRs. Before releasing:
+
+1. Rename `## [Unreleased]` to the new version and date, e.g. `## [1.1.0] - 2026-11-02`, and add a fresh empty `## [Unreleased]` above it.
+2. Update the compare links at the bottom:
+   ```md
+   [Unreleased]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.1.0...HEAD
+   [1.1.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.0.0...v1.1.0
+   ```
+3. Commit it (`docs: update changelog for v1.1.0`) **before** running `release:*`, because `npm version` needs a clean working tree.
+
+The GitHub Release gets auto-generated notes listing every merged PR, so the changelog only needs the user-facing highlights.
 
 ## Which command do I use?
 
@@ -40,9 +57,10 @@ Requirements: you're on `main`, it's up to date, and the working tree is clean (
 
 Every push to `main` runs the [CI workflow](../.github/workflows/ci.yml):
 
-1. `check (22)`, `check (24)`: lint, typecheck and tests on Node 22 and 24
-2. `smoke`: builds and runs the CLI on Node 20
-3. `release`: only if all checks pass:
+1. `check (22)`, `check (24)`: lint, typecheck and tests on Node 22 and 24 (Linux)
+2. `windows`: typecheck and tests on Windows
+3. `smoke`: builds and runs the CLI on Node 20
+4. `release`: only if all checks pass:
    - compares `package.json`'s version with what's on npm
    - **new version** → `npm publish` (with [provenance](https://docs.npmjs.com/generating-provenance-statements)) and creates a GitHub Release with auto-generated notes
    - **same version** → does nothing. Merging a normal PR never publishes by accident.
@@ -65,7 +83,7 @@ gh release view                     # latest GitHub Release
 
 1. Merge the PRs you want in the release (squash merge; the PR title becomes the commit message).
 2. `git checkout main && git pull`
-3. Run the right `release:*` command.
+3. Update and commit `CHANGELOG.md` (see above), then run the right `release:*` command.
 
 The GitHub Release notes list every merged PR since the last release.
 

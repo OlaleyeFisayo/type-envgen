@@ -4,6 +4,7 @@
 [![npm version](https://img.shields.io/npm/v/type-envgen)](https://www.npmjs.com/package/type-envgen)
 [![license](https://img.shields.io/github/license/OlaleyeFisayo/type-envgen)](./LICENSE)
 [![node](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FOlaleyeFisayo%2Ftype-envgen%2Fmain%2Fpackage.json&query=%24.engines.node&label=node)](https://nodejs.org)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/OlaleyeFisayo/type-envgen/badge)](https://scorecard.dev/viewer/?uri=github.com/OlaleyeFisayo/type-envgen)
 
 Generate a typesafe, [zod](https://zod.dev)-validated env module from your `.env` file — with one command.
 
@@ -264,9 +265,12 @@ Add a script:
 
 Contributions are welcome! Bug reports, ideas and pull requests all help.
 
+- Questions or ideas? Start a thread in [Discussions](https://github.com/OlaleyeFisayo/type-envgen/discussions).
+- Want to help? Look for [`good first issue`](https://github.com/OlaleyeFisayo/type-envgen/labels/good%20first%20issue) and [`help wanted`](https://github.com/OlaleyeFisayo/type-envgen/labels/help%20wanted) issues.
 - Read the [contributing guide](./CONTRIBUTING.md) for setup, git hooks, commit message format and PR rules.
 - Please follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
 - Found a security issue? See [SECURITY.md](./SECURITY.md). Please don't open a public issue.
+- See the [changelog](./CHANGELOG.md) for what changed in each version.
 - Maintainers: see [docs/releasing.md](./docs/releasing.md) for how releases work.
 
 ## License
