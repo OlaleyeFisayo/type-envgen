@@ -24,6 +24,8 @@ assert.equal(env.FLOAT, 3.14);
 assert.deepEqual(env.JSON_ARRAY, ["a", "b", "c"]);
 assert.deepEqual(env.JSON_OBJECT, { key: "value", n: 1 });
 assert.equal(typeof env.APP_NAME, "string");
+assert.equal(env.DEFAULT_PORT, 8080);
+assert.equal(env.DEFAULT_HOST, "localhost");
 assert.match(output, /APP_ID: z\.uuid\(\)/);
 assert.match(output, /API_URL: z\.url\(\)/);
 assert.match(output, /ADMIN_EMAIL: z\.email\(\)/);
@@ -47,6 +49,38 @@ assert.throws(() => generateEnv("# @min abc\nX=1"), /@min for X must be a number
 assert.throws(() => generateEnv("# @min 5\n# @max 1\nX=1"), /greater than @max/);
 assert.throws(() => generateEnv("# @type boolean\n# @min 1\nX=true"), /@min is not supported for X/);
 assert.throws(() => generateEnv("# @required\nX=1"), /Unknown tag @required for X/);
+
+// @default
+assert.match(output, /DEFAULT_PORT: z\.coerce\.number\(\)\.int\(\)\.default\(8080\)/);
+assert.match(output, /DEFAULT_HOST: z\.string\(\)\.default\("localhost"\)/);
+const { DEFAULT_PORT, DEFAULT_HOST, ...withoutDefaults } = process.env;
+const parsedDefaults = envSchema.parse(withoutDefaults);
+assert.equal(parsedDefaults.DEFAULT_PORT, 8080);
+assert.equal(parsedDefaults.DEFAULT_HOST, "localhost");
+
+assert.throws(() => generateEnv("# @default\nX=1"), /@default for X requires a value/);
+assert.throws(() => generateEnv("# @default 3000\n# @optional\nX=3000"), /Cannot combine @default and @optional for X/);
+assert.throws(() => generateEnv("# @type int\n# @default abc\nX=1"), /@default for X must be an integer/);
+assert.throws(() => generateEnv("# @type number\n# @default abc\nX=1.5"), /@default for X must be a number/);
+assert.throws(() => generateEnv("# @type boolean\n# @default nope\nX=true"), /@default for X must be a boolean/);
+assert.throws(
+  () => generateEnv("# @type url\n# @default not-a-url\nX=https://api.com"),
+  /@default for X must be a valid URL/,
+);
+assert.throws(
+  () => generateEnv("# @type email\n# @default not-an-email\nX=a@b.com"),
+  /@default for X must be a valid email/,
+);
+assert.throws(
+  () => generateEnv("# @type uuid\n# @default not-a-uuid\nX=550e8400-e29b-41d4-a716-446655440000"),
+  /@default for X must be a valid UUID/,
+);
+assert.throws(() => generateEnv("# @type enum(a, b)\n# @default c\nX=a"), /@default "c" for X is not in enum/);
+assert.throws(() => generateEnv('# @default {bad json}\nX={"a":1}'), /@default for X must be valid JSON/);
+assert.throws(() => generateEnv("# @min 10\n# @default 5\nX=10"), /less than @min/);
+assert.throws(() => generateEnv("# @max 5\n# @default 10\nX=5"), /greater than @max/);
+assert.throws(() => generateEnv("# @min 5\n# @default hi\nX=hello"), /less than @min/);
+assert.throws(() => generateEnv("# @max 3\n# @default hello\nX=hi"), /greater than @max/);
 
 // CLI (built dist/cli.js; test:gen runs tsup first)
 const cliPath = join(dir, "../../../dist/cli.js");
@@ -76,6 +110,7 @@ const help = cli("--help");
 assert.equal(help.status, 0);
 assert.match(help.stdout, /^\[type-envgen\]/);
 assert.match(help.stdout, /Usage:/);
+assert.match(help.stdout, /@default/);
 assert.match(help.stdout, /@optional/);
 
 assert.equal(cli("--version").stdout.trim(), `[type-envgen] ${pkg.version}`);

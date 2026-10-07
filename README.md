@@ -21,7 +21,7 @@ npx type-envgen -o src/env.ts
 ## Features
 
 - **Zero config** — types are inferred from your values (numbers, booleans, URLs, emails, UUIDs, JSON, …)
-- **Annotations** — override or refine types with `# @type`, `# @min`, `# @max` and `# @optional` comments
+- **Annotations** — override or refine types with `# @type`, `# @default`, `# @min`, `# @max` and `# @optional` comments
 - **Typed JSON** — JSON values get a real schema, not `any`
 - **Fail fast** — invalid or missing variables throw a clear zod error when your app starts
 - **Safe on real `.env` files** — values are only used to infer types; secrets are never written to the output
@@ -208,6 +208,20 @@ Type names are case-insensitive; enum values keep their case.
 JWT_SECRET=please-change-me-to-something-long-enough
 ```
 
+### `@default <value>`
+
+Provides a fallback value emitted as zod's `.default(...)`, so the variable is never `undefined` if missing from `process.env`. The value is validated against the inferred or annotated type at generation time (e.g. `@default abc` on an integer is an error).
+
+```sh
+# @default 3000
+PORT=3000
+# -> PORT: z.coerce.number().int().default(3000)
+
+# @default info
+LOG_LEVEL=info
+# -> LOG_LEVEL: z.string().default("info")
+```
+
 ### `@optional`
 
 The variable may be missing; its type becomes `T | undefined`.
@@ -223,6 +237,8 @@ SENTRY_DSN=https://abc@sentry.io/123
 - Regular comments (without `@`) are ignored and can sit between tags.
 - Mistakes fail loudly instead of being silently ignored. These all stop generation with an error naming the key:
   - unknown tag (`@mni`) or type (`@type nmber`)
+  - combining `@default` and `@optional` on the same key
+  - invalid `@default` value (e.g. non-integer on an int, out-of-bounds with `@min`/`@max`, invalid URL/email/UUID, invalid enum option, or invalid JSON)
   - empty `enum()`
   - non-numeric `@min` / `@max`, or `@min` greater than `@max`
   - `@min` / `@max` on a `boolean`, `enum` or `json`

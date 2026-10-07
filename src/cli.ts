@@ -24,6 +24,7 @@ Options:
 
 .env tags (comment lines directly above a key):
   # @type <type>       string, number, int, boolean, url, email, uuid, json, enum(a, b, c)
+  # @default <value>   Fallback default value (.default(...), key is never undefined)
   # @min <n>           Minimum value (numbers) or length (strings)
   # @max <n>           Maximum value (numbers) or length (strings)
   # @optional          Key may be missing
