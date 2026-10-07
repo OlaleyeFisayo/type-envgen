@@ -14,7 +14,7 @@
     "url": "https://github.com/OlaleyeFisayo/type-envgen/issues"
   },
   "bin": {
-    "type-envgen": "./dist/cli.js"
+    "type-envgen": "dist/cli.js"
   },
   "files": [
     "dist"
