@@ -1,0 +1,2 @@
+# Full check before anything reaches GitHub
+npm run lint && npm run typecheck && npm run test:gen

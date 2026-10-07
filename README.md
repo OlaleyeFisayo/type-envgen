@@ -266,10 +266,33 @@ Contributions are welcome! Bug reports, ideas and pull requests all help.
 ```sh
 git clone https://github.com/OlaleyeFisayo/type-envgen.git
 cd type-envgen
-npm install
+npm install         # also installs the git hooks
 npm run test:gen    # builds, then runs the generator and CLI checks
 npm run typecheck
+npm run lint        # Biome: lint + formatting check
+npm run format      # Biome: auto-fix
 ```
+
+### Git hooks
+
+[Husky](https://typicode.github.io/husky/) hooks are installed automatically by `npm install`:
+
+| Hook         | What it does                                                                  |
+| ------------ | ----------------------------------------------------------------------------- |
+| `pre-commit` | Formats and lints your staged files with [Biome](https://biomejs.dev) (auto-fixing what it can), then typechecks |
+| `commit-msg` | Checks the message follows [Conventional Commits](https://www.conventionalcommits.org) |
+| `pre-push`   | Runs `lint`, `typecheck` and `test:gen`                                        |
+
+Commit messages look like `type: short description`, for example:
+
+```
+feat: add @default tag
+fix: handle quoted values with # inside
+docs: clarify @min on strings
+chore: bump dependencies
+```
+
+Common types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `style`, `perf`.
 
 Project layout:
 

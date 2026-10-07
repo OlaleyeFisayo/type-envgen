@@ -1,6 +1,6 @@
 {
   "name": "type-envgen",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "CLI that generates a typesafe env file validated with zod",
   "type": "module",
   "license": "MIT",
@@ -27,7 +27,10 @@
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test:gen": "tsup && node src/core/test/run.ts",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "prepare": "husky",
+    "lint": "biome check .",
+    "format": "biome check --write ."
   },
   "keywords": [
     "env",
@@ -40,8 +43,17 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
     "@types/node": "^26.6.4",
+    "husky": "^9.1.7",
     "tsup": "^8.5.1",
     "typescript": "^7.0.2"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   }
 }
