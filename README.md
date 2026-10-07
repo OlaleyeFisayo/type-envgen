@@ -1,7 +1,7 @@
 # type-envgen
 
 [![CI](https://github.com/OlaleyeFisayo/type-envgen/actions/workflows/ci.yml/badge.svg)](https://github.com/OlaleyeFisayo/type-envgen/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/type-envgen.svg)](https://www.npmjs.com/package/type-envgen)
+[![npm version](https://img.shields.io/npm/v/type-envgen)](https://www.npmjs.com/package/type-envgen)
 [![license](https://img.shields.io/github/license/OlaleyeFisayo/type-envgen)](./LICENSE)
 [![node](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FOlaleyeFisayo%2Ftype-envgen%2Fmain%2Fpackage.json&query=%24.engines.node&label=node)](https://nodejs.org)
 
