@@ -9,6 +9,8 @@ Full release notes for every version, including each merged pull request, are on
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-07
+
 ### Fixed
 
 - `bin` path in `package.json` normalized (npm was auto-correcting it at publish time).
@@ -36,5 +38,6 @@ First public release.
 - Adds `zod@^4` to your project automatically if it's missing, using npm, pnpm, yarn or bun
   (`--skip-install` to opt out).
 
-[Unreleased]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/OlaleyeFisayo/type-envgen/releases/tag/v1.0.0
