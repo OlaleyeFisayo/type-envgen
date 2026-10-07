@@ -1,8 +1,8 @@
 # type-envgen
 
 [![npm version](https://img.shields.io/npm/v/type-envgen.svg)](https://www.npmjs.com/package/type-envgen)
-[![license](https://img.shields.io/npm/l/type-envgen.svg)](./LICENSE)
-[![node](https://img.shields.io/node/v/type-envgen.svg)](https://nodejs.org)
+[![license](https://img.shields.io/github/license/OlaleyeFisayo/type-envgen)](./LICENSE)
+[![node](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FOlaleyeFisayo%2Ftype-envgen%2Fmain%2Fpackage.json&query=%24.engines.node&label=node)](https://nodejs.org)
 
 Generate a typesafe, [zod](https://zod.dev)-validated env module from your `.env` file — with one command.
 
