@@ -87,26 +87,26 @@ gh release view                     # latest GitHub Release
 
 The GitHub Release notes list every merged PR since the last release.
 
-## The npm token
+## How publishing is authenticated
 
-Publishing uses the `NPM_TOKEN` repository secret: an npm **granular access token** with read/write access and "bypass 2FA" enabled.
+Publishing uses **[npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers)** (OpenID Connect). There is **no npm token or secret** to store, rotate or leak. npm trusts one specific workflow in this repo, and only that workflow can publish.
 
-npm limits how long write tokens live, so **it expires**. When it does, the `release` job fails at "Publish to npm" with a `401`/`403` error. To rotate it:
+The connection is configured on npmjs.com → [type-envgen → Settings](https://www.npmjs.com/package/type-envgen/access) → **Trusted Publisher**:
 
-1. On npmjs.com → your avatar → **Access Tokens** → **Generate New Token** → **Granular Access Token**
-   - Expiration: the longest allowed
-   - Packages and scopes: **Read and write**, select `type-envgen`
-   - Tick **Bypass two-factor authentication**
-2. Copy the token, then save it as the repo secret:
-   ```sh
-   gh secret set NPM_TOKEN --repo OlaleyeFisayo/type-envgen
-   # paste the token when prompted
-   ```
-   (or GitHub → Settings → Secrets and variables → Actions → `NPM_TOKEN` → Update)
-3. Re-run the failed workflow: `gh run rerun --failed`
-4. Delete the old token on npmjs.com.
+| Field             | Value           |
+| ----------------- | --------------- |
+| Publisher         | GitHub Actions  |
+| Organization/user | `OlaleyeFisayo` |
+| Repository        | `type-envgen`   |
+| Workflow filename | `ci.yml`        |
+| Allowed actions   | `npm publish`   |
 
-Tip: set a calendar reminder a few days before the token's expiry date.
+What this means in practice:
+
+- The `release` job needs `permissions: id-token: write` and **npm 11.5.1 or newer**, which is why it runs on Node 24.
+- Every published version automatically gets a [provenance statement](https://docs.npmjs.com/generating-provenance-statements) linking it to the exact commit and workflow run that built it.
+- If you **rename `.github/workflows/ci.yml`** or move the publish step into another workflow file, update "Workflow filename" on npm too, or publishing fails.
+- The package's "Publishing access" setting is **"Require two-factor authentication and disallow bypass 2fa tokens"**, so a leaked token can't publish. Trusted Publishing isn't affected by that setting.
 
 ## Troubleshooting
 
@@ -115,7 +115,7 @@ Tip: set a calendar reminder a few days before the token's expiry date.
 | `npm ERR! Git working directory not clean`     | Commit or stash your changes first.                                                       |
 | `preversion` fails                             | Fix the lint/type/test error, commit the fix, run the release command again.             |
 | Push rejected                                  | `git pull --rebase` on `main`, then `git push --follow-tags`.                             |
-| `release` job: `401` / `403` on publish        | The npm token expired or was revoked. Rotate it (see above), then `gh run rerun --failed`. |
+| `release` job: `401` / `403` / `ENEEDAUTH` on publish | The Trusted Publisher settings on npm don't match (owner, repo or **workflow filename**), the job lost `id-token: write`, or npm is older than 11.5.1. Fix it, then `gh run rerun --failed`. |
 | `release` job: "cannot publish over previously published version" | That version is already on npm. Bump again with a `release:*` command.     |
 | Release job skipped                            | A check failed. Fix it on `main`; the next push retries the release.                      |
 | Published a broken version                     | Release a fix right away (`release:patch`). If needed, `npm deprecate type-envgen@X.Y.Z "reason"`. Avoid `npm unpublish`. |
