@@ -71,22 +71,23 @@ function ensureZod(skipInstall: boolean) {
   console.log(`${PREFIX} ✓ Installed zod`);
 }
 
-let args;
-try {
-  args = parseArgs({
-    allowPositionals: true,
-    options: {
-      output: { type: "string", short: "o", default: "env.ts" },
-      "skip-install": { type: "boolean" },
-      help: { type: "boolean", short: "h" },
-      version: { type: "boolean", short: "v" },
-    },
-  });
-} catch (err) {
-  fail(`${(err as Error).message}\nRun type-envgen --help for usage.`);
+function readArgs() {
+  try {
+    return parseArgs({
+      allowPositionals: true,
+      options: {
+        output: { type: "string", short: "o", default: "env.ts" },
+        "skip-install": { type: "boolean" },
+        help: { type: "boolean", short: "h" },
+        version: { type: "boolean", short: "v" },
+      },
+    });
+  } catch (err) {
+    fail(`${(err as Error).message}\nRun type-envgen --help for usage.`);
+  }
 }
 
-const { values, positionals } = args;
+const { values, positionals } = readArgs();
 
 if (values.help) {
   console.log(HELP);
