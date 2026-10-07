@@ -26,6 +26,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
+    "test": "npm run test:gen",
     "test:gen": "tsup && node src/core/test/run.ts",
     "prepublishOnly": "npm run build",
     "prepare": "husky",

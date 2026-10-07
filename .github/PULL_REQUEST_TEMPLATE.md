@@ -25,7 +25,8 @@ Closes #<!-- issue number, if any -->
 ## Checklist
 
 - [ ] The PR does one focused thing
-- [ ] `npm run lint`, `npm run typecheck` and `npm run test:gen` pass locally
+- [ ] `npm run lint`, `npm run typecheck` and `npm test` pass locally
 - [ ] New behavior has a case in `src/core/test/.env` and an assertion in `src/core/test/run.ts`
 - [ ] README / `--help` updated if user-facing behavior changed
+- [ ] Line added under `## [Unreleased]` in `CHANGELOG.md` (user-facing changes only)
 - [ ] PR title follows [Conventional Commits](https://www.conventionalcommits.org)

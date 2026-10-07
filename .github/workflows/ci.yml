@@ -31,6 +31,20 @@ jobs:
       - run: npm run typecheck
       - run: npm run test:gen
 
+  # The CLI has Windows-only paths (npm.cmd, shell spawning, CRLF), so run the tests there too.
+  windows:
+    name: windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:gen
+
   # The test script needs Node 22+ (type stripping); this keeps engines ">=20.12" honest.
   smoke:
     name: smoke
@@ -47,7 +61,7 @@ jobs:
 
   release:
     name: release
-    needs: [check, smoke]
+    needs: [check, windows, smoke]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
