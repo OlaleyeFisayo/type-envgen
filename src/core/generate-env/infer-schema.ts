@@ -13,6 +13,10 @@ export function inferSchema(key: string, value: string): string {
   if (value.includes("://") && z.url().safeParse(value).success) return TYPES.url;
   if (z.uuid().safeParse(value).success) return TYPES.uuid;
   if (z.email().safeParse(value).success) return TYPES.email;
+  if (z.iso.date().safeParse(value).success) return TYPES.date;
+  if (z.iso.datetime().safeParse(value).success) return TYPES.datetime;
+  if (z.ipv4().safeParse(value).success) return TYPES.ipv4;
+  if (z.ipv6().safeParse(value).success) return TYPES.ipv6;
   if (/^[[{]/.test(value)) {
     try {
       return `json(${jsonSchema(JSON.parse(value))})`;
