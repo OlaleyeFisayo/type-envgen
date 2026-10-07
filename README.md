@@ -1,5 +1,6 @@
 # type-envgen
 
+[![CI](https://github.com/OlaleyeFisayo/type-envgen/actions/workflows/ci.yml/badge.svg)](https://github.com/OlaleyeFisayo/type-envgen/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/type-envgen.svg)](https://www.npmjs.com/package/type-envgen)
 [![license](https://img.shields.io/github/license/OlaleyeFisayo/type-envgen)](./LICENSE)
 [![node](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FOlaleyeFisayo%2Ftype-envgen%2Fmain%2Fpackage.json&query=%24.engines.node&label=node)](https://nodejs.org)
@@ -263,50 +264,10 @@ Add a script:
 
 Contributions are welcome! Bug reports, ideas and pull requests all help.
 
-```sh
-git clone https://github.com/OlaleyeFisayo/type-envgen.git
-cd type-envgen
-npm install         # also installs the git hooks
-npm run test:gen    # builds, then runs the generator and CLI checks
-npm run typecheck
-npm run lint        # Biome: lint + formatting check
-npm run format      # Biome: auto-fix
-```
-
-### Git hooks
-
-[Husky](https://typicode.github.io/husky/) hooks are installed automatically by `npm install`:
-
-| Hook         | What it does                                                                  |
-| ------------ | ----------------------------------------------------------------------------- |
-| `pre-commit` | Formats and lints your staged files with [Biome](https://biomejs.dev) (auto-fixing what it can), then typechecks |
-| `commit-msg` | Checks the message follows [Conventional Commits](https://www.conventionalcommits.org) |
-| `pre-push`   | Runs `lint`, `typecheck` and `test:gen`                                        |
-
-Commit messages look like `type: short description`, for example:
-
-```
-feat: add @default tag
-fix: handle quoted values with # inside
-docs: clarify @min on strings
-chore: bump dependencies
-```
-
-Common types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `style`, `perf`.
-
-Project layout:
-
-```
-src/
-  cli.ts                 # CLI: argument parsing, help, read -> generate -> write
-  core/
-    generate-env/        # generator, one function per file (index.ts exports generateEnv)
-    test/                # sample .env and the test script
-```
-
-To add a type or tag, update `src/core/generate-env/`, add a case to `src/core/test/.env`, and add an assertion in `src/core/test/run.ts`.
-
-Please [open an issue](https://github.com/OlaleyeFisayo/type-envgen/issues) before large changes so we can agree on the approach.
+- Read the [contributing guide](./CONTRIBUTING.md) for setup, git hooks, commit message format and PR rules.
+- Please follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
+- Found a security issue? See [SECURITY.md](./SECURITY.md). Please don't open a public issue.
+- Maintainers: see [docs/releasing.md](./docs/releasing.md) for how releases work.
 
 ## License
 

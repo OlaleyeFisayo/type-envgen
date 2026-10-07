@@ -1,0 +1,31 @@
+name: Feature request
+description: Suggest a new type, tag, CLI option or improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the use case, not just the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How would it look in a `.env` file or on the command line? What should the generated schema be?
+      placeholder: |
+        # @default 3000
+        PORT=3000   ->  z.coerce.number().int().default(3000)
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I'd like to open a PR for this
