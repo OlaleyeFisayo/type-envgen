@@ -9,6 +9,8 @@ Full release notes for every version, including each merged pull request, are on
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-08
+
 ### Added
 
 - Support and automatic inference for date/datetime and IP formats: ISO dates (`z.iso.date()`), ISO datetimes (`z.iso.datetime()`), IPv4 addresses (`z.ipv4()`), and IPv6 addresses (`z.ipv6()`) (#2).
@@ -44,6 +46,7 @@ First public release.
 - Adds `zod@^4` to your project automatically if it's missing, using npm, pnpm, yarn or bun
   (`--skip-install` to opt out).
 
-[Unreleased]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/OlaleyeFisayo/type-envgen/releases/tag/v1.0.0
