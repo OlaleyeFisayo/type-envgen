@@ -272,18 +272,20 @@ If a variable is missing or invalid, `envSchema.parse` throws a `ZodError` listi
 
 ## Recommended workflow
 
-Add a script:
+Add scripts to your `package.json`:
 
 ```json
 {
   "scripts": {
-    "env:gen": "type-envgen .env.example -o src/env.ts"
+    "env:gen": "type-envgen .env.example -o src/env.ts",
+    "env:check": "type-envgen .env.example -o src/env.ts --check"
   }
 }
 ```
 
 - Generate from **`.env.example`** so teammates and CI get the same types without real secrets.
 - **Commit the generated file** and regenerate it whenever you add or change a variable.
+- In CI or a pre-commit hook, use **`--check`** to verify that `env.ts` is up to date without writing files or installing dependencies (exits `0` if up to date, `1` if out of date or missing).
 
 ## Contributing
 
