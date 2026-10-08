@@ -46,7 +46,7 @@ When in doubt: if a user upgrading could get a different `env.ts` or a CLI error
 
 Each `release:*` script runs `npm version`, which:
 
-1. **Checks first** (`preversion`): runs `lint`, `typecheck` and `test:gen`. If anything fails, nothing is changed.
+1. **Checks first** (`preversion`): runs `lint`, `typecheck` and `npm test`. If anything fails, nothing is changed.
 2. **Bumps** the version in `package.json` and `package-lock.json`.
 3. **Commits** it as `chore(release): vX.Y.Z` and creates the git tag `vX.Y.Z`.
 4. **Pushes** the commit and tag to `main` (`postversion`). As repo admin you can push straight to `main`; everyone else has to go through a PR.

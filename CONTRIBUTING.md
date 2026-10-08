@@ -40,7 +40,7 @@ src/
 docs/                    # maintainer docs (releasing)
 ```
 
-To add a type or tag: update `src/core/generate-env/`, add a case to `src/core/test/.env`, add an assertion in `src/core/test/run.ts`, and document it in the README and the `--help` text in `src/cli.ts`.
+To add a type or tag: update `src/core/generate-env/`, add a case to `src/core/test/.env`, add a test in the matching `src/core/test/*.test.ts`, and document it in the README and the `--help` text in `src/cli.ts`.
 
 ## Git hooks
 
@@ -50,7 +50,7 @@ To add a type or tag: update `src/core/generate-env/`, add a case to `src/core/t
 | ------------ | ----------------------------------------------------------------------------------------------- |
 | `pre-commit` | Formats and lints staged files with [Biome](https://biomejs.dev) (auto-fixing what it can), then typechecks |
 | `commit-msg` | Checks the message follows [Conventional Commits](https://www.conventionalcommits.org)          |
-| `pre-push`   | Runs `lint`, `typecheck` and `test:gen`                                                         |
+| `pre-push`   | Runs `lint`, `typecheck` and `npm test`                                                         |
 
 ## Commit messages
 

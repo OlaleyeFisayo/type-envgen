@@ -29,7 +29,7 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm run test:gen
+      - run: npm test
 
   # The CLI has Windows-only paths (npm.cmd, shell spawning, CRLF), so run the tests there too.
   windows:
@@ -43,9 +43,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      - run: npm run test:gen
+      - run: npm test
 
-  # The test script needs Node 22+ (type stripping); this keeps engines ">=20.12" honest.
+  # The tests need a newer Node (Vitest); this keeps engines ">=20.12" honest.
   smoke:
     name: smoke
     runs-on: ubuntu-latest

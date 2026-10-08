@@ -26,13 +26,13 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "test": "npm run test:gen",
-    "test:gen": "tsup && node src/core/test/run.ts",
+    "test": "tsup && vitest run",
+    "test:watch": "vitest",
     "prepublishOnly": "npm run build",
     "prepare": "husky",
     "lint": "biome check .",
     "format": "biome check --write .",
-    "preversion": "npm run lint && npm run typecheck && npm run test:gen",
+    "preversion": "npm run lint && npm run typecheck && npm test",
     "release:patch": "npm version patch -m \"chore(release): v%s\"",
     "release:minor": "npm version minor -m \"chore(release): v%s\"",
     "release:major": "npm version major -m \"chore(release): v%s\"",
@@ -59,7 +59,8 @@
     "@types/node": "^26.6.4",
     "husky": "^9.1.7",
     "tsup": "^8.5.1",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   },
   "commitlint": {
     "extends": [
