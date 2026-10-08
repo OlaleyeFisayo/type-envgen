@@ -44,12 +44,23 @@
   },
   "keywords": [
     "env",
+    "environment-variables",
+    "dotenv",
     "zod",
     "typescript",
+    "type-safety",
+    "validation",
+    "codegen",
     "cli",
-    "dotenv"
+    "nodejs",
+    "vite",
+    "nextjs",
+    "astro",
+    "sveltekit",
+    "nuxt"
   ],
   "dependencies": {
+    "@clack/prompts": "^1.8.1",
     "zod": "^4.6.5"
   },
   "devDependencies": {

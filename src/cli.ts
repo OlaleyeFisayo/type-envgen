@@ -2,9 +2,11 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
-import { parseArgs } from "node:util";
+import { parseArgs, parseEnv } from "node:util";
 import pkg from "../package.json" with { type: "json" };
+import { TARGETS, type TargetName } from "./core/generate-env/constants.ts";
 import { generateEnv } from "./core/generate-env/index.ts";
+import { init } from "./init.ts";
 
 const PREFIX = "[type-envgen]";
 
@@ -12,15 +14,22 @@ const HELP = `${PREFIX} Generate a typesafe, zod-validated env module from a .en
 
 Usage:
   type-envgen [input] [options]
+  type-envgen init     Interactive setup: pick a target and add an npm script
 
 Arguments:
   input                .env file to read (default: .env)
 
 Options:
   -o, --output <path>  File to write (default: env.ts)
+      --target <name>  Where the module runs (default: node)
       --skip-install   Don't add zod to your project if it's missing
   -h, --help           Show this help
   -v, --version        Show version
+
+Targets:
+${Object.entries(TARGETS)
+  .map(([name, { hint }]) => `  ${name.padEnd(10)} ${hint}`)
+  .join("\n")}
 
 .env tags (comment lines directly above a key):
   # @type <type>       string, number, int, boolean, url, email, uuid, date, datetime, ipv4, ipv6, json, enum(a, b, c)
@@ -78,6 +87,7 @@ function readArgs() {
       allowPositionals: true,
       options: {
         output: { type: "string", short: "o", default: "env.ts" },
+        target: { type: "string", default: "node" },
         "skip-install": { type: "boolean" },
         help: { type: "boolean", short: "h" },
         version: { type: "boolean", short: "v" },
@@ -88,23 +98,45 @@ function readArgs() {
   }
 }
 
+// Client bundlers only expose prefixed keys; anything else is undefined in the browser.
+function warnUnprefixed(envSource: string, target: TargetName) {
+  const { prefix } = TARGETS[target];
+  for (const key of Object.keys(parseEnv(envSource))) {
+    if (prefix && !key.startsWith(prefix)) {
+      console.error(
+        `${PREFIX} warning: ${key} doesn't start with ${prefix}, so it is undefined in the browser. Never put secrets in a client bundle.`,
+      );
+    }
+  }
+}
+
+function generate(input: string, output: string, target: TargetName) {
+  if (!existsSync(input)) throw new Error(`Input file not found: ${input}`);
+  const envSource = readFileSync(input, "utf8");
+  const source = generateEnv(envSource, target);
+  mkdirSync(dirname(output), { recursive: true });
+  writeFileSync(output, source);
+  const count = Object.keys(parseEnv(envSource)).length;
+  console.log(`${PREFIX} ✓ Generated ${output} from ${input} (${count} variables)`);
+  warnUnprefixed(envSource, target);
+}
+
 const { values, positionals } = readArgs();
+const target = values.target as string;
+if (!(target in TARGETS)) fail(`Unknown target "${target}". Choose one of: ${Object.keys(TARGETS).join(", ")}`);
 
 if (values.help) {
   console.log(HELP);
 } else if (values.version) {
   console.log(`${PREFIX} ${pkg.version}`);
+} else if (positionals[0] === "init") {
+  await init((input, output, t) => {
+    generate(input, output, t);
+    ensureZod(false);
+  });
 } else {
-  const input = positionals[0] ?? ".env";
-  const output = values.output;
-  if (!existsSync(input)) fail(`Input file not found: ${input}`);
-
   try {
-    const source = generateEnv(readFileSync(input, "utf8"));
-    mkdirSync(dirname(output), { recursive: true });
-    writeFileSync(output, source);
-    const count = source.match(/^ {2}\S+: /gm)?.length ?? 0;
-    console.log(`${PREFIX} ✓ Generated ${output} from ${input} (${count} variables)`);
+    generate(positionals[0] ?? ".env", values.output, target as TargetName);
   } catch (err) {
     fail((err as Error).message);
   }
