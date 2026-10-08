@@ -32,6 +32,13 @@ export function applyTags(base: string, tags: Tags, key: string): string {
   return tags.optional ? `${schema}.optional()` : schema;
 }
 
+const FORMATS: [string, z.ZodType, string][] = [
+  ["z.iso.datetime()", z.iso.datetime(), "ISO datetime"],
+  ["z.iso.date()", z.iso.date(), "ISO date"],
+  ["z.ipv4()", z.ipv4(), "IPv4 address"],
+  ["z.ipv6()", z.ipv6(), "IPv6 address"],
+];
+
 function formatDefault(
   base: string,
   rawInput: string,
@@ -107,6 +114,16 @@ function formatDefault(
   if (base.includes("z.uuid()")) {
     if (!z.uuid().safeParse(raw).success) {
       throw new Error(`@default for ${key} must be a valid UUID, got "${rawInput}"`);
+    }
+    return `.default(${JSON.stringify(raw)})`;
+  }
+
+  // Date / datetime / IP
+  const format = FORMATS.find(([prefix]) => base.startsWith(prefix));
+  if (format) {
+    const [, schema, label] = format;
+    if (!schema.safeParse(raw).success) {
+      throw new Error(`@default for ${key} must be a valid ${label}, got "${rawInput}"`);
     }
     return `.default(${JSON.stringify(raw)})`;
   }

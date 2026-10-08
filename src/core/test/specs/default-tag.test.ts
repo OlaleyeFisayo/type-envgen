@@ -17,6 +17,13 @@ describe("@default", () => {
     expect(parsed.DEFAULT_HOST).toBe("localhost");
   });
 
+  it("accepts valid date and IP defaults", () => {
+    expect(generateEnv("# @type date\n# @default 2026-01-31\nX=2026-02-01")).toMatch(
+      /X: z\.iso\.date\(\)\.default\("2026-01-31"\)/,
+    );
+    expect(generateEnv("# @type ipv6\n# @default ::1\nX=2001:db8::1")).toMatch(/X: z\.ipv6\(\)\.default\("::1"\)/);
+  });
+
   describe("errors", () => {
     it.each([
       ["a missing value", "# @default\nX=1", /@default for X requires a value/],
@@ -31,6 +38,14 @@ describe("@default", () => {
         "# @type uuid\n# @default not-a-uuid\nX=550e8400-e29b-41d4-a716-446655440000",
         /@default for X must be a valid UUID/,
       ],
+      ["a bad date", "# @type date\n# @default notadate\nX=2026-01-31", /@default for X must be a valid ISO date/],
+      [
+        "a bad datetime",
+        "# @type datetime\n# @default 2026-01-31\nX=2026-01-31T10:00:00Z",
+        /@default for X must be a valid ISO datetime/,
+      ],
+      ["a bad IPv4", "# @type ipv4\n# @default 999.9.9.9\nX=10.0.0.1", /@default for X must be a valid IPv4 address/],
+      ["a bad IPv6", "# @type ipv6\n# @default nope\nX=::1", /@default for X must be a valid IPv6 address/],
       ["a non-member enum", "# @type enum(a, b)\n# @default c\nX=a", /@default "c" for X is not in enum/],
       ["invalid JSON", '# @default {bad json}\nX={"a":1}', /@default for X must be valid JSON/],
       ["below @min", "# @min 10\n# @default 5\nX=10", /less than @min/],

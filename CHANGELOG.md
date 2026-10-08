@@ -13,6 +13,7 @@ Full release notes for every version, including each merged pull request, are on
 
 - Support and automatic inference for date/datetime and IP formats: ISO dates (`z.iso.date()`), ISO datetimes (`z.iso.datetime()`), IPv4 addresses (`z.ipv4()`), and IPv6 addresses (`z.ipv6()`) (#2).
 - Supported `@type` annotations: `date`, `datetime`, `ipv4`, and `ipv6`.
+- `# @default <value>` tag that emits `.default(...)`. The value is validated against the variable's type (including `@min`/`@max`) at generation time, and combining it with `@optional` is an error (#1).
 
 ## [1.0.1] - 2026-10-07
 
