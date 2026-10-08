@@ -18,6 +18,7 @@ Arguments:
 
 Options:
   -o, --output <path>  File to write (default: env.ts)
+      --check          Verify output file is up to date without writing
       --skip-install   Don't add zod to your project if it's missing
   -h, --help           Show this help
   -v, --version        Show version
@@ -78,6 +79,7 @@ function readArgs() {
       allowPositionals: true,
       options: {
         output: { type: "string", short: "o", default: "env.ts" },
+        check: { type: "boolean" },
         "skip-install": { type: "boolean" },
         help: { type: "boolean", short: "h" },
         version: { type: "boolean", short: "v" },
@@ -98,6 +100,25 @@ if (values.help) {
   const input = positionals[0] ?? ".env";
   const output = values.output;
   if (!existsSync(input)) fail(`Input file not found: ${input}`);
+
+  if (values.check) {
+    if (!existsSync(output)) {
+      fail(`${output} is out of date, run type-envgen to regenerate`);
+    }
+
+    try {
+      const source = generateEnv(readFileSync(input, "utf8"));
+      const existing = readFileSync(output, "utf8");
+      const normalize = (s: string) => s.replace(/\r\n/g, "\n");
+      if (normalize(source) === normalize(existing)) {
+        console.log(`${PREFIX} ✓ ${output} is up to date`);
+        process.exit(0);
+      }
+      fail(`${output} is out of date, run type-envgen to regenerate`);
+    } catch (err) {
+      fail((err as Error).message);
+    }
+  }
 
   try {
     const source = generateEnv(readFileSync(input, "utf8"));
