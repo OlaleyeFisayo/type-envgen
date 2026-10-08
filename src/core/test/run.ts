@@ -27,6 +27,18 @@ assert.equal(typeof env.APP_NAME, "string");
 assert.match(output, /APP_ID: z\.uuid\(\)/);
 assert.match(output, /API_URL: z\.url\(\)/);
 assert.match(output, /ADMIN_EMAIL: z\.email\(\)/);
+assert.match(output, /RELEASE_DATE: z\.iso\.date\(\)/);
+assert.match(output, /BUILD_TIMESTAMP: z\.iso\.datetime\(\)/);
+assert.match(output, /BIND_HOST_IPV4: z\.ipv4\(\)/);
+assert.match(output, /BIND_HOST_IPV6: z\.ipv6\(\)/);
+assert.match(output, /CUSTOM_DATE: z\.iso\.date\(\)/);
+assert.match(output, /CUSTOM_DATETIME: z\.iso\.datetime\(\)/);
+assert.match(output, /CUSTOM_IPV4: z\.ipv4\(\)/);
+assert.match(output, /CUSTOM_IPV6: z\.ipv6\(\)/);
+assert.equal(env.RELEASE_DATE, "2026-01-31");
+assert.equal(env.BUILD_TIMESTAMP, "2026-01-31T10:00:00Z");
+assert.equal(env.BIND_HOST_IPV4, "192.168.0.1");
+assert.equal(env.BIND_HOST_IPV6, "::1");
 
 // @type annotations
 assert.equal(env.VERBOSE, true); // overrides number inference
@@ -77,6 +89,7 @@ assert.equal(help.status, 0);
 assert.match(help.stdout, /^\[type-envgen\]/);
 assert.match(help.stdout, /Usage:/);
 assert.match(help.stdout, /@optional/);
+assert.match(help.stdout, /date, datetime, ipv4, ipv6/);
 
 assert.equal(cli("--version").stdout.trim(), `[type-envgen] ${pkg.version}`);
 

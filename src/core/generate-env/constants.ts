@@ -9,6 +9,10 @@ export const TYPES: Record<string, string> = {
   url: "z.url()",
   email: "z.email()",
   uuid: "z.uuid()",
+  date: "z.iso.date()",
+  datetime: "z.iso.datetime()",
+  ipv4: "z.ipv4()",
+  ipv6: "z.ipv6()",
 };
 
 // Emitted into the generated file only when a JSON value is present.

@@ -151,6 +151,10 @@ Untagged variables are inferred from their value. Rules are checked top to botto
 | `https://…`, `postgres://…`       | `z.url()`                                        | `string`        |
 | `550e8400-e29b-41d4-a716-…`       | `z.uuid()`                                       | `string`        |
 | `admin@example.com`               | `z.email()`                                      | `string`        |
+| `2026-01-31`                      | `z.iso.date()`                                   | `string`        |
+| `2026-01-31T10:00:00Z`            | `z.iso.datetime()`                               | `string`        |
+| `192.168.0.1`                     | `z.ipv4()`                                       | `string`        |
+| `::1`                             | `z.ipv6()`                                       | `string`        |
 | `{"a":1}`, `["a","b"]`            | `json(<schema built from the value>)`            | typed object/array |
 | anything else (including empty)   | `z.string()`                                     | `string`        |
 
@@ -184,6 +188,10 @@ Overrides inference.
 | `url`           | `z.url()`                        |
 | `email`         | `z.email()`                      |
 | `uuid`          | `z.uuid()`                       |
+| `date`          | `z.iso.date()`                   |
+| `datetime`      | `z.iso.datetime()`               |
+| `ipv4`          | `z.ipv4()`                       |
+| `ipv6`          | `z.ipv6()`                       |
 | `json`          | `json(<schema built from the value>)` |
 | `enum(a, b, c)` | `z.enum(["a","b","c"])`          |
 

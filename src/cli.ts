@@ -23,7 +23,7 @@ Options:
   -v, --version        Show version
 
 .env tags (comment lines directly above a key):
-  # @type <type>       string, number, int, boolean, url, email, uuid, json, enum(a, b, c)
+  # @type <type>       string, number, int, boolean, url, email, uuid, date, datetime, ipv4, ipv6, json, enum(a, b, c)
   # @min <n>           Minimum value (numbers) or length (strings)
   # @max <n>           Maximum value (numbers) or length (strings)
   # @optional          Key may be missing

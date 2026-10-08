@@ -9,6 +9,11 @@ Full release notes for every version, including each merged pull request, are on
 
 ## [Unreleased]
 
+### Added
+
+- Support and automatic inference for date/datetime and IP formats: ISO dates (`z.iso.date()`), ISO datetimes (`z.iso.datetime()`), IPv4 addresses (`z.ipv4()`), and IPv6 addresses (`z.ipv6()`) (#2).
+- Supported `@type` annotations: `date`, `datetime`, `ipv4`, and `ipv6`.
+
 ## [1.0.1] - 2026-10-07
 
 ### Fixed
