@@ -359,6 +359,7 @@ If a variable is missing or invalid, startup stops with one error listing every 
 - Generate from **`.env.example`** so teammates and CI get the same types without real secrets.
 - **Commit the generated file** and re-run `npm run env:generate` whenever you add or change a variable.
 - **Add your own code to it freely.** Re-running only refreshes the generated parts (the `type-envgen` import, `envSchema` and the `env` line) and keeps everything else. Edits made *inside* `envSchema` are replaced, so customize variables with [annotations](#annotations) in your `.env` instead.
+- In CI or a pre-commit hook, run with **`--check`** (for example `"env:check": "type-envgen .env.example -o src/env.ts --check"`) to verify the generated file is up to date without writing files or installing dependencies (exits `0` if up to date, `1` if out of date or missing).
 
 ## Contributing
 

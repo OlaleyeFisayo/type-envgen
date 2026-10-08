@@ -21,6 +21,7 @@ Arguments:
 Options:
   -o, --output <path>  File to write (default: env.ts)
       --target <name>  Where the module runs (default: node)
+      --check          Verify output file is up to date without writing
       --skip-install   Don't add zod/type-envgen to your dependencies if missing
   -h, --help           Show this help
   -v, --version        Show version
@@ -98,6 +99,7 @@ function readArgs() {
       options: {
         output: { type: "string", short: "o", default: "env.ts" },
         target: { type: "string", default: "node" },
+        check: { type: "boolean" },
         "skip-install": { type: "boolean" },
         help: { type: "boolean", short: "h" },
         version: { type: "boolean", short: "v" },
@@ -134,6 +136,16 @@ function generate(input: string, output: string, target: TargetName) {
   warnUnprefixed(envSource, target);
 }
 
+function check(input: string, output: string, target: TargetName) {
+  if (!existsSync(input)) throw new Error(`Input file not found: ${input}`);
+  if (!existsSync(output)) fail(`${output} is out of date, run type-envgen to regenerate`);
+  const source = generateEnv(readFileSync(input, "utf8"), target);
+  const existing = readFileSync(output, "utf8");
+  const normalize = (s: string) => s.replace(/\r\n/g, "\n");
+  if (normalize(source) !== normalize(existing)) fail(`${output} is out of date, run type-envgen to regenerate`);
+  console.log(`${PREFIX} ✓ ${output} is up to date`);
+}
+
 const { values, positionals } = readArgs();
 const target = values.target as string;
 if (!(target in TARGETS)) fail(`Unknown target "${target}". Choose one of: ${Object.keys(TARGETS).join(", ")}`);
@@ -147,6 +159,13 @@ if (values.help) {
     generate(input, output, t);
     ensureDeps(false);
   });
+} else if (values.check) {
+  // Never writes files or installs dependencies.
+  try {
+    check(positionals[0] ?? ".env", values.output, target as TargetName);
+  } catch (err) {
+    fail((err as Error).message);
+  }
 } else {
   try {
     generate(positionals[0] ?? ".env", values.output, target as TargetName);
