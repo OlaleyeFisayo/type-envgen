@@ -2,13 +2,13 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { generateEnv } from "../generate-env/index.ts";
+import { generateEnv } from "../../generate-env/index.ts";
 
 export const dir = import.meta.dirname;
-export const envPath = join(dir, ".env");
-export const outDir = join(dir, "output");
-export const cliPath = join(dir, "../../../dist/cli.js");
-export const pkg = JSON.parse(readFileSync(join(dir, "../../../package.json"), "utf8"));
+export const envPath = join(dir, "..", ".env");
+export const outDir = join(dir, "..", "output");
+export const cliPath = join(dir, "../../../../dist/cli.js");
+export const pkg = JSON.parse(readFileSync(join(dir, "../../../../package.json"), "utf8"));
 
 // Generates from the shared fixture and imports the result. Each test file passes its own
 // name so parallel files never write the same output.

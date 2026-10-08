@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loadGenerated } from "./helpers.ts";
+import { loadGenerated } from "../utils/helpers.ts";
 
 const { output, env } = await loadGenerated("inference");
 

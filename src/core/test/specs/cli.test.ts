@@ -2,8 +2,8 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { generateEnv } from "../generate-env/index.ts";
-import { cli, cliPath, envPath, outDir, pkg } from "./helpers.ts";
+import { generateEnv } from "../../generate-env/index.ts";
+import { cli, cliPath, envPath, outDir, pkg } from "../utils/helpers.ts";
 
 describe("cli", () => {
   it("generates the same output as generateEnv", () => {

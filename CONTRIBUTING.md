@@ -40,7 +40,7 @@ src/
 docs/                    # maintainer docs (releasing)
 ```
 
-To add a type or tag: update `src/core/generate-env/`, add a case to `src/core/test/.env`, add a test in the matching `src/core/test/*.test.ts`, and document it in the README and the `--help` text in `src/cli.ts`.
+To add a type or tag: update `src/core/generate-env/`, add a case to `src/core/test/.env`, add a test in the matching `src/core/test/specs/*.test.ts`, and document it in the README and the `--help` text in `src/cli.ts`.
 
 ## Git hooks
 

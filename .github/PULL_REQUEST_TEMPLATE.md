@@ -26,7 +26,7 @@ Closes #<!-- issue number, if any -->
 
 - [ ] The PR does one focused thing
 - [ ] `npm run lint`, `npm run typecheck` and `npm test` pass locally
-- [ ] New behavior has a case in `src/core/test/.env` and a test in the matching `src/core/test/*.test.ts`
+- [ ] New behavior has a case in `src/core/test/.env` and a test in the matching `src/core/test/specs/*.test.ts`
 - [ ] README / `--help` updated if user-facing behavior changed
 - [ ] Line added under `## [Unreleased]` in `CHANGELOG.md` (user-facing changes only)
 - [ ] PR title follows [Conventional Commits](https://www.conventionalcommits.org)

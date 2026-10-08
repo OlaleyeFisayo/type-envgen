@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { generateEnv } from "../generate-env/index.ts";
-import { loadGenerated } from "./helpers.ts";
+import { generateEnv } from "../../generate-env/index.ts";
+import { loadGenerated } from "../utils/helpers.ts";
 
 const { output, env } = await loadGenerated("type-tag");
 
