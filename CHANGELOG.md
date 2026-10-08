@@ -9,6 +9,18 @@ Full release notes for every version, including each merged pull request, are on
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-08
+
+### Added
+
+- `--target node|vite|nextjs|astro|sveltekit|nuxt` to generate env modules for client-side frameworks (default `node`, output unchanged) (#12).
+- `type-envgen init` interactive setup: explains each target and adds an `env:generate` script to `package.json`.
+- Warning when a key lacks the client prefix of the chosen target (it would be `undefined` in the browser).
+
+### Changed
+
+- README rewritten, and package keywords updated.
+
 ## [1.1.0] - 2026-10-08
 
 ### Added
@@ -46,7 +58,8 @@ First public release.
 - Adds `zod@^4` to your project automatically if it's missing, using npm, pnpm, yarn or bun
   (`--skip-install` to opt out).
 
-[Unreleased]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/OlaleyeFisayo/type-envgen/releases/tag/v1.0.0
