@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Tags } from "./read-tags.ts";
 
-export function applyTags(base: string, tags: Tags, key: string): string {
+export function applyTags(base: string, tags: Tags, key: string, value = ""): string {
   if (tags.unknown) throw new Error(`Unknown tag @${tags.unknown} for ${key}`);
   if (tags.default !== undefined && tags.optional) {
     throw new Error(`Cannot combine @default and @optional for ${key}`);
@@ -23,6 +23,33 @@ export function applyTags(base: string, tags: Tags, key: string): string {
   }
   if (parsed.min !== undefined && parsed.max !== undefined && parsed.min > parsed.max) {
     throw new Error(`@min (${parsed.min}) is greater than @max (${parsed.max}) for ${key}`);
+  }
+
+  if (tags.pattern !== undefined) {
+    if (!/^z\.(string|url|email|uuid)\(/.test(base)) {
+      throw new Error(`@pattern is not supported for ${key} (${base})`);
+    }
+    let raw = tags.pattern.trim();
+    if (
+      (raw.startsWith('"') && raw.endsWith('"') && raw.length >= 2) ||
+      (raw.startsWith("'") && raw.endsWith("'") && raw.length >= 2)
+    ) {
+      raw = raw.slice(1, -1);
+    }
+    let regex: RegExp;
+    try {
+      if (!raw) throw new Error("pattern cannot be empty");
+      const match = raw.match(/^\/(.+)\/([a-zA-Z]*)$/);
+      regex = match ? new RegExp(match[1], match[2]) : new RegExp(raw);
+    } catch (err) {
+      throw new Error(`Invalid regex for ${key}: ${(err as Error).message}`);
+    }
+    regex.lastIndex = 0;
+    if (!regex.test(value)) {
+      throw new Error(`Sample value "${value}" does not match @pattern for ${key}`);
+    }
+    regex.lastIndex = 0;
+    schema += `.regex(${regex.toString()})`;
   }
 
   if (tags.default !== undefined) {
