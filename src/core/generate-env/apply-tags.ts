@@ -1,32 +1,96 @@
 import { z } from "zod";
 import type { Tags } from "./read-tags.ts";
 
+export type Bounds = {
+  min?: number;
+  max?: number;
+  minTag?: "min" | "minlength";
+  maxTag?: "max" | "maxlength";
+};
+
+const STRING_LIKE_REGEX = /^z\.(string|url|email|uuid|iso\.date|iso\.datetime|ipv4|ipv6)\(/;
+const NUMBER_REGEX = /^z\.coerce\.number\(/;
+
+function parseBound(
+  raw: string,
+  tag: "min" | "max" | "minlength" | "maxlength",
+  key: string,
+  isStringLike: boolean,
+): number {
+  if (isStringLike) {
+    const trimmed = raw.trim();
+    const n = Number(trimmed);
+    if (!trimmed || !/^\d+$/.test(trimmed) || !Number.isSafeInteger(n) || n < 0) {
+      throw new Error(`@${tag} for ${key} must be a non-negative integer, got "${raw}"`);
+    }
+    return n;
+  }
+  const n = Number(raw);
+  if (!raw || !Number.isFinite(n)) {
+    throw new Error(`@${tag} for ${key} must be a number, got "${raw}"`);
+  }
+  return n;
+}
+
 export function applyTags(base: string, tags: Tags, key: string): string {
   if (tags.unknown) throw new Error(`Unknown tag @${tags.unknown} for ${key}`);
   if (tags.default !== undefined && tags.optional) {
     throw new Error(`Cannot combine @default and @optional for ${key}`);
   }
 
-  let schema = base;
-  const bounds = { min: tags.min, max: tags.max };
-  const parsed: Partial<Record<"min" | "max", number>> = {};
-  for (const [name, raw] of Object.entries(bounds) as ["min" | "max", string | undefined][]) {
-    if (raw === undefined) continue;
-    const n = Number(raw);
-    if (!raw || !Number.isFinite(n)) throw new Error(`@${name} for ${key} must be a number, got "${raw}"`);
-    // Numbers bound the value, string formats bound the length.
-    if (!/^z\.(coerce\.number|string|url|email|uuid)\(/.test(base)) {
-      throw new Error(`@${name} is not supported for ${key} (${base})`);
-    }
-    parsed[name] = n;
-    schema += `.${name}(${n})`;
+  const isStringLike = STRING_LIKE_REGEX.test(base);
+  const isNumber = NUMBER_REGEX.test(base);
+
+  if (tags.min !== undefined && tags.minlength !== undefined) {
+    throw new Error(`Cannot combine @min and @minlength for ${key}`);
   }
-  if (parsed.min !== undefined && parsed.max !== undefined && parsed.min > parsed.max) {
-    throw new Error(`@min (${parsed.min}) is greater than @max (${parsed.max}) for ${key}`);
+  if (tags.max !== undefined && tags.maxlength !== undefined) {
+    throw new Error(`Cannot combine @max and @maxlength for ${key}`);
+  }
+
+  if (tags.minlength !== undefined && !isStringLike) {
+    throw new Error(`@minlength is not supported for ${key} (${base})`);
+  }
+  if (tags.maxlength !== undefined && !isStringLike) {
+    throw new Error(`@maxlength is not supported for ${key} (${base})`);
+  }
+  if (tags.min !== undefined && !isNumber && !isStringLike) {
+    throw new Error(`@min is not supported for ${key} (${base})`);
+  }
+  if (tags.max !== undefined && !isNumber && !isStringLike) {
+    throw new Error(`@max is not supported for ${key} (${base})`);
+  }
+
+  const bounds: Bounds = {};
+
+  const minRaw = tags.minlength ?? tags.min;
+  const minTag = tags.minlength !== undefined ? "minlength" : "min";
+  if (minRaw !== undefined) {
+    bounds.min = parseBound(minRaw, minTag, key, isStringLike);
+    bounds.minTag = minTag;
+  }
+
+  const maxRaw = tags.maxlength ?? tags.max;
+  const maxTag = tags.maxlength !== undefined ? "maxlength" : "max";
+  if (maxRaw !== undefined) {
+    bounds.max = parseBound(maxRaw, maxTag, key, isStringLike);
+    bounds.maxTag = maxTag;
+  }
+
+  if (bounds.min !== undefined && bounds.max !== undefined && bounds.min > bounds.max) {
+    throw new Error(`@${bounds.minTag} (${bounds.min}) is greater than @${bounds.maxTag} (${bounds.max}) for ${key}`);
+  }
+
+  let schema = base;
+  if (bounds.min !== undefined) {
+    schema += `.min(${bounds.min})`;
+  }
+  if (bounds.max !== undefined) {
+    schema += `.max(${bounds.max})`;
   }
 
   if (tags.default !== undefined) {
-    schema += formatDefault(base, tags.default, key, parsed);
+    schema += formatDefault(base, tags.default, key, bounds);
   }
 
   return tags.optional ? `${schema}.optional()` : schema;
@@ -39,12 +103,20 @@ const FORMATS: [string, z.ZodType, string][] = [
   ["z.ipv6()", z.ipv6(), "IPv6 address"],
 ];
 
-function formatDefault(
-  base: string,
-  rawInput: string,
-  key: string,
-  bounds: Partial<Record<"min" | "max", number>>,
-): string {
+function checkStringBounds(raw: string, bounds: Bounds, key: string) {
+  if (bounds.min !== undefined && raw.length < bounds.min) {
+    throw new Error(
+      `@default length (${raw.length}) is less than @${bounds.minTag ?? "min"} (${bounds.min}) for ${key}`,
+    );
+  }
+  if (bounds.max !== undefined && raw.length > bounds.max) {
+    throw new Error(
+      `@default length (${raw.length}) is greater than @${bounds.maxTag ?? "max"} (${bounds.max}) for ${key}`,
+    );
+  }
+}
+
+function formatDefault(base: string, rawInput: string, key: string, bounds: Bounds): string {
   if (!rawInput.trim() && rawInput === "") {
     throw new Error(`@default for ${key} requires a value`);
   }
@@ -99,6 +171,7 @@ function formatDefault(
     if (!z.url().safeParse(raw).success) {
       throw new Error(`@default for ${key} must be a valid URL, got "${rawInput}"`);
     }
+    checkStringBounds(raw, bounds, key);
     return `.default(${JSON.stringify(raw)})`;
   }
 
@@ -107,6 +180,7 @@ function formatDefault(
     if (!z.email().safeParse(raw).success) {
       throw new Error(`@default for ${key} must be a valid email, got "${rawInput}"`);
     }
+    checkStringBounds(raw, bounds, key);
     return `.default(${JSON.stringify(raw)})`;
   }
 
@@ -115,6 +189,7 @@ function formatDefault(
     if (!z.uuid().safeParse(raw).success) {
       throw new Error(`@default for ${key} must be a valid UUID, got "${rawInput}"`);
     }
+    checkStringBounds(raw, bounds, key);
     return `.default(${JSON.stringify(raw)})`;
   }
 
@@ -125,6 +200,7 @@ function formatDefault(
     if (!schema.safeParse(raw).success) {
       throw new Error(`@default for ${key} must be a valid ${label}, got "${rawInput}"`);
     }
+    checkStringBounds(raw, bounds, key);
     return `.default(${JSON.stringify(raw)})`;
   }
 
@@ -149,11 +225,6 @@ function formatDefault(
   }
 
   // Default string
-  if (bounds.min !== undefined && raw.length < bounds.min) {
-    throw new Error(`@default length (${raw.length}) is less than @min (${bounds.min}) for ${key}`);
-  }
-  if (bounds.max !== undefined && raw.length > bounds.max) {
-    throw new Error(`@default length (${raw.length}) is greater than @max (${bounds.max}) for ${key}`);
-  }
+  checkStringBounds(raw, bounds, key);
   return `.default(${JSON.stringify(raw)})`;
 }
