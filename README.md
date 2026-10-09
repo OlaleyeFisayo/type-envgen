@@ -23,7 +23,7 @@ npx type-envgen init
 ## Features
 
 - **Zero config**: types are inferred from your values (numbers, booleans, URLs, emails, UUIDs, dates, IPs, JSON, and more).
-- **Annotations**: refine types with `@type`, `@default`, `@min`, `@max`, `@pattern` and `@optional` comments.
+- **Annotations**: refine types with `@type`, `@default`, `@min`, `@max`, `@minlength`, `@maxlength`, `@pattern` and `@optional` comments.
 - **Multiple targets**: Node, Vite, Next.js, Astro, SvelteKit and Nuxt, each reading from the right source.
 - **Guided setup**: `type-envgen init` explains each target and adds an npm script for you.
 - **Typed JSON**: JSON values get a real schema, not `any`.
@@ -256,7 +256,7 @@ Type names are case-insensitive; enum values keep their case.
 ### `@min <n>` / `@max <n>`
 
 - On **numbers**: bounds on the value, e.g. `.min(1).max(65535)`.
-- On **strings, URLs, emails, UUIDs**: bounds on the length, e.g. `z.string().min(1)`.
+- On **strings, URLs, emails, UUIDs, dates, IPs**: bounds on the length, e.g. `z.string().min(1)`.
 - Work with inferred types too, no `@type` needed.
 
 ```sh
@@ -277,6 +277,19 @@ Validates that a string matches a regular expression, emitted as zod's `.regex(.
 STRIPE_KEY=sk_test_abc123
 # -> STRIPE_KEY: z.string().regex(/^sk_(live|test)_[A-Za-z0-9]+$/)
 ```
+
+### `@minlength <n>` / `@maxlength <n>`
+
+Bounds on the length of string-like schemas (`string`, `url`, `email`, `uuid`, `date`, `datetime`, `ipv4`, `ipv6`). Emits `.min(n)` / `.max(n)` on the Zod schema. `<n>` must be a non-negative integer.
+
+```sh
+# @minlength 8
+# @maxlength 64
+JWT_SECRET=please-change-me-to-something-long-enough
+# -> JWT_SECRET: z.string().min(8).max(64)
+```
+
+`@min` and `@max` on strings remain supported as aliases for backward compatibility.
 
 ### `@default <value>`
 
@@ -308,13 +321,13 @@ SENTRY_DSN=https://abc@sentry.io/123
 - Mistakes fail loudly instead of being silently ignored. Each of these stops generation with an error naming the key:
   - unknown tag (`@mni`) or type (`@type nmber`)
   - combining `@default` and `@optional` on the same key
-  - invalid `@default` value (non-integer on an int, out of bounds with `@min`/`@max`, invalid URL/email/UUID, invalid enum option, or invalid JSON)
+  - invalid `@default` value (non-integer on an int, out of bounds with `@min`/`@max` or `@minlength`/`@maxlength`, invalid URL/email/UUID, invalid enum option, or invalid JSON)
   - empty `enum()`
-  - non-numeric `@min` / `@max`, or `@min` greater than `@max`
-  - `@min` / `@max` on a `boolean`, `enum` or `json`
   - invalid regex syntax, empty pattern, or the `g`/`y` flag on `@pattern`
   - the `.env` value or `@default` not matching `@pattern`
   - `@pattern` on non-string schemas (`number`, `boolean`, `enum`, `json`, etc.)
+  - non-numeric `@min` / `@max`, non-integer or negative `@minlength` / `@maxlength`, or min greater than max
+  - `@min` / `@max` on a `boolean`, `enum` or `json`, or `@minlength` / `@maxlength` on non-string schemas
 
 ## Loading env at runtime
 

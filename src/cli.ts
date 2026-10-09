@@ -36,6 +36,8 @@ ${Object.entries(TARGETS)
   # @min <n>           Minimum value (numbers) or length (strings)
   # @max <n>           Maximum value (numbers) or length (strings)
   # @pattern <regex>   Regex pattern constraint (.regex(...), string schemas only)
+  # @minlength <n>     Minimum length for string-like schemas
+  # @maxlength <n>     Maximum length for string-like schemas
   # @optional          Key may be missing
   Untagged keys are inferred from their value and required.
 
