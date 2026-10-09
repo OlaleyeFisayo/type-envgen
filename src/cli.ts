@@ -36,6 +36,8 @@ ${Object.entries(TARGETS)
   # @default <value>   Fallback default value (.default(...), key is never undefined)
   # @min <n>           Minimum value (numbers) or length (strings)
   # @max <n>           Maximum value (numbers) or length (strings)
+  # @minlength <n>     Minimum length for string-like schemas
+  # @maxlength <n>     Maximum length for string-like schemas
   # @optional          Key may be missing
   Untagged keys are inferred from their value and required.
 
