@@ -4,6 +4,7 @@ export type Tags = {
   default?: string;
   min?: string;
   max?: string;
+  pattern?: string;
   unknown?: string;
 };
 
@@ -17,8 +18,9 @@ export function readTags(envSource: string): Map<string, Tags> {
     const tag = line.match(/^\s*#\s*@(\w+)(?:\s+(.+?))?\s*$/);
     if (tag) {
       const [, name, arg = ""] = tag;
-      if (name === "type" || name === "min" || name === "max" || name === "default") pending[name] = arg;
-      else if (name === "optional") pending[name] = true;
+      if (name === "type" || name === "min" || name === "max" || name === "default" || name === "pattern") {
+        pending[name] = arg;
+      } else if (name === "optional") pending[name] = true;
       else pending.unknown = name;
     } else if (!line.trim()) pending = {};
     else {

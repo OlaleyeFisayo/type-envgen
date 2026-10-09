@@ -14,7 +14,7 @@ export function generateEnv(envSource: string, target: TargetName = "node"): str
   const fields = entries.map(([key, value = ""]) => {
     const tags = tagsByKey.get(key) ?? {};
     const base = tags.type ? annotatedSchema(tags.type, key, value) : inferSchema(key, value);
-    return `  ${prop(field(key))}: ${applyTags(base, tags, key)},`;
+    return `  ${prop(field(key))}: ${applyTags(base, tags, key, value)},`;
   });
   const usesJson = fields.some((f) => f.includes(": json("));
 

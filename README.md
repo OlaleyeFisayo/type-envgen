@@ -23,7 +23,7 @@ npx type-envgen init
 ## Features
 
 - **Zero config**: types are inferred from your values (numbers, booleans, URLs, emails, UUIDs, dates, IPs, JSON, and more).
-- **Annotations**: refine types with `@type`, `@default`, `@min`, `@max` and `@optional` comments.
+- **Annotations**: refine types with `@type`, `@default`, `@min`, `@max`, `@pattern` and `@optional` comments.
 - **Multiple targets**: Node, Vite, Next.js, Astro, SvelteKit and Nuxt, each reading from the right source.
 - **Guided setup**: `type-envgen init` explains each target and adds an npm script for you.
 - **Typed JSON**: JSON values get a real schema, not `any`.
@@ -265,6 +265,20 @@ Type names are case-insensitive; enum values keep their case.
 JWT_SECRET=please-change-me-to-something-long-enough
 ```
 
+### `@pattern <regex>`
+
+Validates that a string matches a regular expression, emitted as zod's `.regex(...)`.
+
+- Valid on **strings, URLs, emails, and UUIDs**. Using `@pattern` on numbers, booleans, or other types is an error.
+- Validates that the sample value in `.env` matches the pattern at generation time (so typos and bad examples fail early).
+- Throws an error if the regex syntax is invalid, naming the offending key.
+
+```sh
+# @pattern ^sk_(live|test)_[A-Za-z0-9]+$
+STRIPE_KEY=sk_test_abc123
+# -> STRIPE_KEY: z.string().regex(/^sk_(live|test)_[A-Za-z0-9]+$/)
+```
+
 ### `@default <value>`
 
 Provides a fallback emitted as zod's `.default(...)`, so the variable is never `undefined` when missing from the environment. The value is validated against the inferred or annotated type at generation time (for example, `@default abc` on an integer is an error).
@@ -299,6 +313,9 @@ SENTRY_DSN=https://abc@sentry.io/123
   - empty `enum()`
   - non-numeric `@min` / `@max`, or `@min` greater than `@max`
   - `@min` / `@max` on a `boolean`, `enum` or `json`
+  - invalid regex syntax or empty pattern on `@pattern`
+  - sample value not matching `@pattern`
+  - `@pattern` on non-string schemas (`number`, `boolean`, `enum`, `json`, etc.)
 
 ## Loading env at runtime
 

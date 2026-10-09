@@ -36,6 +36,7 @@ ${Object.entries(TARGETS)
   # @default <value>   Fallback default value (.default(...), key is never undefined)
   # @min <n>           Minimum value (numbers) or length (strings)
   # @max <n>           Maximum value (numbers) or length (strings)
+  # @pattern <regex>   Regex pattern constraint (.regex(...), string schemas only)
   # @optional          Key may be missing
   Untagged keys are inferred from their value and required.
 
