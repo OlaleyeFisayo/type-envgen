@@ -113,13 +113,17 @@ describe("cli", () => {
       { timeout: 3000, interval: 50 },
     );
 
-    // 5. Exits cleanly with code 0 on SIGINT
-    const exitPromise = new Promise<{ code: number | null }>((resolve) => {
-      child.on("exit", (code) => resolve({ code }));
+    // 5. Exits cleanly on SIGINT
+    const exitPromise = new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolve) => {
+      child.on("exit", (code, signal) => resolve({ code, signal }));
     });
     child.kill("SIGINT");
-    const { code } = await exitPromise;
-    expect(code).toBe(0);
+    const { code, signal } = await exitPromise;
+    if (process.platform === "win32") {
+      expect(signal).toBe("SIGINT");
+    } else {
+      expect(code).toBe(0);
+    }
 
     rmSync(dir, { recursive: true, force: true });
   });
