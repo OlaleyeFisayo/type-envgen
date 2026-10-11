@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, watch, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { parseArgs, parseEnv } from "node:util";
 import pkg from "../package.json" with { type: "json" };
@@ -22,6 +22,7 @@ Arguments:
 Options:
   -o, --output <path>  File to write (default: env.ts)
       --target <name>  Where the module runs (default: node)
+  -w, --watch          Watch input file and regenerate on changes
       --skip-install   Don't add zod to your project if it's missing
   -h, --help           Show this help
   -v, --version        Show version
@@ -42,6 +43,7 @@ ${Object.entries(TARGETS)
 Examples:
   type-envgen
   type-envgen .env.example -o src/env.ts
+  type-envgen --watch
 
 The generated file imports zod. It's added to your project's dependencies
 automatically if missing (use --skip-install to opt out).`;
@@ -88,6 +90,7 @@ function readArgs() {
       options: {
         output: { type: "string", short: "o", default: "env.ts" },
         target: { type: "string", default: "node" },
+        watch: { type: "boolean", short: "w" },
         "skip-install": { type: "boolean" },
         help: { type: "boolean", short: "h" },
         version: { type: "boolean", short: "v" },
@@ -134,6 +137,56 @@ if (values.help) {
     generate(input, output, t);
     ensureZod(false);
   });
+} else if (values.watch) {
+  const input = positionals[0] ?? ".env";
+  const output = values.output as string;
+  const targetName = target as TargetName;
+
+  if (!existsSync(input)) fail(`Input file not found: ${input}`);
+
+  function runGenerate() {
+    try {
+      generate(input, output, targetName);
+    } catch (err) {
+      console.error(`${PREFIX} ${(err as Error).message}`);
+    }
+  }
+
+  runGenerate();
+  ensureZod(values["skip-install"] ?? false);
+
+  let watcher: ReturnType<typeof watch> | undefined;
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+
+  function startWatching() {
+    try {
+      watcher = watch(input, (eventType) => {
+        if (eventType === "rename") {
+          watcher?.close();
+          setTimeout(startWatching, 50);
+        }
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(runGenerate, 150);
+      });
+      watcher.on("error", () => {
+        watcher?.close();
+        setTimeout(startWatching, 100);
+      });
+    } catch {
+      setTimeout(startWatching, 100);
+    }
+  }
+
+  startWatching();
+
+  const cleanup = () => {
+    watcher?.close();
+    clearTimeout(debounceTimer);
+    process.exit(0);
+  };
+
+  process.on("SIGINT", cleanup);
+  process.on("SIGTERM", cleanup);
 } else {
   try {
     generate(positionals[0] ?? ".env", values.output, target as TargetName);

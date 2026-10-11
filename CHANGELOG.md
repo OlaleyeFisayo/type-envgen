@@ -9,6 +9,10 @@ Full release notes for every version, including each merged pull request, are on
 
 ## [Unreleased]
 
+### Added
+
+- `-w, --watch` flag to watch the input `.env` file and regenerate the output on changes (#5).
+
 ## [1.2.0] - 2026-10-08
 
 ### Added
