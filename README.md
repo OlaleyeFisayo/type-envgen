@@ -23,6 +23,7 @@ npx type-envgen init
 ## Features
 
 - **Zero config**: types are inferred from your values (numbers, booleans, URLs, emails, UUIDs, dates, IPs, JSON, and more).
+- **Watch mode**: `-w, --watch` regenerates the output automatically when your `.env` changes.
 - **Annotations**: refine types with `@type`, `@default`, `@min`, `@max`, `@minlength`, `@maxlength`, `@pattern` and `@optional` comments.
 - **Multiple targets**: Node, Vite, Next.js, Astro, SvelteKit and Nuxt, each reading from the right source.
 - **Guided setup**: `type-envgen init` explains each target and adds an npm script for you.
@@ -171,12 +172,14 @@ type-envgen init
 | `input`               | `.env` file to read                            | `.env`   |
 | `-o, --output <path>` | File to write                                  | `env.ts` |
 | `--target <name>`     | `node`, `vite`, `nextjs`, `astro`, `sveltekit`, `nuxt` | `node` |
+| `-w, --watch`         | Watch input file and regenerate on changes     |          |
 | `--skip-install`      | Don't add zod/type-envgen to your dependencies |          |
 | `-h, --help`          | Show help                                      |          |
 | `-v, --version`       | Show version                                   |          |
 
 ```sh
 type-envgen                              # .env -> env.ts
+type-envgen --watch                      # regenerate automatically on changes
 type-envgen .env.example -o src/env.ts   # custom input and output
 type-envgen --target nextjs              # client-safe output for Next.js
 type-envgen --help                       # everything the CLI can do
@@ -357,6 +360,7 @@ If a variable is missing or invalid, startup stops with one error listing every 
 
 - Run `npx type-envgen init` once to pick a target and add the `env:generate` script.
 - Generate from **`.env.example`** so teammates and CI get the same types without real secrets.
+- Use **`type-envgen --watch`** during development so `env.ts` stays in sync with your `.env`.
 - **Commit the generated file** and re-run `npm run env:generate` whenever you add or change a variable.
 - **Add your own code to it freely.** Re-running only refreshes the generated parts (the `type-envgen` import, `envSchema` and the `env` line) and keeps everything else. Edits made *inside* `envSchema` are replaced, so customize variables with [annotations](#annotations) in your `.env` instead.
 - In CI or a pre-commit hook, run with **`--check`** (for example `"env:check": "type-envgen .env.example -o src/env.ts --check"`) to verify the generated file is up to date without writing files or installing dependencies (exits `0` if up to date, `1` if out of date or missing).

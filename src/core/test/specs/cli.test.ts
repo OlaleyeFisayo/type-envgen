@@ -1,7 +1,7 @@
-import { spawnSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { spawn, spawnSync } from "node:child_process";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { generateEnv } from "../../generate-env/index.ts";
 import { cli, cliPath, envPath, outDir, pkg } from "../utils/helpers.ts";
 
@@ -58,6 +58,7 @@ describe("cli", () => {
     expect(help.stdout).toMatch(/@minlength/);
     expect(help.stdout).toMatch(/@maxlength/);
     expect(help.stdout).toMatch(/date, datetime, ipv4, ipv6/);
+    expect(help.stdout).toMatch(/-w, --watch/);
   });
 
   it("prints the version", () => {
@@ -66,6 +67,12 @@ describe("cli", () => {
 
   it("fails on a missing input file", () => {
     const run = cli("does-not-exist.env");
+    expect(run.status).toBe(1);
+    expect(run.stderr).toMatch(/^\[type-envgen\] Input file not found: does-not-exist\.env/);
+  });
+
+  it("fails on a missing input file with --watch", () => {
+    const run = cli("does-not-exist.env", "-w");
     expect(run.status).toBe(1);
     expect(run.stderr).toMatch(/^\[type-envgen\] Input file not found: does-not-exist\.env/);
   });
@@ -141,5 +148,67 @@ describe("cli", () => {
       expect(run.status).toBe(1);
       expect(run.stderr).toContain(outOfDate(missing));
     });
+  });
+
+  it("watches and regenerates on changes, continuing after error, and exiting cleanly on SIGINT", async () => {
+    const dir = join(outDir, "watch-spec-test");
+    mkdirSync(dir, { recursive: true });
+    const envFile = join(dir, ".env");
+    const outFile = join(dir, "env.ts");
+    writeFileSync(envFile, "FOO=initial\n");
+
+    const child = spawn(process.execPath, [cliPath, envFile, "-o", outFile, "--watch"], {
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    let stderr = "";
+    child.stderr.on("data", (data) => {
+      stderr += data.toString();
+    });
+
+    // 1. Initial generation
+    await vi.waitFor(
+      () => {
+        expect(readFileSync(outFile, "utf8")).toMatch(/FOO: z\.string\(\)/);
+      },
+      { timeout: 3000, interval: 50 },
+    );
+
+    // 2. Regeneration on valid edit
+    writeFileSync(envFile, "FOO=initial\nPORT=3000\n");
+    await vi.waitFor(
+      () => {
+        expect(readFileSync(outFile, "utf8")).toMatch(/PORT: z\.coerce\.number\(\)\.int\(\)/);
+      },
+      { timeout: 3000, interval: 50 },
+    );
+
+    // 3. Error logged on invalid tag, but process stays alive
+    writeFileSync(envFile, "# @type invalid_type\nPORT=3000\n");
+    await vi.waitFor(
+      () => {
+        expect(stderr).toMatch(/Unknown @type "invalid_type" for PORT/);
+      },
+      { timeout: 3000, interval: 50 },
+    );
+
+    // 4. Recovers on fix
+    writeFileSync(envFile, "# @type boolean\nPORT=true\n");
+    await vi.waitFor(
+      () => {
+        expect(readFileSync(outFile, "utf8")).toMatch(/PORT: z\.stringbool\(\)/);
+      },
+      { timeout: 3000, interval: 50 },
+    );
+
+    // 5. Exits cleanly with code 0 on SIGINT
+    const exitPromise = new Promise<{ code: number | null }>((resolve) => {
+      child.on("exit", (code) => resolve({ code }));
+    });
+    child.kill("SIGINT");
+    const { code } = await exitPromise;
+    expect(code).toBe(0);
+
+    rmSync(dir, { recursive: true, force: true });
   });
 });
