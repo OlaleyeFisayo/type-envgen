@@ -1,6 +1,6 @@
 {
   "name": "type-envgen",
-  "version": "1.0.1",
+  "version": "1.2.0",
   "description": "CLI that generates a typesafe env file validated with zod",
   "type": "module",
   "license": "MIT",
@@ -44,12 +44,23 @@
   },
   "keywords": [
     "env",
+    "environment-variables",
+    "dotenv",
     "zod",
     "typescript",
+    "type-safety",
+    "validation",
+    "codegen",
     "cli",
-    "dotenv"
+    "nodejs",
+    "vite",
+    "nextjs",
+    "astro",
+    "sveltekit",
+    "nuxt"
   ],
   "dependencies": {
+    "@clack/prompts": "^1.8.1",
     "zod": "^4.6.5"
   },
   "devDependencies": {
