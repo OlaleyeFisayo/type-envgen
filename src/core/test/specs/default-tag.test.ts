@@ -22,6 +22,19 @@ describe("@default", () => {
       /X: z\.iso\.date\(\)\.default\("2026-01-31"\)/,
     );
     expect(generateEnv("# @type ipv6\n# @default ::1\nX=2001:db8::1")).toMatch(/X: z\.ipv6\(\)\.default\("::1"\)/);
+    expect(generateEnv("# @type e164\n# @default +14155552671\nX=+14155550000")).toMatch(
+      /X: z\.e164\(\)\.default\("\+14155552671"\)/,
+    );
+    expect(generateEnv("# @type emoji\n# @default 🚀\nX=🎉")).toMatch(/X: z\.emoji\(\)\.default\("🚀"\)/);
+    expect(generateEnv("# @type currencycode\n# @default USD\nX=EUR")).toMatch(
+      /X: z\.currencyCode\(\)\.default\("USD"\)/,
+    );
+    expect(generateEnv("# @type iban\n# @default DE89370400440532013000\nX=DE89370400440532013000")).toMatch(
+      /X: z\.iban\(\)\.default\("DE89370400440532013000"\)/,
+    );
+    expect(generateEnv("# @type creditcard\n# @default 4532015112830366\nX=4532015112830366")).toMatch(
+      /X: z\.creditCard\(\)\.default\("4532015112830366"\)/,
+    );
   });
 
   describe("errors", () => {
@@ -46,6 +59,27 @@ describe("@default", () => {
       ],
       ["a bad IPv4", "# @type ipv4\n# @default 999.9.9.9\nX=10.0.0.1", /@default for X must be a valid IPv4 address/],
       ["a bad IPv6", "# @type ipv6\n# @default nope\nX=::1", /@default for X must be a valid IPv6 address/],
+      [
+        "a bad e164",
+        "# @type e164\n# @default notaphone\nX=+14155552671",
+        /@default for X must be a valid E\.164 number/,
+      ],
+      ["a bad emoji", "# @type emoji\n# @default notanemoji\nX=🚀", /@default for X must be a valid emoji/],
+      [
+        "a bad currency code",
+        "# @type currencycode\n# @default notacurrency\nX=USD",
+        /@default for X must be a valid currency code/,
+      ],
+      [
+        "a bad IBAN",
+        "# @type iban\n# @default notaiban\nX=DE89370400440532013000",
+        /@default for X must be a valid IBAN/,
+      ],
+      [
+        "a bad credit card",
+        "# @type creditcard\n# @default notacard\nX=4532015112830366",
+        /@default for X must be a valid credit card number/,
+      ],
       ["a non-member enum", "# @type enum(a, b)\n# @default c\nX=a", /@default "c" for X is not in enum/],
       ["invalid JSON", '# @default {bad json}\nX={"a":1}', /@default for X must be valid JSON/],
       ["below @min", "# @min 10\n# @default 5\nX=10", /less than @min/],

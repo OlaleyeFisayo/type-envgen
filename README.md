@@ -245,6 +245,11 @@ Overrides inference.
 | `datetime`      | `z.iso.datetime()`               |
 | `ipv4`          | `z.ipv4()`                       |
 | `ipv6`          | `z.ipv6()`                       |
+| `e164`          | `z.e164()`                       |
+| `emoji`         | `z.emoji()`                      |
+| `currencycode`  | `z.currencyCode()`               |
+| `iban`          | `z.iban()`                       |
+| `creditcard`    | `z.creditCard()`                 |
 | `json`          | `json(<schema built from the value>)` |
 | `enum(a, b, c)` | `z.enum(["a","b","c"])`          |
 
@@ -261,7 +266,7 @@ Type names are case-insensitive; enum values keep their case.
 ### `@min <n>` / `@max <n>`
 
 - On **numbers**: bounds on the value, e.g. `.min(1).max(65535)`.
-- On **strings, URLs, emails, UUIDs, dates, IPs**: bounds on the length, e.g. `z.string().min(1)`.
+- On **strings, URLs, emails, UUIDs, dates, IPs, phone numbers, currencies, cards, IBANs**: bounds on the length, e.g. `z.string().min(1)`.
 - Work with inferred types too, no `@type` needed.
 
 ```sh
