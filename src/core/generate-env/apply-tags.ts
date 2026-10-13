@@ -195,6 +195,18 @@ function formatDefault(base: string, rawInput: string, key: string, bounds: Boun
     return `.default(${JSON.stringify(raw)})`;
   }
 
+  // Email with preset
+  const emailPresetMatch = base.match(/^z\.email\(\{\s*pattern:\s*z\.regexes\.([a-zA-Z0-9]+)\s*\}\)/);
+  if (emailPresetMatch) {
+    const regexKey = emailPresetMatch[1] as keyof typeof z.regexes;
+    const pattern = z.regexes[regexKey];
+    if (!pattern || !z.email({ pattern: pattern as RegExp }).safeParse(raw).success) {
+      throw new Error(`@default for ${key} must be a valid email, got "${rawInput}"`);
+    }
+    checkStringBounds(raw, bounds, key);
+    return `.default(${JSON.stringify(raw)})`;
+  }
+
   // Email
   if (base.includes("z.email()")) {
     if (!z.email().safeParse(raw).success) {
