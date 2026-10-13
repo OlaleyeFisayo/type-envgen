@@ -133,6 +133,11 @@ describe("@pattern", () => {
     expect(() => generateEnv("# @pattern /abc/y\nX=abc")).toThrow(/Invalid regex for X: flags g and y/);
   });
 
+  it("supports @pattern on date and IP schemas", () => {
+    expect(generateEnv("# @pattern ^2026-\nX=2026-01-31")).toContain("X: z.iso.date().regex(/^2026-/)");
+    expect(generateEnv("# @pattern ^10\\.\nX=10.0.0.1")).toContain("X: z.ipv4().regex(/^10\\./)");
+  });
+
   it("checks @default against the pattern", () => {
     expect(() => generateEnv('# @pattern ^[a-z]+$\n# @default "ABC"\nX=abc')).toThrow(
       /^@default for X does not match @pattern$/,

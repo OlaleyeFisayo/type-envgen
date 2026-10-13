@@ -268,7 +268,7 @@ JWT_SECRET=please-change-me-to-something-long-enough
 
 Validates that a string matches a regular expression, emitted as zod's `.regex(...)`.
 
-- Valid on **strings, URLs, emails, and UUIDs**. Using `@pattern` on numbers, booleans, or other types is an error.
+- Valid on **strings, URLs, emails, UUIDs, dates and IPs**. Using `@pattern` on numbers, booleans, or other types is an error.
 - Validates that the value in `.env` (and any `@default`) matches the pattern at generation time, so typos and bad examples fail early. The value itself is never printed in the error.
 - Throws an error if the regex syntax is invalid, naming the offending key.
 

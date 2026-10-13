@@ -90,7 +90,7 @@ export function applyTags(base: string, tags: Tags, key: string, value = ""): st
   }
 
   if (tags.pattern !== undefined) {
-    if (!/^z\.(string|url|email|uuid)\(/.test(base)) {
+    if (!isStringLike) {
       throw new Error(`@pattern is not supported for ${key} (${base})`);
     }
     const raw = unquote(tags.pattern.trim());
