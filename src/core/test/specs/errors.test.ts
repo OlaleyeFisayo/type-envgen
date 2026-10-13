@@ -53,6 +53,8 @@ describe("validateEnv errors", () => {
     ["url", z.url(), "nope", "must be a valid URL"],
     ["email", z.email(), "nope", "must be a valid email"],
     ["uuid", z.uuid(), "nope", "must be a valid UUID"],
+    ["uuid v7", z.uuid({ version: "v7" }), "550e8400-e29b-41d4-a716-446655440000", "must be a valid UUID"],
+    ["guid", z.guid(), "nope", "must be a valid GUID"],
     ["date", z.iso.date(), "nope", "must be a valid date (YYYY-MM-DD)"],
     ["datetime", z.iso.datetime(), "nope", "must be a valid ISO datetime"],
     ["ipv4", z.ipv4(), "nope", "must be a valid IPv4 address"],

@@ -241,6 +241,8 @@ Overrides inference.
 | `url`           | `z.url()`                        |
 | `email`         | `z.email()`                      |
 | `uuid`          | `z.uuid()`                       |
+| `uuid(v1-v8)`   | `z.uuid({ version: "vN" })`      |
+| `guid`          | `z.guid()`                       |
 | `date`          | `z.iso.date()`                   |
 | `datetime`      | `z.iso.datetime()`               |
 | `ipv4`          | `z.ipv4()`                       |
@@ -261,7 +263,7 @@ Type names are case-insensitive; enum values keep their case.
 ### `@min <n>` / `@max <n>`
 
 - On **numbers**: bounds on the value, e.g. `.min(1).max(65535)`.
-- On **strings, URLs, emails, UUIDs, dates, IPs**: bounds on the length, e.g. `z.string().min(1)`.
+- On **strings, URLs, emails, UUIDs, GUIDs, dates, IPs**: bounds on the length, e.g. `z.string().min(1)`.
 - Work with inferred types too, no `@type` needed.
 
 ```sh

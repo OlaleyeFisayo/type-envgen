@@ -5,6 +5,7 @@ const FORMATS: Record<string, string> = {
   url: "URL",
   email: "email",
   uuid: "UUID",
+  guid: "GUID",
   date: "date (YYYY-MM-DD)",
   datetime: "ISO datetime",
   ipv4: "IPv4 address",

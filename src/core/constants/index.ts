@@ -17,6 +17,7 @@ export const TYPES: Record<string, string> = {
   url: "z.url()",
   email: "z.email()",
   uuid: "z.uuid()",
+  guid: "z.guid()",
   date: "z.iso.date()",
   datetime: "z.iso.datetime()",
   ipv4: "z.ipv4()",
