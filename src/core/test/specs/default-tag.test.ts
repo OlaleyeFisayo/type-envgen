@@ -22,6 +22,9 @@ describe("@default", () => {
       /X: z\.iso\.date\(\)\.default\("2026-01-31"\)/,
     );
     expect(generateEnv("# @type ipv6\n# @default ::1\nX=2001:db8::1")).toMatch(/X: z\.ipv6\(\)\.default\("::1"\)/);
+    expect(generateEnv("# @type ulid\n# @default 01ARZ3NDEKTSV4RRFFQ69G5FAV\nX=01ARZ3NDEKTSV4RRFFQ69G5FAV")).toMatch(
+      /X: z\.ulid\(\)\.default\("01ARZ3NDEKTSV4RRFFQ69G5FAV"\)/,
+    );
   });
 
   describe("errors", () => {
@@ -38,6 +41,32 @@ describe("@default", () => {
         "# @type uuid\n# @default not-a-uuid\nX=550e8400-e29b-41d4-a716-446655440000",
         /@default for X must be a valid UUID/,
       ],
+      [
+        "a bad nanoid",
+        "# @type nanoid\n# @default bad!\nX=V1StGXR8_Z5jdHi6B-myT",
+        /@default for X must be a valid nanoid/,
+      ],
+      [
+        "a bad cuid",
+        "# @type cuid\n# @default bad!\nX=cjh40te0g0000305kzqnhsuk8",
+        /@default for X must be a valid cuid/,
+      ],
+      [
+        "a bad cuid2",
+        "# @type cuid2\n# @default BAD!\nX=clh0w8820000008l07bzg81u8",
+        /@default for X must be a valid cuid2/,
+      ],
+      [
+        "a bad ULID",
+        "# @type ulid\n# @default bad!\nX=01ARZ3NDEKTSV4RRFFQ69G5FAV",
+        /@default for X must be a valid ULID/,
+      ],
+      [
+        "a bad KSUID",
+        "# @type ksuid\n# @default bad!\nX=0ujtsYcgvSTUXCEdGWt0JIu2T1s",
+        /@default for X must be a valid KSUID/,
+      ],
+      ["a bad XID", "# @type xid\n# @default bad!\nX=9m4e2mr0ui3e8a215n4g", /@default for X must be a valid XID/],
       ["a bad date", "# @type date\n# @default notadate\nX=2026-01-31", /@default for X must be a valid ISO date/],
       [
         "a bad datetime",
