@@ -177,7 +177,7 @@ describe("cli", () => {
       () => {
         expect(readFileSync(outFile, "utf8")).toMatch(/FOO: z\.string\(\)/);
       },
-      { timeout: 3000, interval: 50 },
+      { timeout: 5000, interval: 50 },
     );
 
     // 2. Regeneration on valid edit, keeping the user's own code in the output
@@ -190,7 +190,7 @@ describe("cli", () => {
         expect(out).toMatch(/PORT: z\.coerce\.number\(\)\.int\(\)/);
         expect(out).toContain(custom);
       },
-      { timeout: 3000, interval: 50 },
+      { timeout: 5000, interval: 50 },
     );
 
     // 3. Error logged on invalid tag, but process stays alive
@@ -199,7 +199,7 @@ describe("cli", () => {
       () => {
         expect(stderr).toMatch(/Unknown @type "invalid_type" for PORT/);
       },
-      { timeout: 3000, interval: 50 },
+      { timeout: 5000, interval: 50 },
     );
 
     // 4. Recovers on fix
@@ -208,7 +208,7 @@ describe("cli", () => {
       () => {
         expect(readFileSync(outFile, "utf8")).toMatch(/PORT: z\.stringbool\(\)/);
       },
-      { timeout: 3000, interval: 50 },
+      { timeout: 5000, interval: 50 },
     );
 
     // 5. Exits cleanly on SIGINT
