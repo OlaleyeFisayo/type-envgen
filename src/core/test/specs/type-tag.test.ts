@@ -20,4 +20,20 @@ describe("@type", () => {
   it("is cancelled by a blank line", () => {
     expect(generateEnv("# @type string\n\nX=1")).toMatch(/X: z\.coerce\.number\(\)\.int\(\)/);
   });
+
+  it("supports httpurl and hostname (case-insensitive)", () => {
+    expect(generateEnv("# @type httpurl\nAPI_URL=https://api.example.com")).toMatch(/API_URL: z\.httpUrl\(\)/);
+    expect(generateEnv("# @type HTTPURL\nAPI_URL=https://api.example.com")).toMatch(/API_URL: z\.httpUrl\(\)/);
+    expect(generateEnv("# @type hostname\nDB_HOST=db.internal")).toMatch(/DB_HOST: z\.hostname\(\)/);
+    expect(generateEnv("# @type HOSTNAME\nDB_HOST=db.internal")).toMatch(/DB_HOST: z\.hostname\(\)/);
+  });
+
+  it("supports bounds on httpurl and hostname", () => {
+    expect(generateEnv("# @type httpurl\n# @min 10\n# @max 100\nAPI_URL=https://api.example.com")).toMatch(
+      /API_URL: z\.httpUrl\(\)\.min\(10\)\.max\(100\)/,
+    );
+    expect(generateEnv("# @type hostname\n# @minlength 3\n# @maxlength 30\nDB_HOST=db.internal")).toMatch(
+      /DB_HOST: z\.hostname\(\)\.min\(3\)\.max\(30\)/,
+    );
+  });
 });

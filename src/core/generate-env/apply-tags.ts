@@ -8,7 +8,7 @@ export type Bounds = {
   maxTag?: "max" | "maxlength";
 };
 
-const STRING_LIKE_REGEX = /^z\.(string|url|email|uuid|iso\.date|iso\.datetime|ipv4|ipv6)\(/;
+const STRING_LIKE_REGEX = /^z\.(string|url|httpUrl|hostname|email|uuid|iso\.date|iso\.datetime|ipv4|ipv6)\(/;
 const NUMBER_REGEX = /^z\.coerce\.number\(/;
 
 function parseBound(
@@ -123,6 +123,8 @@ export function applyTags(base: string, tags: Tags, key: string, value = ""): st
 const unquote = (s: string) => (s.length >= 2 && /^(["']).*\1$/s.test(s) ? s.slice(1, -1) : s);
 
 const FORMATS: [string, z.ZodType, string][] = [
+  ["z.httpUrl()", z.httpUrl(), "HTTP URL"],
+  ["z.hostname()", z.hostname(), "hostname"],
   ["z.iso.datetime()", z.iso.datetime(), "ISO datetime"],
   ["z.iso.date()", z.iso.date(), "ISO date"],
   ["z.ipv4()", z.ipv4(), "IPv4 address"],
