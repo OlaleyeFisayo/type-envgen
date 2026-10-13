@@ -25,7 +25,12 @@ describe("cli", () => {
       encoding: "utf8",
     });
     expect(run.status, run.stderr).toBe(0);
-    expect(run.stdout).toMatch(/\[type-envgen\] zod is not in your dependencies\. Install it: npm install zod@\^4/);
+    expect(run.stdout).toContain(
+      `[type-envgen] zod and type-envgen are not in your dependencies. Install: npm install zod@^4 type-envgen@^${pkg.version}`,
+    );
+    const generated = readFileSync(join(dir, "env.ts"), "utf8");
+    expect(generated).toContain(`import { json, validateEnv } from "type-envgen";`);
+    expect(generated).not.toContain("const json =");
     expect(readFileSync(join(dir, "package.json"), "utf8")).toBe("{}");
   });
 

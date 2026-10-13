@@ -9,7 +9,8 @@
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
-    "types": ["node"]
+    "types": ["node"],
+    "paths": { "type-envgen": ["./src/index.ts"] }
   },
   "include": ["src", "tsup.config.ts"]
 }

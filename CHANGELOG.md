@@ -9,6 +9,11 @@ Full release notes for every version, including each merged pull request, are on
 
 ## [Unreleased]
 
+### Changed
+
+- Generated files import the `json` helper from `type-envgen` instead of inlining it. `type-envgen` is now a runtime dependency (install it without `--save-dev`); the CLI adds it to `dependencies` automatically, like zod.
+- Missing or invalid variables now fail with a concise `[type-envgen]` error listing every problem, instead of a raw ZodError. Values are never printed.
+
 ## [1.2.0] - 2026-10-08
 
 ### Added

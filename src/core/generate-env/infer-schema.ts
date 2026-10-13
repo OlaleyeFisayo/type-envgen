@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { NODE_ENVS, TYPES } from "./constants.ts";
+import { NODE_ENVS, TYPES } from "../constants/index.ts";
 import { jsonSchema } from "./json-schema.ts";
 
 // Order matters: first match wins. Format checks use zod itself so the schema always accepts its own sample.

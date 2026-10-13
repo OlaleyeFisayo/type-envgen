@@ -1,7 +1,7 @@
 import { parseEnv } from "node:util";
+import { TARGETS, type TargetName } from "../constants/index.ts";
 import { annotatedSchema } from "./annotated-schema.ts";
 import { applyTags } from "./apply-tags.ts";
-import { JSON_HELPER, TARGETS, type TargetName } from "./constants.ts";
 import { inferSchema } from "./infer-schema.ts";
 import { prop } from "./prop.ts";
 import { readTags } from "./read-tags.ts";
@@ -20,14 +20,14 @@ export function generateEnv(envSource: string, target: TargetName = "node"): str
 
   return [
     `import { z } from "zod";`,
+    `import { ${usesJson ? "json, " : ""}validateEnv } from "type-envgen";`,
     ...imports,
     "",
-    ...(usesJson ? [JSON_HELPER, ""] : []),
     "export const envSchema = z.object({",
     ...fields,
     "});",
     "",
-    `export const env = envSchema.parse(${source(entries.map(([key]) => key))});`,
+    `export const env = validateEnv(envSchema, ${source(entries.map(([key]) => key))});`,
     "export type Env = z.infer<typeof envSchema>;",
     "",
   ].join("\n");

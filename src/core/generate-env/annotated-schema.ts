@@ -1,4 +1,4 @@
-import { TYPES } from "./constants.ts";
+import { TYPES } from "../constants/index.ts";
 import { jsonSchema } from "./json-schema.ts";
 
 export function annotatedSchema(type: string, key: string, value: string): string {

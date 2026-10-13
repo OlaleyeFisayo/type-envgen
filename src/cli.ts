@@ -4,11 +4,9 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { parseArgs, parseEnv } from "node:util";
 import pkg from "../package.json" with { type: "json" };
-import { TARGETS, type TargetName } from "./core/generate-env/constants.ts";
+import { PREFIX, TARGETS, type TargetName, ZOD_SPEC } from "./core/constants/index.ts";
 import { generateEnv } from "./core/generate-env/index.ts";
 import { init } from "./init.ts";
-
-const PREFIX = "[type-envgen]";
 
 const HELP = `${PREFIX} Generate a typesafe, zod-validated env module from a .env file.
 
@@ -22,7 +20,7 @@ Arguments:
 Options:
   -o, --output <path>  File to write (default: env.ts)
       --target <name>  Where the module runs (default: node)
-      --skip-install   Don't add zod to your project if it's missing
+      --skip-install   Don't add zod/type-envgen to your dependencies if missing
   -h, --help           Show this help
   -v, --version        Show version
 
@@ -43,22 +41,29 @@ Examples:
   type-envgen
   type-envgen .env.example -o src/env.ts
 
-The generated file imports zod. It's added to your project's dependencies
-automatically if missing (use --skip-install to opt out).`;
+The generated file imports zod and type-envgen. They're added to your project's
+dependencies automatically if missing (use --skip-install to opt out).`;
 
 function fail(message: string): never {
   console.error(`${PREFIX} ${message}`);
   process.exit(1);
 }
 
-// The generated file imports zod at runtime, so it must be a real dependency of the
-// user's project — type-envgen's own copy is skipped by --omit=dev and hidden by pnpm.
-function ensureZod(skipInstall: boolean) {
+// The generated file imports zod and type-envgen at runtime, so both must be real dependencies
+// of the user's project — a devDependency is skipped by --omit=dev.
+function ensureDeps(skipInstall: boolean) {
   const pkgPath = "package.json";
-  if (existsSync(pkgPath)) {
-    const { dependencies = {}, devDependencies = {} } = JSON.parse(readFileSync(pkgPath, "utf8"));
-    if ("zod" in dependencies || "zod" in devDependencies) return;
-  }
+  const {
+    name,
+    dependencies = {},
+    devDependencies = {},
+  } = existsSync(pkgPath) ? JSON.parse(readFileSync(pkgPath, "utf8")) : {};
+  const missing = [
+    ...("zod" in dependencies || "zod" in devDependencies ? [] : [ZOD_SPEC]),
+    ...("type-envgen" in dependencies || name === "type-envgen" ? [] : [`type-envgen@^${pkg.version}`]),
+  ];
+  if (!missing.length) return;
+  const names = missing.map((m) => m.slice(0, m.lastIndexOf("@"))).join(" and ");
 
   const pm = existsSync("pnpm-lock.yaml")
     ? "pnpm add"
@@ -67,18 +72,19 @@ function ensureZod(skipInstall: boolean) {
       : existsSync("bun.lock") || existsSync("bun.lockb")
         ? "bun add"
         : "npm install";
-  const command = `${pm} zod@^4`;
+  const command = `${pm} ${missing.join(" ")}`;
+  const verb = missing.length > 1 ? "are" : "is";
 
   if (skipInstall || !existsSync(pkgPath)) {
-    console.log(`${PREFIX} zod is not in your dependencies. Install it: ${command}`);
+    console.log(`${PREFIX} ${names} ${verb} not in your dependencies. Install: ${command}`);
     return;
   }
 
-  console.log(`${PREFIX} zod not found in package.json, installing it with ${pm.split(" ")[0]}...`);
+  console.log(`${PREFIX} ${names} not found in package.json dependencies, installing with ${pm.split(" ")[0]}...`);
   // ponytail: fixed command string, shell needed on Windows where npm is npm.cmd
   const { status } = spawnSync(command, { stdio: "inherit", shell: true });
-  if (status !== 0) fail(`Could not install zod. Run: ${command}`);
-  console.log(`${PREFIX} ✓ Installed zod`);
+  if (status !== 0) fail(`Could not install ${names}. Run: ${command}`);
+  console.log(`${PREFIX} ✓ Installed ${names}`);
 }
 
 function readArgs() {
@@ -132,7 +138,7 @@ if (values.help) {
 } else if (positionals[0] === "init") {
   await init((input, output, t) => {
     generate(input, output, t);
-    ensureZod(false);
+    ensureDeps(false);
   });
 } else {
   try {
@@ -141,5 +147,5 @@ if (values.help) {
     fail((err as Error).message);
   }
 
-  ensureZod(values["skip-install"] ?? false);
+  ensureDeps(values["skip-install"] ?? false);
 }

@@ -1,4 +1,9 @@
-import { prop } from "./prop.ts";
+// Constants shared across the app.
+export const PREFIX = "[type-envgen]";
+export const INIT_SCRIPT = "env:generate";
+export const ZOD_SPEC = "zod@^4";
+
+import { prop } from "../generate-env/prop.ts";
 
 export const NODE_ENVS = ["development", "production", "test"];
 
@@ -16,20 +21,6 @@ export const TYPES: Record<string, string> = {
   ipv4: "z.ipv4()",
   ipv6: "z.ipv6()",
 };
-
-// Emitted into the generated file only when a JSON value is present.
-export const JSON_HELPER = `const json = <T extends z.ZodType>(schema: T) =>
-  z
-    .string()
-    .transform((s, ctx) => {
-      try {
-        return JSON.parse(s);
-      } catch {
-        ctx.addIssue({ code: "custom", message: "Invalid JSON" });
-        return z.NEVER;
-      }
-    })
-    .pipe(schema);`;
 
 const camel = (s: string) => s.toLowerCase().replace(/_+([a-z0-9])/g, (_, c: string) => c.toUpperCase());
 const dotted = (key: string) =>

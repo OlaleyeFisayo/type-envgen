@@ -11,23 +11,23 @@ const src = "PUBLIC_API_URL=https://a.com\nNUXT_PUBLIC_API_URL=https://b.com\nPO
 describe("targets", () => {
   it("node is the default and reads process.env", () => {
     expect(generateEnv(src, "node")).toBe(generateEnv(src));
-    expect(generateEnv(src)).toContain("envSchema.parse(process.env);");
+    expect(generateEnv(src)).toContain("validateEnv(envSchema, process.env);");
   });
 
   it("vite and astro read import.meta.env", () => {
     for (const t of ["vite", "astro"] as const)
-      expect(generateEnv(src, t)).toContain("envSchema.parse(import.meta.env);");
+      expect(generateEnv(src, t)).toContain("validateEnv(envSchema, import.meta.env);");
   });
 
   it("sveltekit reads $env/dynamic/public", () => {
     const out = generateEnv(src, "sveltekit");
     expect(out).toContain(`import { env as publicEnv } from "$env/dynamic/public";`);
-    expect(out).toContain("envSchema.parse(publicEnv);");
+    expect(out).toContain("validateEnv(envSchema, publicEnv);");
   });
 
   it("nextjs lists each key as a literal process.env reference", () => {
     const out = generateEnv(src, "nextjs");
-    expect(out).toContain("envSchema.parse({\n");
+    expect(out).toContain("validateEnv(envSchema, {\n");
     expect(out).toContain("  PUBLIC_API_URL: process.env.PUBLIC_API_URL,");
     expect(out).toContain("  PORT: process.env.PORT,");
     expect(out).toContain("\n});\nexport type");
@@ -36,7 +36,7 @@ describe("targets", () => {
   it("nuxt camelCases keys and reads runtime config", () => {
     const out = generateEnv(src, "nuxt");
     expect(out).toContain("  apiUrl: z.url(),");
-    expect(out).toContain("envSchema.parse(useRuntimeConfig().public);");
+    expect(out).toContain("validateEnv(envSchema, useRuntimeConfig().public);");
   });
 
   it("cli rejects an unknown target", () => {

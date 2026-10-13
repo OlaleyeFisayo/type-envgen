@@ -1,9 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import * as p from "@clack/prompts";
-import { TARGETS, type TargetName } from "./core/generate-env/constants.ts";
+import { INIT_SCRIPT, PREFIX, TARGETS, type TargetName } from "./core/constants/index.ts";
 
-const PREFIX = "[type-envgen]";
-const SCRIPT = "env:generate";
 const CANCELLED = `${PREFIX} Cancelled, nothing written.`;
 
 /** Adds `scripts[name]` to a package.json string, keeping its indent. Returns null if it already exists. */
@@ -37,12 +35,12 @@ export async function init(generate: (input: string, output: string, target: Tar
   const command = `type-envgen ${input} -o ${output} --target ${target}`;
   const hasPkg = existsSync("package.json");
   if (hasPkg) {
-    const add = await p.confirm({ message: `Add "${SCRIPT}": "${command}" to package.json scripts?` });
+    const add = await p.confirm({ message: `Add "${INIT_SCRIPT}": "${command}" to package.json scripts?` });
     if (p.isCancel(add)) return p.cancel(CANCELLED);
     if (add) {
-      const next = addScript(readFileSync("package.json", "utf8"), SCRIPT, command);
+      const next = addScript(readFileSync("package.json", "utf8"), INIT_SCRIPT, command);
       if (next) writeFileSync("package.json", next);
-      else p.log.warn(`${PREFIX} package.json already has a "${SCRIPT}" script, left unchanged.`);
+      else p.log.warn(`${PREFIX} package.json already has a "${INIT_SCRIPT}" script, left unchanged.`);
     }
   } else p.log.info(`${PREFIX} No package.json here. Run it manually: ${command}`);
 
@@ -51,5 +49,5 @@ export async function init(generate: (input: string, output: string, target: Tar
   } catch (err) {
     return p.cancel(`${PREFIX} ${(err as Error).message}`);
   }
-  p.outro(hasPkg ? `${PREFIX} Done. Regenerate any time with: npm run ${SCRIPT}` : `${PREFIX} Done.`);
+  p.outro(hasPkg ? `${PREFIX} Done. Regenerate any time with: npm run ${INIT_SCRIPT}` : `${PREFIX} Done.`);
 }

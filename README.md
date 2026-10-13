@@ -29,7 +29,7 @@ npx type-envgen init
 - **Typed JSON**: JSON values get a real schema, not `any`.
 - **Fail fast**: bad or missing variables throw a zod error at startup.
 - **Safe on real `.env` files**: values are only used to infer types and are never written to the output.
-- **Tiny output**: the generated file depends only on `zod`.
+- **Tiny output**: the generated file depends only on `zod` and `type-envgen`.
 
 ## Requirements
 
@@ -39,14 +39,14 @@ npx type-envgen init
 ## Installation
 
 ```sh
-npm install --save-dev type-envgen
+npm install type-envgen
 ```
 
-The generated file imports zod at runtime, so zod must be a regular dependency of your app. On first run, `type-envgen` checks your `package.json` and, if zod is missing, installs `zod@^4` with your package manager (npm, pnpm, yarn or bun, detected from your lockfile):
+The generated file imports zod and small helpers from `type-envgen` at runtime, so both must be regular dependencies of your app (not devDependencies). On first run, `type-envgen` checks your `package.json` and installs whichever is missing with your package manager (npm, pnpm, yarn or bun, detected from your lockfile):
 
 ```
-zod not found in package.json, installing it with npm...
-✓ Installed zod
+zod and type-envgen not found in package.json dependencies, installing with npm...
+✓ Installed zod and type-envgen
 ```
 
 Prefer to manage it yourself? Pass `--skip-install` and the CLI only prints the install command. You can also run it without installing: `npx type-envgen`.
@@ -83,8 +83,7 @@ npx type-envgen -o src/env.ts
 
 ```ts
 import { z } from "zod";
-
-const json = <T extends z.ZodType>(schema: T) => /* JSON.parse + validate */;
+import { json, validateEnv } from "type-envgen";
 
 export const envSchema = z.object({
   DATABASE_URL: z.url(),
@@ -95,7 +94,7 @@ export const envSchema = z.object({
   SENTRY_DSN: z.url().optional(),
 });
 
-export const env = envSchema.parse(process.env);
+export const env = validateEnv(envSchema, process.env);
 export type Env = z.infer<typeof envSchema>;
 ```
 
@@ -115,14 +114,14 @@ env.FEATURE_FLAGS.maxUsers; // number
 
 A **target** decides where the generated module reads its values from. Browsers have no `process.env`, and each framework exposes client variables differently, so pick the one that matches where your code runs. The default is `node`.
 
-| Target      | Reads from                    | Client-exposed keys | Generated call                                 |
-| ----------- | ----------------------------- | ------------------- | ---------------------------------------------- |
-| `node`      | `process.env`                 | n/a (server only)   | `envSchema.parse(process.env)`                 |
-| `vite`      | `import.meta.env`             | `VITE_*`            | `envSchema.parse(import.meta.env)`             |
-| `nextjs`    | `process.env.<KEY>`           | `NEXT_PUBLIC_*`     | `envSchema.parse({ KEY: process.env.KEY, … })` |
-| `astro`     | `import.meta.env`             | `PUBLIC_*`          | `envSchema.parse(import.meta.env)`             |
-| `sveltekit` | `$env/dynamic/public`         | `PUBLIC_*`          | `envSchema.parse(publicEnv)`                   |
-| `nuxt`      | `useRuntimeConfig().public`   | `NUXT_PUBLIC_*`     | `envSchema.parse(useRuntimeConfig().public)`   |
+| Target      | Reads from                    | Client-exposed keys |
+| ----------- | ----------------------------- | ------------------- |
+| `node`      | `process.env`                 | n/a (server only)   |
+| `vite`      | `import.meta.env`             | `VITE_*`            |
+| `nextjs`    | `process.env.<KEY>`           | `NEXT_PUBLIC_*`     |
+| `astro`     | `import.meta.env`             | `PUBLIC_*`          |
+| `sveltekit` | `$env/dynamic/public`         | `PUBLIC_*`          |
+| `nuxt`      | `useRuntimeConfig().public`   | `NUXT_PUBLIC_*`     |
 
 ```sh
 type-envgen .env.example -o src/env.ts --target vite
@@ -172,7 +171,7 @@ type-envgen init
 | `input`               | `.env` file to read                            | `.env`   |
 | `-o, --output <path>` | File to write                                  | `env.ts` |
 | `--target <name>`     | `node`, `vite`, `nextjs`, `astro`, `sveltekit`, `nuxt` | `node` |
-| `--skip-install`      | Don't add zod to your project if it's missing  |          |
+| `--skip-install`      | Don't add zod/type-envgen to your dependencies |          |
 | `-h, --help`          | Show help                                      |          |
 | `-v, --version`       | Show version                                   |          |
 
@@ -315,7 +314,14 @@ import { env } from "./env";
 
 Frameworks that load `.env` for you (Next.js, Remix, NestJS, and others) work out of the box on the server. For client targets, the framework or bundler injects the values at build time.
 
-If a variable is missing or invalid, `envSchema.parse` throws a `ZodError` listing every problem, at startup rather than halfway through a request.
+If a variable is missing or invalid, startup stops with one error listing every problem (values are never printed, since they may be secrets):
+
+```
+[type-envgen] Invalid environment variables:
+  DATABASE_URL: missing
+  PORT: must be a whole number
+  LOG_LEVEL: must be one of: debug, info, warn, error
+```
 
 ## Recommended workflow
 
