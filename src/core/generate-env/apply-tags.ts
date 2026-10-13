@@ -8,7 +8,7 @@ export type Bounds = {
   maxTag?: "max" | "maxlength";
 };
 
-const STRING_LIKE_REGEX = /^z\.(string|url|email|uuid|iso\.date|iso\.datetime|ipv4|ipv6)\(/;
+const STRING_LIKE_REGEX = /^z\.(string|url|email|uuid|iso\.date|iso\.datetime|ipv4|ipv6|base64|base64url|hex)\(/;
 const NUMBER_REGEX = /^z\.coerce\.number\(/;
 
 function parseBound(
@@ -127,6 +127,9 @@ const FORMATS: [string, z.ZodType, string][] = [
   ["z.iso.date()", z.iso.date(), "ISO date"],
   ["z.ipv4()", z.ipv4(), "IPv4 address"],
   ["z.ipv6()", z.ipv6(), "IPv6 address"],
+  ["z.base64()", z.base64(), "base64 string"],
+  ["z.base64url()", z.base64url(), "base64url string"],
+  ["z.hex()", z.hex(), "hex string"],
 ];
 
 function checkStringBounds(raw: string, bounds: Bounds, key: string) {
