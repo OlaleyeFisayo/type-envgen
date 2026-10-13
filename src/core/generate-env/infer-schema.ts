@@ -15,6 +15,7 @@ export function inferSchema(key: string, value: string): string {
   if (z.email().safeParse(value).success) return TYPES.email;
   if (z.iso.date().safeParse(value).success) return TYPES.date;
   if (z.iso.datetime().safeParse(value).success) return TYPES.datetime;
+  if (z.iso.datetime({ offset: true }).safeParse(value).success) return "z.iso.datetime({ offset: true })";
   if (z.ipv4().safeParse(value).success) return TYPES.ipv4;
   if (z.ipv6().safeParse(value).success) return TYPES.ipv6;
   if (/^[[{]/.test(value)) {
