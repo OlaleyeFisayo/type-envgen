@@ -40,4 +40,22 @@ describe("type inference", () => {
     expect(output).toMatch(/CUSTOM_IPV4: z\.ipv4\(\)/);
     expect(output).toMatch(/CUSTOM_IPV6: z\.ipv6\(\)/);
   });
+
+  it("infers CIDR blocks and MAC addresses", () => {
+    expect(output).toMatch(/ALLOWED_CIDR: z\.cidrv4\(\)/);
+    expect(output).toMatch(/VPC_V6: z\.cidrv6\(\)/);
+    expect(output).toMatch(/DEVICE_MAC: z\.mac\(\)/);
+    expect(env.ALLOWED_CIDR).toBe("10.0.0.0/8");
+    expect(env.VPC_V6).toBe("2001:db8::/32");
+    expect(env.DEVICE_MAC).toBe("00:1A:2B:3C:4D:5E");
+  });
+
+  it("supports explicit @type cidrv4, cidrv6 and mac(-)", () => {
+    expect(output).toMatch(/CUSTOM_CIDRV4: z\.cidrv4\(\)/);
+    expect(output).toMatch(/CUSTOM_CIDRV6: z\.cidrv6\(\)/);
+    expect(output).toMatch(/DASH_MAC: z\.mac\(\{ delimiter: "-" \}\)/);
+    expect(env.CUSTOM_CIDRV4).toBe("192.168.1.0/24");
+    expect(env.CUSTOM_CIDRV6).toBe("fe80::/64");
+    expect(env.DASH_MAC).toBe("00-1A-2B-3C-4D-5E");
+  });
 });

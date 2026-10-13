@@ -21,6 +21,9 @@ export const TYPES: Record<string, string> = {
   datetime: "z.iso.datetime()",
   ipv4: "z.ipv4()",
   ipv6: "z.ipv6()",
+  cidrv4: "z.cidrv4()",
+  cidrv6: "z.cidrv6()",
+  mac: "z.mac()",
 };
 
 const camel = (s: string) => s.toLowerCase().replace(/_+([a-z0-9])/g, (_, c: string) => c.toUpperCase());

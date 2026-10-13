@@ -13,6 +13,13 @@ describe("@type", () => {
     expect(output).toMatch(/LOG_LEVEL: z\.enum\(\["debug","info","warn","error"\]\)/);
   });
 
+  it("supports network formats", () => {
+    expect(output).toMatch(/CUSTOM_CIDRV4: z\.cidrv4\(\)/);
+    expect(output).toMatch(/CUSTOM_CIDRV6: z\.cidrv6\(\)/);
+    expect(output).toMatch(/DASH_MAC: z\.mac\(\{ delimiter: "-" \}\)/);
+    expect(generateEnv("# @type mac\nX=00:1A:2B:3C:4D:5E")).toMatch(/X: z\.mac\(\)/);
+  });
+
   it("rejects an unknown type", () => {
     expect(() => generateEnv("# @type nope\nX=1")).toThrow(/Unknown @type "nope" for X/);
   });
