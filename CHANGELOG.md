@@ -9,6 +9,13 @@ Full release notes for every version, including each merged pull request, are on
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-13
+
+### Breaking
+
+- Generated files import helpers from `type-envgen` at runtime, so install it as a regular dependency (`npm install type-envgen`, not `--save-dev`). The CLI adds it to `dependencies` for you.
+- `@min` / `@max` on strings must be non-negative integers (a length).
+
 ### Added
 
 - `type-envgen init` also adds `env:check` and `env:watch` scripts next to `env:generate`.
@@ -22,7 +29,7 @@ Full release notes for every version, including each merged pull request, are on
 
 - Generated files import the `json` helper from `type-envgen` instead of inlining it. `type-envgen` is now a runtime dependency (install it without `--save-dev`); the CLI adds it to `dependencies` automatically, like zod.
 - Missing or invalid variables now fail with a concise `[type-envgen]` error listing every problem, instead of a raw ZodError. Values are never printed.
-- `@min` / `@max` on strings must now be non-negative integers (a length), and also work on `date`, `datetime`, `ipv4` and `ipv6`.
+- `@min` / `@max` on strings also work on `date`, `datetime`, `ipv4` and `ipv6`.
 
 ## [1.2.0] - 2026-10-08
 
@@ -73,7 +80,8 @@ First public release.
 - Adds `zod@^4` to your project automatically if it's missing, using npm, pnpm, yarn or bun
   (`--skip-install` to opt out).
 
-[Unreleased]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/OlaleyeFisayo/type-envgen/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.0.0...v1.0.1
