@@ -328,6 +328,7 @@ If a variable is missing or invalid, startup stops with one error listing every 
 - Run `npx type-envgen init` once to pick a target and add the `env:generate` script.
 - Generate from **`.env.example`** so teammates and CI get the same types without real secrets.
 - **Commit the generated file** and re-run `npm run env:generate` whenever you add or change a variable.
+- **Add your own code to it freely.** Re-running only refreshes the generated parts (the `type-envgen` import, `envSchema` and the `env` line) and keeps everything else. Edits made *inside* `envSchema` are replaced, so customize variables with [annotations](#annotations) in your `.env` instead.
 
 ## Contributing
 

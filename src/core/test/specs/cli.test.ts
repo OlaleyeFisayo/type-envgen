@@ -16,6 +16,18 @@ describe("cli", () => {
     expect(readFileSync(out, "utf8")).toBe(generateEnv(readFileSync(envPath, "utf8")));
   });
 
+  it("updates an existing file in place, keeping the user's code", () => {
+    const out = join(outDir, "cli-update.ts");
+    mkdirSync(outDir, { recursive: true });
+    expect(cli(envPath, "-o", out).stdout).toMatch(/✓ Generated/);
+    const custom = 'export const isProd = env.NODE_ENV === "production";\n';
+    writeFileSync(out, readFileSync(out, "utf8") + custom);
+    const run = cli(envPath, "-o", out);
+    expect(run.status, run.stderr).toBe(0);
+    expect(run.stdout).toMatch(/^\[type-envgen\] ✓ Updated .* \(\d+ variables\)/);
+    expect(readFileSync(out, "utf8")).toBe(generateEnv(readFileSync(envPath, "utf8")) + custom);
+  });
+
   it("only prints an install hint with --skip-install", () => {
     const dir = join(outDir, "no-zod");
     mkdirSync(dir, { recursive: true });

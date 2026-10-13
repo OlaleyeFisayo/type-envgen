@@ -6,6 +6,7 @@ import { parseArgs, parseEnv } from "node:util";
 import pkg from "../package.json" with { type: "json" };
 import { PREFIX, TARGETS, type TargetName, ZOD_SPEC } from "./core/constants/index.ts";
 import { generateEnv } from "./core/generate-env/index.ts";
+import { updateEnv } from "./core/generate-env/update-env.ts";
 import { init } from "./init.ts";
 
 const HELP = `${PREFIX} Generate a typesafe, zod-validated env module from a .env file.
@@ -120,10 +121,13 @@ function generate(input: string, output: string, target: TargetName) {
   if (!existsSync(input)) throw new Error(`Input file not found: ${input}`);
   const envSource = readFileSync(input, "utf8");
   const source = generateEnv(envSource, target);
+  // An existing file keeps the user's own code; only the generated parts are refreshed.
+  const existing = existsSync(output) ? readFileSync(output, "utf8") : undefined;
   mkdirSync(dirname(output), { recursive: true });
-  writeFileSync(output, source);
+  writeFileSync(output, existing === undefined ? source : updateEnv(existing, source, output));
   const count = Object.keys(parseEnv(envSource)).length;
-  console.log(`${PREFIX} ✓ Generated ${output} from ${input} (${count} variables)`);
+  const verb = existing === undefined ? "Generated" : "Updated";
+  console.log(`${PREFIX} ✓ ${verb} ${output} from ${input} (${count} variables)`);
   warnUnprefixed(envSource, target);
 }
 
