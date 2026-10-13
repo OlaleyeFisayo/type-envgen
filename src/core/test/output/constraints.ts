@@ -13,6 +13,8 @@ export const envSchema = z.object({
   CSV_LIST: z.string(),
   CUSTOM_DATE: z.iso.date(),
   CUSTOM_DATETIME: z.iso.datetime(),
+  CUSTOM_DATETIME_LOCAL: z.iso.datetime({ local: true, precision: 0 }),
+  CUSTOM_DATETIME_OFFSET: z.iso.datetime({ offset: true }),
   CUSTOM_IPV4: z.ipv4(),
   CUSTOM_IPV6: z.ipv6(),
   DATABASE_URL: z.url(),
