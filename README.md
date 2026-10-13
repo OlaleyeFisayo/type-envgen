@@ -206,6 +206,7 @@ Untagged variables are inferred from their value. Rules are checked top to botto
 | `admin@example.com`               | `z.email()`                                      | `string`        |
 | `2026-01-31`                      | `z.iso.date()`                                   | `string`        |
 | `2026-01-31T10:00:00Z`            | `z.iso.datetime()`                               | `string`        |
+| `PT30S`, `P1D`, `P1Y2M`           | `z.iso.duration()`                               | `string`        |
 | `192.168.0.1`                     | `z.ipv4()`                                       | `string`        |
 | `::1`                             | `z.ipv6()`                                       | `string`        |
 | `{"a":1}`, `["a","b"]`            | `json(<schema built from the value>)`            | typed object/array |
@@ -243,6 +244,9 @@ Overrides inference.
 | `uuid`          | `z.uuid()`                       |
 | `date`          | `z.iso.date()`                   |
 | `datetime`      | `z.iso.datetime()`               |
+| `time`          | `z.iso.time()`                   |
+| `time(precision=n)` | `z.iso.time({ precision: n })` |
+| `duration`      | `z.iso.duration()`               |
 | `ipv4`          | `z.ipv4()`                       |
 | `ipv6`          | `z.ipv6()`                       |
 | `json`          | `json(<schema built from the value>)` |
@@ -261,7 +265,7 @@ Type names are case-insensitive; enum values keep their case.
 ### `@min <n>` / `@max <n>`
 
 - On **numbers**: bounds on the value, e.g. `.min(1).max(65535)`.
-- On **strings, URLs, emails, UUIDs, dates, IPs**: bounds on the length, e.g. `z.string().min(1)`.
+- On **strings, URLs, emails, UUIDs, dates, times, durations, IPs**: bounds on the length, e.g. `z.string().min(1)`.
 - Work with inferred types too, no `@type` needed.
 
 ```sh
@@ -273,7 +277,7 @@ JWT_SECRET=please-change-me-to-something-long-enough
 
 Validates that a string matches a regular expression, emitted as zod's `.regex(...)`.
 
-- Valid on **strings, URLs, emails, UUIDs, dates and IPs**. Using `@pattern` on numbers, booleans, or other types is an error.
+- Valid on **strings, URLs, emails, UUIDs, dates, times, durations and IPs**. Using `@pattern` on numbers, booleans, or other types is an error.
 - Validates that the value in `.env` (and any `@default`) matches the pattern at generation time, so typos and bad examples fail early. The value itself is never printed in the error.
 - Throws an error if the regex syntax is invalid, naming the offending key.
 
@@ -285,7 +289,7 @@ STRIPE_KEY=sk_test_abc123
 
 ### `@minlength <n>` / `@maxlength <n>`
 
-Bounds on the length of string-like schemas (`string`, `url`, `email`, `uuid`, `date`, `datetime`, `ipv4`, `ipv6`). Emits `.min(n)` / `.max(n)` on the Zod schema. `<n>` must be a non-negative integer.
+Bounds on the length of string-like schemas (`string`, `url`, `email`, `uuid`, `date`, `datetime`, `time`, `duration`, `ipv4`, `ipv6`). Emits `.min(n)` / `.max(n)` on the Zod schema. `<n>` must be a non-negative integer.
 
 ```sh
 # @minlength 8

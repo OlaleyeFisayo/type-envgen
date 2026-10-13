@@ -17,9 +17,18 @@ describe("@default", () => {
     expect(parsed.DEFAULT_HOST).toBe("localhost");
   });
 
-  it("accepts valid date and IP defaults", () => {
+  it("accepts valid date, time, duration and IP defaults", () => {
     expect(generateEnv("# @type date\n# @default 2026-01-31\nX=2026-02-01")).toMatch(
       /X: z\.iso\.date\(\)\.default\("2026-01-31"\)/,
+    );
+    expect(generateEnv("# @type time\n# @default 02:30:00\nX=03:00:00")).toMatch(
+      /X: z\.iso\.time\(\)\.default\("02:30:00"\)/,
+    );
+    expect(generateEnv("# @type time(precision=3)\n# @default 02:30:00.123\nX=03:00:00.456")).toMatch(
+      /X: z\.iso\.time\(\{ precision: 3 \}\)\.default\("02:30:00\.123"\)/,
+    );
+    expect(generateEnv("# @type duration\n# @default PT15M\nX=PT30S")).toMatch(
+      /X: z\.iso\.duration\(\)\.default\("PT15M"\)/,
     );
     expect(generateEnv("# @type ipv6\n# @default ::1\nX=2001:db8::1")).toMatch(/X: z\.ipv6\(\)\.default\("::1"\)/);
   });
@@ -43,6 +52,17 @@ describe("@default", () => {
         "a bad datetime",
         "# @type datetime\n# @default 2026-01-31\nX=2026-01-31T10:00:00Z",
         /@default for X must be a valid ISO datetime/,
+      ],
+      ["a bad time", "# @type time\n# @default notatime\nX=02:30:00", /@default for X must be a valid ISO time/],
+      [
+        "a bad time precision",
+        "# @type time(precision=3)\n# @default 02:30:00\nX=02:30:00.123",
+        /@default for X must be a valid ISO time/,
+      ],
+      [
+        "a bad duration",
+        "# @type duration\n# @default notaduration\nX=PT30S",
+        /@default for X must be a valid ISO duration/,
       ],
       ["a bad IPv4", "# @type ipv4\n# @default 999.9.9.9\nX=10.0.0.1", /@default for X must be a valid IPv4 address/],
       ["a bad IPv6", "# @type ipv6\n# @default nope\nX=::1", /@default for X must be a valid IPv6 address/],

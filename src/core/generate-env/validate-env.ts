@@ -7,6 +7,8 @@ const FORMATS: Record<string, string> = {
   uuid: "UUID",
   date: "date (YYYY-MM-DD)",
   datetime: "ISO datetime",
+  time: "ISO time",
+  duration: "ISO duration",
   ipv4: "IPv4 address",
   ipv6: "IPv6 address",
 };

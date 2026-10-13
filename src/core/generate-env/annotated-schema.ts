@@ -10,6 +10,15 @@ export function annotatedSchema(type: string, key: string, value: string): strin
       .filter(Boolean);
     if (values.length) return `z.enum(${JSON.stringify(values)})`;
   }
+  const timeParam = type.match(/^time\((.*)\)$/i)?.[1]?.trim();
+  if (timeParam !== undefined) {
+    const match = timeParam.match(/^(?:precision\s*=\s*)?(\d+)$/i);
+    if (match) {
+      const precision = Number.parseInt(match[1], 10);
+      return `z.iso.time({ precision: ${precision} })`;
+    }
+    throw new Error(`Invalid time parameter "${timeParam}" for ${key} (expected precision=<number>)`);
+  }
   const name = type.toLowerCase();
   if (name in TYPES) return TYPES[name];
   if (name === "json") {
