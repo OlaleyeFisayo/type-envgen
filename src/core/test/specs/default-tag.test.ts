@@ -46,6 +46,17 @@ describe("@default", () => {
       ],
       ["a bad IPv4", "# @type ipv4\n# @default 999.9.9.9\nX=10.0.0.1", /@default for X must be a valid IPv4 address/],
       ["a bad IPv6", "# @type ipv6\n# @default nope\nX=::1", /@default for X must be a valid IPv6 address/],
+      [
+        "a bad base64",
+        "# @type base64\n# @default not-valid-base64!\nX=q83vEjRWeJA=",
+        /@default for X must be a valid base64 string/,
+      ],
+      [
+        "a bad base64url",
+        "# @type base64url\n# @default bad+base64=\nX=q83vEjRWeJA",
+        /@default for X must be a valid base64url string/,
+      ],
+      ["a bad hex", "# @type hex\n# @default nothex\nX=deadbeef01", /@default for X must be a valid hex string/],
       ["a non-member enum", "# @type enum(a, b)\n# @default c\nX=a", /@default "c" for X is not in enum/],
       ["invalid JSON", '# @default {bad json}\nX={"a":1}', /@default for X must be valid JSON/],
       ["below @min", "# @min 10\n# @default 5\nX=10", /less than @min/],

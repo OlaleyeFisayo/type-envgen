@@ -9,6 +9,9 @@ const FORMATS: Record<string, string> = {
   datetime: "ISO datetime",
   ipv4: "IPv4 address",
   ipv6: "IPv6 address",
+  base64: "base64 string",
+  base64url: "base64url string",
+  hex: "hex string",
 };
 
 const UNITS: Record<string, string> = { string: " characters", array: " items" };
