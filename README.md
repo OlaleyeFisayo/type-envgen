@@ -269,7 +269,7 @@ JWT_SECRET=please-change-me-to-something-long-enough
 Validates that a string matches a regular expression, emitted as zod's `.regex(...)`.
 
 - Valid on **strings, URLs, emails, and UUIDs**. Using `@pattern` on numbers, booleans, or other types is an error.
-- Validates that the sample value in `.env` matches the pattern at generation time (so typos and bad examples fail early).
+- Validates that the value in `.env` (and any `@default`) matches the pattern at generation time, so typos and bad examples fail early. The value itself is never printed in the error.
 - Throws an error if the regex syntax is invalid, naming the offending key.
 
 ```sh
@@ -312,8 +312,8 @@ SENTRY_DSN=https://abc@sentry.io/123
   - empty `enum()`
   - non-numeric `@min` / `@max`, or `@min` greater than `@max`
   - `@min` / `@max` on a `boolean`, `enum` or `json`
-  - invalid regex syntax or empty pattern on `@pattern`
-  - sample value not matching `@pattern`
+  - invalid regex syntax, empty pattern, or the `g`/`y` flag on `@pattern`
+  - the `.env` value or `@default` not matching `@pattern`
   - `@pattern` on non-string schemas (`number`, `boolean`, `enum`, `json`, etc.)
 
 ## Loading env at runtime

@@ -112,14 +112,14 @@ describe("@pattern", () => {
   it("rejects sample values that do not match @pattern", () => {
     expect(() =>
       generateEnv(["# @pattern ^sk_(live|test)_[A-Za-z0-9]+$", "STRIPE_KEY=pk_test_abc123"].join("\n")),
-    ).toThrow(/Sample value "pk_test_abc123" does not match @pattern for STRIPE_KEY/);
+    ).toThrow(/^Value of STRIPE_KEY does not match @pattern$/);
 
     expect(() => generateEnv(["# @type url", "# @pattern ^https://", "API_URL=http://example.com"].join("\n"))).toThrow(
-      /Sample value "http:\/\/example.com" does not match @pattern for API_URL/,
+      /^Value of API_URL does not match @pattern$/,
     );
 
     expect(() => generateEnv(["# @type string", "# @pattern ^[0-9]+$", "CODE=abc"].join("\n"))).toThrow(
-      /Sample value "abc" does not match @pattern for CODE/,
+      /^Value of CODE does not match @pattern$/,
     );
   });
 
@@ -129,6 +129,14 @@ describe("@pattern", () => {
     expect(() => generateEnv("# @pattern /abc/invalidflag\nX=abc")).toThrow(/Invalid regex for X:/);
     expect(() => generateEnv("# @pattern\nX=abc")).toThrow(/Invalid regex for X: pattern cannot be empty/);
     expect(() => generateEnv("# @pattern   \nX=abc")).toThrow(/Invalid regex for X: pattern cannot be empty/);
+    expect(() => generateEnv("# @pattern /abc/g\nX=abc")).toThrow(/Invalid regex for X: flags g and y/);
+    expect(() => generateEnv("# @pattern /abc/y\nX=abc")).toThrow(/Invalid regex for X: flags g and y/);
+  });
+
+  it("checks @default against the pattern", () => {
+    expect(() => generateEnv('# @pattern ^[a-z]+$\n# @default "ABC"\nX=abc')).toThrow(
+      /^@default for X does not match @pattern$/,
+    );
   });
 
   it("rejects @pattern on non-string schemas", () => {

@@ -29,26 +29,22 @@ export function applyTags(base: string, tags: Tags, key: string, value = ""): st
     if (!/^z\.(string|url|email|uuid)\(/.test(base)) {
       throw new Error(`@pattern is not supported for ${key} (${base})`);
     }
-    let raw = tags.pattern.trim();
-    if (
-      (raw.startsWith('"') && raw.endsWith('"') && raw.length >= 2) ||
-      (raw.startsWith("'") && raw.endsWith("'") && raw.length >= 2)
-    ) {
-      raw = raw.slice(1, -1);
-    }
+    const raw = unquote(tags.pattern.trim());
     let regex: RegExp;
     try {
       if (!raw) throw new Error("pattern cannot be empty");
       const match = raw.match(/^\/(.+)\/([a-zA-Z]*)$/);
+      // g and y make RegExp.test stateful (lastIndex), so the same value would alternately pass and fail.
+      if (match && /[gy]/.test(match[2])) throw new Error("flags g and y are not supported");
       regex = match ? new RegExp(match[1], match[2]) : new RegExp(raw);
     } catch (err) {
       throw new Error(`Invalid regex for ${key}: ${(err as Error).message}`);
     }
-    regex.lastIndex = 0;
-    if (!regex.test(value)) {
-      throw new Error(`Sample value "${value}" does not match @pattern for ${key}`);
+    // The value isn't echoed: it comes from .env and may be a secret.
+    if (!regex.test(value)) throw new Error(`Value of ${key} does not match @pattern`);
+    if (tags.default !== undefined && !regex.test(unquote(tags.default.trim()))) {
+      throw new Error(`@default for ${key} does not match @pattern`);
     }
-    regex.lastIndex = 0;
     schema += `.regex(${regex.toString()})`;
   }
 
@@ -58,6 +54,9 @@ export function applyTags(base: string, tags: Tags, key: string, value = ""): st
 
   return tags.optional ? `${schema}.optional()` : schema;
 }
+
+// Strips one pair of matching surrounding quotes, so tag values can be written as "x" or 'x'.
+const unquote = (s: string) => (s.length >= 2 && /^(["']).*\1$/s.test(s) ? s.slice(1, -1) : s);
 
 const FORMATS: [string, z.ZodType, string][] = [
   ["z.iso.datetime()", z.iso.datetime(), "ISO datetime"],
@@ -76,13 +75,7 @@ function formatDefault(
     throw new Error(`@default for ${key} requires a value`);
   }
 
-  let raw = rawInput.trim();
-  if (
-    (raw.startsWith('"') && raw.endsWith('"') && raw.length >= 2) ||
-    (raw.startsWith("'") && raw.endsWith("'") && raw.length >= 2)
-  ) {
-    raw = raw.slice(1, -1);
-  }
+  const raw = unquote(rawInput.trim());
 
   // Integer
   if (base.includes("z.coerce.number().int()")) {

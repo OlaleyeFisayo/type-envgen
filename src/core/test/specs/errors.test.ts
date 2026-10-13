@@ -57,6 +57,7 @@ describe("validateEnv errors", () => {
     ["datetime", z.iso.datetime(), "nope", "must be a valid ISO datetime"],
     ["ipv4", z.ipv4(), "nope", "must be a valid IPv4 address"],
     ["ipv6", z.ipv6(), "nope", "must be a valid IPv6 address"],
+    ["pattern", z.string().regex(/^sk_[a-z]+$/), "nope", "must match /^sk_[a-z]+$/"],
     ["min number", z.coerce.number().min(5), "1", "must be at least 5"],
     ["max number", z.coerce.number().max(5), "9", "must be at most 5"],
     ["min length", z.string().min(3), "ab", "must be at least 3 characters"],

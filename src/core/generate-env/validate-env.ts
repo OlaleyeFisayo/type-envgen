@@ -21,6 +21,8 @@ function describe(issue: z.core.$ZodIssue): string {
       if ("expected" in issue && issue.expected === "stringbool") return "must be true or false";
       return `must be one of: ${issue.values.join(", ")}`;
     case "invalid_format":
+      // The pattern comes from the user's own @pattern tag, so printing it is safe.
+      if (issue.format === "regex" && "pattern" in issue) return `must match ${issue.pattern}`;
       return `must be a valid ${FORMATS[issue.format] ?? issue.format}`;
     case "invalid_type":
       if (issue.expected === "int") return "must be a whole number";
