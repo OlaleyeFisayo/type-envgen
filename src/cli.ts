@@ -21,7 +21,7 @@ Arguments:
 Options:
   -o, --output <path>  File to write (default: env.ts)
       --target <name>  Where the module runs (default: node)
-      --check          Verify output file is up to date without writing
+      --check          Exit 1 if the output file is out of date (writes nothing)
       --skip-install   Don't add zod/type-envgen to your dependencies if missing
   -h, --help           Show this help
   -v, --version        Show version
@@ -142,7 +142,10 @@ function check(input: string, output: string, target: TargetName) {
   const source = generateEnv(readFileSync(input, "utf8"), target);
   const existing = readFileSync(output, "utf8");
   const normalize = (s: string) => s.replace(/\r\n/g, "\n");
-  if (normalize(source) !== normalize(existing)) fail(`${output} is out of date, run type-envgen to regenerate`);
+  // The file may hold the user's own code, so compare against what an update would write, not a fresh file.
+  if (normalize(updateEnv(existing, source, output)) !== normalize(existing)) {
+    fail(`${output} is out of date, run type-envgen to regenerate`);
+  }
   console.log(`${PREFIX} ✓ ${output} is up to date`);
 }
 

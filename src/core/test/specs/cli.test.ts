@@ -77,6 +77,9 @@ describe("cli", () => {
   });
 
   describe("--check", () => {
+    const upToDate = (out: string) => `[type-envgen] ✓ ${out} is up to date`;
+    const outOfDate = (out: string) => `[type-envgen] ${out} is out of date, run type-envgen to regenerate`;
+
     it("exits 0 when output is up to date", () => {
       const out = join(outDir, "check-valid.ts");
       mkdirSync(outDir, { recursive: true });
@@ -84,7 +87,7 @@ describe("cli", () => {
 
       const run = cli(envPath, "-o", out, "--check");
       expect(run.status, run.stderr).toBe(0);
-      expect(run.stdout).toMatch(new RegExp(`\\[type-envgen\\] ✓ ${out} is up to date`));
+      expect(run.stdout).toContain(upToDate(out));
     });
 
     it("ignores CRLF vs LF differences", () => {
@@ -95,28 +98,48 @@ describe("cli", () => {
 
       const run = cli(envPath, "-o", out, "--check");
       expect(run.status, run.stderr).toBe(0);
-      expect(run.stdout).toMatch(new RegExp(`\\[type-envgen\\] ✓ ${out} is up to date`));
+      expect(run.stdout).toContain(upToDate(out));
+    });
+
+    it("keeps the user's own code in the file up to date", () => {
+      const out = join(outDir, "check-custom.ts");
+      mkdirSync(outDir, { recursive: true });
+      writeFileSync(out, `${generateEnv(readFileSync(envPath, "utf8"))}export const isProd = true;\n`);
+
+      const run = cli(envPath, "-o", out, "--check");
+      expect(run.status, run.stderr).toBe(0);
+      expect(run.stdout).toContain(upToDate(out));
     });
 
     it("exits 1 when output is out of date and does not modify the file", () => {
       const out = join(outDir, "check-outdated.ts");
       mkdirSync(outDir, { recursive: true });
-      const outdatedContent = "// outdated content";
+      const outdatedContent = generateEnv("ONLY_ONE_KEY=1");
       writeFileSync(out, outdatedContent);
 
       const run = cli(envPath, "-o", out, "--check");
       expect(run.status).toBe(1);
-      expect(run.stderr).toMatch(new RegExp(`\\[type-envgen\\] ${out} is out of date, run type-envgen to regenerate`));
+      expect(run.stderr).toContain(outOfDate(out));
       expect(readFileSync(out, "utf8")).toBe(outdatedContent);
+    });
+
+    it("exits 1 when the generated parts are missing", () => {
+      const out = join(outDir, "check-foreign.ts");
+      mkdirSync(outDir, { recursive: true });
+      const foreign = "// not a generated file\n";
+      writeFileSync(out, foreign);
+
+      const run = cli(envPath, "-o", out, "--check");
+      expect(run.status).toBe(1);
+      expect(run.stderr).toContain(`Can't update ${out}`);
+      expect(readFileSync(out, "utf8")).toBe(foreign);
     });
 
     it("exits 1 when output file does not exist", () => {
       const missing = join(outDir, "missing-check.ts");
       const run = cli(envPath, "-o", missing, "--check");
       expect(run.status).toBe(1);
-      expect(run.stderr).toMatch(
-        new RegExp(`\\[type-envgen\\] ${missing} is out of date, run type-envgen to regenerate`),
-      );
+      expect(run.stderr).toContain(outOfDate(missing));
     });
   });
 });
