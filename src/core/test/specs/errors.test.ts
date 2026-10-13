@@ -51,6 +51,8 @@ describe("validateEnv errors", () => {
     ["boolean", z.stringbool(), "maybe", "must be true or false"],
     ["enum", z.enum(["a", "b"]), "c", "must be one of: a, b"],
     ["url", z.url(), "nope", "must be a valid URL"],
+    ["httpurl", z.httpUrl(), "ftp://example.com", "must be a valid URL"],
+    ["hostname", z.hostname(), "invalid_host", "must be a valid hostname"],
     ["email", z.email(), "nope", "must be a valid email"],
     ["uuid", z.uuid(), "nope", "must be a valid UUID"],
     ["date", z.iso.date(), "nope", "must be a valid date (YYYY-MM-DD)"],
