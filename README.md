@@ -240,6 +240,7 @@ Overrides inference.
 | `boolean`       | `z.stringbool()`                 |
 | `url`           | `z.url()`                        |
 | `email`         | `z.email()`                      |
+| `email(preset)` | `z.email({ pattern: z.regexes.<preset>Email })` (`html5`, `rfc5322`, `unicode`, `browser`) |
 | `uuid`          | `z.uuid()`                       |
 | `date`          | `z.iso.date()`                   |
 | `datetime`      | `z.iso.datetime()`               |
