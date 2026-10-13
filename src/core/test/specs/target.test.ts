@@ -2,7 +2,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { addScript } from "../../../init.ts";
+import { addScript, initScripts } from "../../../cli/scripts.ts";
 import { generateEnv } from "../../generate-env/index.ts";
 import { cli } from "../utils/helpers.ts";
 
@@ -65,5 +65,27 @@ describe("addScript", () => {
 
   it("never overwrites an existing script", () => {
     expect(addScript('{"scripts":{"env:generate":"mine"}}', "env:generate", "cmd")).toBeNull();
+  });
+});
+
+describe("initScripts", () => {
+  const command = "type-envgen .env -o env.ts --target node";
+
+  it("offers generate, check and watch scripts", () => {
+    expect(initScripts(command)).toEqual([
+      ["env:generate", command],
+      ["env:check", `${command} --check`],
+      ["env:watch", `${command} --watch`],
+    ]);
+  });
+
+  it("keeps an existing script while adding the others", () => {
+    let json = '{"scripts":{"env:check":"mine"}}';
+    for (const [name, cmd] of initScripts(command)) json = addScript(json, name, cmd) ?? json;
+    expect(JSON.parse(json).scripts).toEqual({
+      "env:check": "mine",
+      "env:generate": command,
+      "env:watch": `${command} --watch`,
+    });
   });
 });

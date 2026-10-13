@@ -1,6 +1,7 @@
 // Constants shared across the app.
 export const PREFIX = "[type-envgen]";
-export const INIT_SCRIPT = "env:generate";
+// npm scripts `init` adds: name -> flags appended to the base command.
+export const INIT_SCRIPTS = { "env:generate": "", "env:check": " --check", "env:watch": " --watch" };
 export const ZOD_SPEC = "zod@^4";
 
 import { prop } from "../generate-env/prop.ts";

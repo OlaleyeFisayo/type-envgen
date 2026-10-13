@@ -1,19 +1,11 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import * as p from "@clack/prompts";
-import { INIT_SCRIPT, PREFIX, TARGETS, type TargetName } from "./core/constants/index.ts";
+import { PREFIX, TARGETS, type TargetName } from "../core/constants/index.ts";
+import { addScript, initScripts } from "./scripts.ts";
 
 const CANCELLED = `${PREFIX} Cancelled, nothing written.`;
 
-/** Adds `scripts[name]` to a package.json string, keeping its indent. Returns null if it already exists. */
-export function addScript(pkgJson: string, name: string, command: string): string | null {
-  const pkg = JSON.parse(pkgJson);
-  if (pkg.scripts?.[name]) return null;
-  pkg.scripts = { ...pkg.scripts, [name]: command };
-  const indent = pkgJson.match(/^[ \t]+(?=")/m)?.[0] ?? 2;
-  return `${JSON.stringify(pkg, null, indent)}\n`;
-}
-
-/** Interactive setup: pick a target, then optionally add an npm script that regenerates the file. */
+/** Interactive setup: pick a target, then optionally add npm scripts that regenerate the file. */
 export async function init(generate: (input: string, output: string, target: TargetName) => void) {
   p.intro(PREFIX);
 
@@ -35,12 +27,21 @@ export async function init(generate: (input: string, output: string, target: Tar
   const command = `type-envgen ${input} -o ${output} --target ${target}`;
   const hasPkg = existsSync("package.json");
   if (hasPkg) {
-    const add = await p.confirm({ message: `Add "${INIT_SCRIPT}": "${command}" to package.json scripts?` });
+    const scripts = initScripts(command);
+    const list = scripts.map(([name, cmd]) => `  "${name}": "${cmd}"`).join("\n");
+    const add = await p.confirm({ message: `Add these scripts to package.json?\n${list}` });
     if (p.isCancel(add)) return p.cancel(CANCELLED);
     if (add) {
-      const next = addScript(readFileSync("package.json", "utf8"), INIT_SCRIPT, command);
-      if (next) writeFileSync("package.json", next);
-      else p.log.warn(`${PREFIX} package.json already has a "${INIT_SCRIPT}" script, left unchanged.`);
+      const original = readFileSync("package.json", "utf8");
+      let json = original;
+      const skipped: string[] = [];
+      for (const [name, cmd] of scripts) {
+        const next = addScript(json, name, cmd);
+        if (next) json = next;
+        else skipped.push(`"${name}"`);
+      }
+      if (json !== original) writeFileSync("package.json", json);
+      if (skipped.length) p.log.warn(`${PREFIX} package.json already has ${skipped.join(", ")}, left unchanged.`);
     }
   } else p.log.info(`${PREFIX} No package.json here. Run it manually: ${command}`);
 
@@ -49,5 +50,9 @@ export async function init(generate: (input: string, output: string, target: Tar
   } catch (err) {
     return p.cancel(`${PREFIX} ${(err as Error).message}`);
   }
-  p.outro(hasPkg ? `${PREFIX} Done. Regenerate any time with: npm run ${INIT_SCRIPT}` : `${PREFIX} Done.`);
+  p.outro(
+    hasPkg
+      ? `${PREFIX} Done. Regenerate with: npm run env:generate (env:watch while developing, env:check in CI)`
+      : `${PREFIX} Done.`,
+  );
 }

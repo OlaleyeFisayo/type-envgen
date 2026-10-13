@@ -148,17 +148,19 @@ warning: DATABASE_URL doesn't start with VITE_, so it is undefined in the browse
 npx type-envgen init
 ```
 
-The wizard explains each target, asks which `.env` file to read and where to write the result, then offers to add an npm script to your `package.json` and generates the file once:
+The wizard explains each target, asks which `.env` file to read and where to write the result, then offers to add npm scripts to your `package.json` and generates the file once:
 
 ```json
 {
   "scripts": {
-    "env:generate": "type-envgen .env -o src/env.ts --target vite"
+    "env:generate": "type-envgen .env -o src/env.ts --target vite",
+    "env:check": "type-envgen .env -o src/env.ts --target vite --check",
+    "env:watch": "type-envgen .env -o src/env.ts --target vite --watch"
   }
 }
 ```
 
-An existing `env:generate` script is never overwritten, and cancelling at any prompt writes nothing.
+Use `env:watch` while developing and `env:check` in CI. Existing scripts with these names are never overwritten, and cancelling at any prompt writes nothing.
 
 ## CLI reference
 
@@ -358,7 +360,7 @@ If a variable is missing or invalid, startup stops with one error listing every 
 
 ## Recommended workflow
 
-- Run `npx type-envgen init` once to pick a target and add the `env:generate` script.
+- Run `npx type-envgen init` once to pick a target and add the `env:generate`, `env:watch` and `env:check` scripts.
 - Generate from **`.env.example`** so teammates and CI get the same types without real secrets.
 - Use **`type-envgen --watch`** during development so `env.ts` stays in sync with your `.env`.
 - **Commit the generated file** and re-run `npm run env:generate` whenever you add or change a variable.

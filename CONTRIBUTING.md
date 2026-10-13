@@ -33,14 +33,21 @@ npm install         # also installs the git hooks
 
 ```
 src/
-  cli.ts                 # CLI: argument parsing, help, read -> generate -> write, zod install
+  index.ts               # package entry: helpers imported by generated files
+  cli/                   # the type-envgen command, one file per concern
+    index.ts             #   entry: reads args and runs the right command
+    args.ts, help.ts     #   argument parsing and --help text
+    generate.ts          #   read -> generate -> write (updates an existing file in place)
+    check.ts, watch.ts   #   --check and --watch
+    init.ts, scripts.ts  #   the interactive wizard and its package.json script helpers
+    ensure-deps.ts       #   installs zod and type-envgen when missing
   core/
     generate-env/        # generator, one function per file (index.ts exports generateEnv)
     test/                # sample .env and the test script
 docs/                    # maintainer docs (releasing)
 ```
 
-To add a type or tag: update `src/core/generate-env/`, add a case to `src/core/test/.env`, add a test in the matching `src/core/test/specs/*.test.ts`, and document it in the README and the `--help` text in `src/cli.ts`.
+To add a type or tag: update `src/core/generate-env/`, add a case to `src/core/test/.env`, add a test in the matching `src/core/test/specs/*.test.ts`, and document it in the README and the `--help` text in `src/cli/help.ts`.
 
 ## Git hooks
 
