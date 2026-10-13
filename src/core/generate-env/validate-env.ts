@@ -9,6 +9,11 @@ const FORMATS: Record<string, string> = {
   datetime: "ISO datetime",
   ipv4: "IPv4 address",
   ipv6: "IPv6 address",
+  e164: "E.164 number",
+  emoji: "emoji",
+  currency_code: "currency code",
+  iban: "IBAN",
+  credit_card: "credit card number",
 };
 
 const UNITS: Record<string, string> = { string: " characters", array: " items" };
