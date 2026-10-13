@@ -155,6 +155,7 @@ function check(input: string, output: string, target: TargetName) {
 const { values, positionals } = readArgs();
 const target = values.target as string;
 if (!(target in TARGETS)) fail(`Unknown target "${target}". Choose one of: ${Object.keys(TARGETS).join(", ")}`);
+if (values.check && values.watch) fail("--check and --watch can't be used together");
 
 if (values.help) {
   console.log(HELP);

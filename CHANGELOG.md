@@ -11,7 +11,7 @@ Full release notes for every version, including each merged pull request, are on
 
 ### Added
 
-- `-w, --watch` flag to watch the input `.env` file and regenerate the output on changes (#5).
+- `-w, --watch` flag to watch the input `.env` file and regenerate the output on changes. Your own code in the output file is kept (#5, thanks @montionugera).
 - `--check` flag for CI and pre-commit hooks: exits `1` if the output file is missing or out of date with the `.env`, without writing files or installing anything. Your own code in the file and CRLF/LF differences don't count as changes (#4, thanks @montionugera).
 - `@minlength <n>` / `@maxlength <n>` tags: explicit length bounds on string-like values (`string`, `url`, `email`, `uuid`, `date`, `datetime`, `ipv4`, `ipv6`). `@min` / `@max` stay as length aliases on strings (#10, thanks @montionugera).
 - `@pattern <regex>` tag: validates strings, URLs, emails and UUIDs against a regular expression (`.regex(...)`). The `.env` value and any `@default` must match at generation time (#3, thanks @montionugera).

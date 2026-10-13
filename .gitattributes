@@ -1,1 +1,3 @@
 * text=auto eol=lf
+# Written with CRLF on purpose by the --check tests; store it as-is so test runs leave no diff.
+src/core/test/output/check-crlf.ts -text

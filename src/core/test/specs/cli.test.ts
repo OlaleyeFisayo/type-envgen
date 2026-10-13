@@ -71,6 +71,12 @@ describe("cli", () => {
     expect(run.stderr).toMatch(/^\[type-envgen\] Input file not found: does-not-exist\.env/);
   });
 
+  it("rejects --check with --watch", () => {
+    const run = cli(envPath, "--check", "--watch");
+    expect(run.status).toBe(1);
+    expect(run.stderr).toContain("[type-envgen] --check and --watch can't be used together");
+  });
+
   it("fails on a missing input file with --watch", () => {
     const run = cli("does-not-exist.env", "-w");
     expect(run.status).toBe(1);
@@ -174,11 +180,15 @@ describe("cli", () => {
       { timeout: 3000, interval: 50 },
     );
 
-    // 2. Regeneration on valid edit
+    // 2. Regeneration on valid edit, keeping the user's own code in the output
+    const custom = "export const isProd = true;\n";
+    writeFileSync(outFile, readFileSync(outFile, "utf8") + custom);
     writeFileSync(envFile, "FOO=initial\nPORT=3000\n");
     await vi.waitFor(
       () => {
-        expect(readFileSync(outFile, "utf8")).toMatch(/PORT: z\.coerce\.number\(\)\.int\(\)/);
+        const out = readFileSync(outFile, "utf8");
+        expect(out).toMatch(/PORT: z\.coerce\.number\(\)\.int\(\)/);
+        expect(out).toContain(custom);
       },
       { timeout: 3000, interval: 50 },
     );
