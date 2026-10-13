@@ -8,7 +8,7 @@ export type Bounds = {
   maxTag?: "max" | "maxlength";
 };
 
-const STRING_LIKE_REGEX = /^z\.(string|url|email|uuid|iso\.date|iso\.datetime|ipv4|ipv6)\(/;
+const STRING_LIKE_REGEX = /^z\.(string|url|email|uuid|iso\.date|iso\.datetime|iso\.time|iso\.duration|ipv4|ipv6)\(/;
 const NUMBER_REGEX = /^z\.coerce\.number\(/;
 
 function parseBound(
@@ -125,6 +125,8 @@ const unquote = (s: string) => (s.length >= 2 && /^(["']).*\1$/s.test(s) ? s.sli
 const FORMATS: [string, z.ZodType, string][] = [
   ["z.iso.datetime()", z.iso.datetime(), "ISO datetime"],
   ["z.iso.date()", z.iso.date(), "ISO date"],
+  ["z.iso.time()", z.iso.time(), "ISO time"],
+  ["z.iso.duration()", z.iso.duration(), "ISO duration"],
   ["z.ipv4()", z.ipv4(), "IPv4 address"],
   ["z.ipv6()", z.ipv6(), "IPv6 address"],
 ];
@@ -213,7 +215,18 @@ function formatDefault(base: string, rawInput: string, key: string, bounds: Boun
     return `.default(${JSON.stringify(raw)})`;
   }
 
-  // Date / datetime / IP
+  // Time with precision
+  const timePrecisionMatch = base.match(/^z\.iso\.time\(\{\s*precision:\s*(\d+)\s*\}\)/);
+  if (timePrecisionMatch) {
+    const prec = Number.parseInt(timePrecisionMatch[1], 10);
+    if (!z.iso.time({ precision: prec }).safeParse(raw).success) {
+      throw new Error(`@default for ${key} must be a valid ISO time, got "${rawInput}"`);
+    }
+    checkStringBounds(raw, bounds, key);
+    return `.default(${JSON.stringify(raw)})`;
+  }
+
+  // Date / datetime / time / duration / IP
   const format = FORMATS.find(([prefix]) => base.startsWith(prefix));
   if (format) {
     const [, schema, label] = format;
