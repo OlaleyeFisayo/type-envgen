@@ -10,6 +10,16 @@ export function annotatedSchema(type: string, key: string, value: string): strin
       .filter(Boolean);
     if (values.length) return `z.enum(${JSON.stringify(values)})`;
   }
+  const uuidVersion = type
+    .match(/^uuid\((.*)\)$/i)?.[1]
+    ?.trim()
+    .toLowerCase();
+  if (uuidVersion !== undefined) {
+    if (/^v[1-8]$/.test(uuidVersion)) {
+      return `z.uuid({ version: "${uuidVersion}" })`;
+    }
+    throw new Error(`Invalid UUID version "${uuidVersion}" for ${key} (expected v1 to v8)`);
+  }
   const name = type.toLowerCase();
   if (name in TYPES) return TYPES[name];
   if (name === "json") {

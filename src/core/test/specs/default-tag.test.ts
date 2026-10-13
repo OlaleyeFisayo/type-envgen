@@ -22,6 +22,16 @@ describe("@default", () => {
       /X: z\.iso\.date\(\)\.default\("2026-01-31"\)/,
     );
     expect(generateEnv("# @type ipv6\n# @default ::1\nX=2001:db8::1")).toMatch(/X: z\.ipv6\(\)\.default\("::1"\)/);
+    expect(
+      generateEnv(
+        "# @type uuid(v7)\n# @default 0190a5d2-7c3b-7d4e-9f00-1234567890ab\nX=0190a5d2-7c3b-7d4e-9f00-1234567890ac",
+      ),
+    ).toMatch(/X: z\.uuid\(\{ version: "v7" \}\)\.default\("0190a5d2-7c3b-7d4e-9f00-1234567890ab"\)/);
+    expect(
+      generateEnv(
+        "# @type guid\n# @default 00000000-0000-0000-0000-000000000001\nX=00000000-0000-0000-0000-000000000002",
+      ),
+    ).toMatch(/X: z\.guid\(\)\.default\("00000000-0000-0000-0000-000000000001"\)/);
   });
 
   describe("errors", () => {
@@ -37,6 +47,16 @@ describe("@default", () => {
         "a bad UUID",
         "# @type uuid\n# @default not-a-uuid\nX=550e8400-e29b-41d4-a716-446655440000",
         /@default for X must be a valid UUID/,
+      ],
+      [
+        "a bad uuid(v7)",
+        "# @type uuid(v7)\n# @default 550e8400-e29b-41d4-a716-446655440000\nX=0190a5d2-7c3b-7d4e-9f00-1234567890ab",
+        /@default for X must be a valid UUID/,
+      ],
+      [
+        "a bad GUID",
+        "# @type guid\n# @default not-a-guid\nX=00000000-0000-0000-0000-000000000001",
+        /@default for X must be a valid GUID/,
       ],
       ["a bad date", "# @type date\n# @default notadate\nX=2026-01-31", /@default for X must be a valid ISO date/],
       [

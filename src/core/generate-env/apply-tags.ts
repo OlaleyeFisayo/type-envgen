@@ -8,7 +8,7 @@ export type Bounds = {
   maxTag?: "max" | "maxlength";
 };
 
-const STRING_LIKE_REGEX = /^z\.(string|url|email|uuid|iso\.date|iso\.datetime|ipv4|ipv6)\(/;
+const STRING_LIKE_REGEX = /^z\.(string|url|email|uuid|guid|iso\.date|iso\.datetime|ipv4|ipv6)\(/;
 const NUMBER_REGEX = /^z\.coerce\.number\(/;
 
 function parseBound(
@@ -127,6 +127,7 @@ const FORMATS: [string, z.ZodType, string][] = [
   ["z.iso.date()", z.iso.date(), "ISO date"],
   ["z.ipv4()", z.ipv4(), "IPv4 address"],
   ["z.ipv6()", z.ipv6(), "IPv6 address"],
+  ["z.guid()", z.guid(), "GUID"],
 ];
 
 function checkStringBounds(raw: string, bounds: Bounds, key: string) {
@@ -205,8 +206,16 @@ function formatDefault(base: string, rawInput: string, key: string, bounds: Boun
   }
 
   // UUID
-  if (base.includes("z.uuid()")) {
-    if (!z.uuid().safeParse(raw).success) {
+  const uuidMatch = base.match(/^z\.uuid\((.*?)\)/);
+  if (uuidMatch) {
+    const opts = uuidMatch[1].trim();
+    const versionMatch = opts.match(/version:\s*"([^"]+)"/);
+    const schema = versionMatch
+      ? z.uuid({
+          version: versionMatch[1] as "v1" | "v2" | "v3" | "v4" | "v5" | "v6" | "v7" | "v8",
+        })
+      : z.uuid();
+    if (!schema.safeParse(raw).success) {
       throw new Error(`@default for ${key} must be a valid UUID, got "${rawInput}"`);
     }
     checkStringBounds(raw, bounds, key);
