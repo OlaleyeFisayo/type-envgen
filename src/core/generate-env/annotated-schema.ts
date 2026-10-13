@@ -10,6 +10,10 @@ export function annotatedSchema(type: string, key: string, value: string): strin
       .filter(Boolean);
     if (values.length) return `z.enum(${JSON.stringify(values)})`;
   }
+  const macDelimiter = type.match(/^mac\((.*)\)$/i)?.[1]?.trim();
+  if (macDelimiter !== undefined) {
+    return `z.mac({ delimiter: ${JSON.stringify(macDelimiter)} })`;
+  }
   const name = type.toLowerCase();
   if (name in TYPES) return TYPES[name];
   if (name === "json") {

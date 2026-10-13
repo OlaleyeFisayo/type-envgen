@@ -9,6 +9,9 @@ const FORMATS: Record<string, string> = {
   datetime: "ISO datetime",
   ipv4: "IPv4 address",
   ipv6: "IPv6 address",
+  cidrv4: "IPv4 CIDR block",
+  cidrv6: "IPv6 CIDR block",
+  mac: "MAC address",
 };
 
 const UNITS: Record<string, string> = { string: " characters", array: " items" };
