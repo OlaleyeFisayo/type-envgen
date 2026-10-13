@@ -24,6 +24,18 @@ describe("@default", () => {
     expect(generateEnv("# @type ipv6\n# @default ::1\nX=2001:db8::1")).toMatch(/X: z\.ipv6\(\)\.default\("::1"\)/);
   });
 
+  it("accepts valid jwt and hash defaults", () => {
+    const validJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.c2ln";
+    expect(generateEnv(`# @type jwt\n# @default ${validJwt}\nX=${validJwt}`)).toContain(
+      `X: z.jwt().default("${validJwt}")`,
+    );
+
+    const validHash = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08";
+    expect(generateEnv(`# @type hash(sha256)\n# @default ${validHash}\nX=${validHash}`)).toContain(
+      `X: z.hash("sha256").default("${validHash}")`,
+    );
+  });
+
   describe("errors", () => {
     it.each([
       ["a missing value", "# @default\nX=1", /@default for X requires a value/],
@@ -46,6 +58,17 @@ describe("@default", () => {
       ],
       ["a bad IPv4", "# @type ipv4\n# @default 999.9.9.9\nX=10.0.0.1", /@default for X must be a valid IPv4 address/],
       ["a bad IPv6", "# @type ipv6\n# @default nope\nX=::1", /@default for X must be a valid IPv6 address/],
+      ["a bad JWT", "# @type jwt\n# @default not-a-jwt\nX=test", /@default for X must be a valid JWT/],
+      [
+        "a bad hash",
+        "# @type hash(sha256)\n# @default not-a-hash\nX=test",
+        /@default for X must be a valid sha256 hash/,
+      ],
+      [
+        "a bad base64 hash",
+        "# @type hash(sha256, base64)\n# @default not-base64-hash\nX=test",
+        /@default for X must be a valid sha256 hash \(base64\)/,
+      ],
       ["a non-member enum", "# @type enum(a, b)\n# @default c\nX=a", /@default "c" for X is not in enum/],
       ["invalid JSON", '# @default {bad json}\nX={"a":1}', /@default for X must be valid JSON/],
       ["below @min", "# @min 10\n# @default 5\nX=10", /less than @min/],
