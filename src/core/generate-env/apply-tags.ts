@@ -8,7 +8,7 @@ export type Bounds = {
   maxTag?: "max" | "maxlength";
 };
 
-const STRING_LIKE_REGEX = /^z\.(string|url|email|uuid|iso\.date|iso\.datetime|ipv4|ipv6)\(/;
+const STRING_LIKE_REGEX = /^z\.(string|url|email|uuid|iso\.date|iso\.datetime|ipv4|ipv6|jwt|hash)\(/;
 const NUMBER_REGEX = /^z\.coerce\.number\(/;
 
 function parseBound(
@@ -218,6 +218,35 @@ function formatDefault(base: string, rawInput: string, key: string, bounds: Boun
   if (format) {
     const [, schema, label] = format;
     if (!schema.safeParse(raw).success) {
+      throw new Error(`@default for ${key} must be a valid ${label}, got "${rawInput}"`);
+    }
+    checkStringBounds(raw, bounds, key);
+    return `.default(${JSON.stringify(raw)})`;
+  }
+
+  // JWT
+  if (base.startsWith("z.jwt(")) {
+    const algMatch = base.match(/alg:\s*"([^"]+)"/);
+    const alg = algMatch?.[1];
+    const schema = alg
+      ? z.jwt({ alg: alg as Parameters<typeof z.jwt>[0] extends { alg?: infer A } ? A : never })
+      : z.jwt();
+    if (!schema.safeParse(raw).success) {
+      throw new Error(`@default for ${key} must be a valid JWT, got "${rawInput}"`);
+    }
+    checkStringBounds(raw, bounds, key);
+    return `.default(${JSON.stringify(raw)})`;
+  }
+
+  // Hash
+  if (base.startsWith("z.hash(")) {
+    const algMatch = base.match(/z\.hash\("([^"]+)"/);
+    const encMatch = base.match(/enc:\s*"([^"]+)"/);
+    const alg = (algMatch ? algMatch[1] : "") as Parameters<typeof z.hash>[0];
+    const enc = encMatch ? (encMatch[1] as NonNullable<Parameters<typeof z.hash>[1]>["enc"]) : undefined;
+    const schema = enc ? z.hash(alg, { enc }) : z.hash(alg);
+    if (!schema.safeParse(raw).success) {
+      const label = enc && enc !== "hex" ? `${alg} hash (${enc})` : `${alg} hash`;
       throw new Error(`@default for ${key} must be a valid ${label}, got "${rawInput}"`);
     }
     checkStringBounds(raw, bounds, key);

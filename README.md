@@ -245,6 +245,10 @@ Overrides inference.
 | `datetime`      | `z.iso.datetime()`               |
 | `ipv4`          | `z.ipv4()`                       |
 | `ipv6`          | `z.ipv6()`                       |
+| `jwt`           | `z.jwt()`                        |
+| `jwt(alg)`      | `z.jwt({ alg: "..." })`          |
+| `hash(alg)`     | `z.hash("...")`                  |
+| `hash(alg, enc)`| `z.hash("...", { enc: "..." })`  |
 | `json`          | `json(<schema built from the value>)` |
 | `enum(a, b, c)` | `z.enum(["a","b","c"])`          |
 
