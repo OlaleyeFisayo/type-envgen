@@ -3,7 +3,6 @@ import { PREFIX } from "../constants/index.ts";
 
 const FORMATS: Record<string, string> = {
   url: "URL",
-  httpurl: "HTTP URL",
   hostname: "hostname",
   email: "email",
   uuid: "UUID",
