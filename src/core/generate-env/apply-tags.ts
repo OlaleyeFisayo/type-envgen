@@ -9,7 +9,7 @@ export type Bounds = {
 };
 
 const STRING_LIKE_REGEX =
-  /^z\.(string|url|email|uuid|nanoid|cuid|cuid2|ulid|ksuid|xid|iso\.date|iso\.datetime|ipv4|ipv6|cidrv4|cidrv6|mac|e164|emoji|currencyCode|iban|creditCard|base64|base64url|hex|jwt|hash)\(/;
+  /^z\.(string|url|email|uuid|nanoid|cuid|cuid2|ulid|ksuid|xid|iso\.date|iso\.datetime|iso\.time|iso\.duration|ipv4|ipv6|cidrv4|cidrv6|mac|e164|emoji|currencyCode|iban|creditCard|base64|base64url|hex|jwt|hash)\(/;
 const NUMBER_REGEX = /^z\.coerce\.number\(/;
 
 function parseBound(
@@ -131,6 +131,8 @@ const FORMATS: [string, z.ZodType, string][] = [
   ["z.ksuid()", z.ksuid(), "KSUID"],
   ["z.xid()", z.xid(), "XID"],
   ["z.iso.date()", z.iso.date(), "ISO date"],
+  ["z.iso.time()", z.iso.time(), "ISO time"],
+  ["z.iso.duration()", z.iso.duration(), "ISO duration"],
   ["z.ipv4()", z.ipv4(), "IPv4 address"],
   ["z.ipv6()", z.ipv6(), "IPv6 address"],
   ["z.e164()", z.e164(), "E.164 number"],
@@ -242,6 +244,17 @@ function formatDefault(base: string, rawInput: string, key: string, bounds: Boun
     return `.default(${JSON.stringify(raw)})`;
   }
 
+  // Time with precision
+  const timePrecisionMatch = base.match(/^z\.iso\.time\(\{\s*precision:\s*(\d+)\s*\}\)/);
+  if (timePrecisionMatch) {
+    const prec = Number.parseInt(timePrecisionMatch[1], 10);
+    if (!z.iso.time({ precision: prec }).safeParse(raw).success) {
+      throw new Error(`@default for ${key} must be a valid ISO time, got "${rawInput}"`);
+    }
+    checkStringBounds(raw, bounds, key);
+    return `.default(${JSON.stringify(raw)})`;
+  }
+
   // Datetime (supports options: offset, local, precision)
   if (base.startsWith("z.iso.datetime(")) {
     let schema = z.iso.datetime();
@@ -261,7 +274,7 @@ function formatDefault(base: string, rawInput: string, key: string, bounds: Boun
     return `.default(${JSON.stringify(raw)})`;
   }
 
-  // Date / IP / CIDR / other plain formats
+  // Date / time / duration / IP / CIDR / other plain formats
   const format = FORMATS.find(([prefix]) => base.startsWith(prefix));
   if (format) {
     const [, schema, label] = format;

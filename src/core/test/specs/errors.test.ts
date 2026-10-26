@@ -61,6 +61,8 @@ describe("validateEnv errors", () => {
     ["xid", z.xid(), "bad!", "must be a valid XID"],
     ["date", z.iso.date(), "nope", "must be a valid date (YYYY-MM-DD)"],
     ["datetime", z.iso.datetime(), "nope", "must be a valid ISO datetime"],
+    ["time", z.iso.time(), "nope", "must be a valid ISO time"],
+    ["duration", z.iso.duration(), "nope", "must be a valid ISO duration"],
     ["ipv4", z.ipv4(), "nope", "must be a valid IPv4 address"],
     ["ipv6", z.ipv6(), "nope", "must be a valid IPv6 address"],
     ["e164", z.e164(), "nope", "must be a valid E.164 number"],

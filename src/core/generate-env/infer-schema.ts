@@ -16,6 +16,7 @@ export function inferSchema(key: string, value: string): string {
   if (z.iso.date().safeParse(value).success) return TYPES.date;
   if (z.iso.datetime().safeParse(value).success) return TYPES.datetime;
   if (z.iso.datetime({ offset: true }).safeParse(value).success) return "z.iso.datetime({ offset: true })";
+  if (z.iso.duration().safeParse(value).success) return TYPES.duration;
   if (z.cidrv4().safeParse(value).success) return TYPES.cidrv4;
   if (z.cidrv6().safeParse(value).success) return TYPES.cidrv6;
   if (z.ipv4().safeParse(value).success) return TYPES.ipv4;

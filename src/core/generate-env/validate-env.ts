@@ -13,6 +13,8 @@ const FORMATS: Record<string, string> = {
   xid: "XID",
   date: "date (YYYY-MM-DD)",
   datetime: "ISO datetime",
+  time: "ISO time",
+  duration: "ISO duration",
   ipv4: "IPv4 address",
   ipv6: "IPv6 address",
   e164: "E.164 number",

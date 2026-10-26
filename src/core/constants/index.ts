@@ -25,6 +25,8 @@ export const TYPES: Record<string, string> = {
   xid: "z.xid()",
   date: "z.iso.date()",
   datetime: "z.iso.datetime()",
+  time: "z.iso.time()",
+  duration: "z.iso.duration()",
   ipv4: "z.ipv4()",
   ipv6: "z.ipv6()",
   e164: "z.e164()",
