@@ -24,9 +24,9 @@ That's it. Within a few minutes the new version is on npm and on the [GitHub Rel
 ## Updating the changelog
 
 Contributors add lines under `## [Unreleased]` in [CHANGELOG.md](../CHANGELOG.md) as part of their PRs. Before releasing:
-
 1. Rename `## [Unreleased]` to the new version and date, e.g. `## [1.1.0] - 2026-11-02`, and add a fresh empty `## [Unreleased]` above it.
 2. Update the compare links at the bottom:
+
    ```md
    [Unreleased]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.1.0...HEAD
    [1.1.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.0.0...v1.1.0
@@ -50,7 +50,6 @@ When in doubt: if a user upgrading could get a different `env.ts` or a CLI error
 ## What the release command does
 
 Each `release:*` script runs `npm version`, which:
-
 1. **Checks first** (`preversion`): runs `lint`, `typecheck` and `npm test`. If anything fails, nothing is changed.
 2. **Bumps** the version in `package.json` and `package-lock.json`.
 3. **Commits** it as `chore(release): vX.Y.Z` and creates the git tag `vX.Y.Z`.
@@ -61,7 +60,6 @@ Requirements: you're on `main`, it's up to date, and the working tree is clean (
 ## What GitHub Actions does
 
 Every push to `main` runs the [CI workflow](../.github/workflows/ci.yml):
-
 1. `check (22)`, `check (24)`: lint, typecheck and tests on Node 22 and 24 (Linux)
 2. `windows`: typecheck and tests on Windows
 3. `smoke`: builds and runs the CLI on Node 20
@@ -108,7 +106,6 @@ The connection is configured on npmjs.com → [type-envgen → Settings](https:/
 | Allowed actions   | `npm publish`   |
 
 What this means in practice:
-
 - The `release` job needs `permissions: id-token: write` and **npm 11.5.1 or newer**, which is why it runs on Node 24.
 - Every published version automatically gets a [provenance statement](https://docs.npmjs.com/generating-provenance-statements) linking it to the exact commit and workflow run that built it.
 - If you **rename `.github/workflows/ci.yml`** or move the publish step into another workflow file, update "Workflow filename" on npm too, or publishing fails.
@@ -116,12 +113,12 @@ What this means in practice:
 
 ## Troubleshooting
 
-| Problem                                        | Fix                                                                                       |
-| ---------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `npm ERR! Git working directory not clean`     | Commit or stash your changes first.                                                       |
-| `preversion` fails                             | Fix the lint/type/test error, commit the fix, run the release command again.             |
-| Push rejected                                  | `git pull --rebase` on `main`, then `git push --follow-tags`.                             |
-| `release` job: `401` / `403` / `ENEEDAUTH` on publish | The Trusted Publisher settings on npm don't match (owner, repo or **workflow filename**), the job lost `id-token: write`, or npm is older than 11.5.1. Fix it, then `gh run rerun --failed`. |
-| `release` job: "cannot publish over previously published version" | That version is already on npm. Bump again with a `release:*` command.     |
-| Release job skipped                            | A check failed. Fix it on `main`; the next push retries the release.                      |
-| Published a broken version                     | Release a fix right away (`release:patch`). If needed, `npm deprecate type-envgen@X.Y.Z "reason"`. Avoid `npm unpublish`. |
+| Problem                                                           | Fix                                                                                                                                                                                          |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm ERR! Git working directory not clean`                        | Commit or stash your changes first.                                                                                                                                                          |
+| `preversion` fails                                                | Fix the lint/type/test error, commit the fix, run the release command again.                                                                                                                 |
+| Push rejected                                                     | `git pull --rebase` on `main`, then `git push --follow-tags`.                                                                                                                                |
+| `release` job: `401` / `403` / `ENEEDAUTH` on publish             | The Trusted Publisher settings on npm don't match (owner, repo or **workflow filename**), the job lost `id-token: write`, or npm is older than 11.5.1. Fix it, then `gh run rerun --failed`. |
+| `release` job: "cannot publish over previously published version" | That version is already on npm. Bump again with a `release:*` command.                                                                                                                       |
+| Release job skipped                                               | A check failed. Fix it on `main`; the next push retries the release.                                                                                                                         |
+| Published a broken version                                        | Release a fix right away (`release:patch`). If needed, `npm deprecate type-envgen@X.Y.Z "reason"`. Avoid `npm unpublish`.                                                                    |

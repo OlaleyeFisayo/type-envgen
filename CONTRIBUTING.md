@@ -21,13 +21,13 @@ cd type-envgen
 npm install         # also installs the git hooks
 ```
 
-| Command             | What it does                                         |
-| ------------------- | ---------------------------------------------------- |
-| `npm test`          | Builds, then runs the generator and CLI checks       |
-| `npm run typecheck` | Type-checks the project                              |
-| `npm run lint`      | Biome: lint + formatting check                       |
-| `npm run format`    | Biome: auto-fix lint and formatting                  |
-| `npm run build`     | Builds `dist/cli.js` with tsup                       |
+| Command             | What it does                                   |
+| ------------------- | ---------------------------------------------- |
+| `npm test`          | Builds, then runs the generator and CLI checks |
+| `npm run typecheck` | Type-checks the project                        |
+| `npm run lint`      | Biome: lint + formatting check                 |
+| `npm run format`    | Biome: auto-fix lint and formatting            |
+| `npm run build`     | Builds `dist/cli.js` with tsup                 |
 
 ## Project layout
 
@@ -53,11 +53,11 @@ To add a type or tag: update `src/core/generate-env/`, add a case to `src/core/t
 
 [Husky](https://typicode.github.io/husky/) hooks run automatically:
 
-| Hook         | What it does                                                                                    |
-| ------------ | ----------------------------------------------------------------------------------------------- |
+| Hook         | What it does                                                                                                |
+| ------------ | ----------------------------------------------------------------------------------------------------------- |
 | `pre-commit` | Formats and lints staged files with [Biome](https://biomejs.dev) (auto-fixing what it can), then typechecks |
-| `commit-msg` | Checks the message follows [Conventional Commits](https://www.conventionalcommits.org)          |
-| `pre-push`   | Runs `lint`, `typecheck` and `npm test`                                                         |
+| `commit-msg` | Checks the message follows [Conventional Commits](https://www.conventionalcommits.org)                      |
+| `pre-push`   | Runs `lint`, `typecheck` and `npm test`                                                                     |
 
 ## Commit messages
 
@@ -71,24 +71,23 @@ refactor: split tag parsing into its own file
 chore: bump dependencies
 ```
 
-| Type       | Use for                                   |
-| ---------- | ----------------------------------------- |
-| `feat`     | A new feature                             |
-| `fix`      | A bug fix                                 |
-| `docs`     | Documentation only                        |
-| `refactor` | Code change that isn't a fix or feature   |
-| `perf`     | Performance improvement                   |
-| `test`     | Adding or fixing tests                    |
-| `style`    | Formatting only                           |
-| `ci`       | GitHub Actions / tooling                  |
-| `chore`    | Everything else (deps, config, releases)  |
+| Type       | Use for                                  |
+| ---------- | ---------------------------------------- |
+| `feat`     | A new feature                            |
+| `fix`      | A bug fix                                |
+| `docs`     | Documentation only                       |
+| `refactor` | Code change that isn't a fix or feature  |
+| `perf`     | Performance improvement                  |
+| `test`     | Adding or fixing tests                   |
+| `style`    | Formatting only                          |
+| `ci`       | GitHub Actions / tooling                 |
+| `chore`    | Everything else (deps, config, releases) |
 
 Breaking changes get a `!`: `feat!: rename --output to --out`.
 
 ## Pull requests
 
 All changes land on the **`staging`** branch through pull requests that the maintainer reviews and merges. `main` only receives `staging` when a release is cut, so a check fails any pull request opened against `main`.
-
 1. Fork the repo and create a branch from `staging` (`fix/quoted-hash`, `feat/default-tag`), and open your pull request against `staging`.
 2. Keep the PR focused on **one** change. Unrelated cleanups go in their own PR.
 3. Add or update tests in `src/core/test/` for any behavior change.

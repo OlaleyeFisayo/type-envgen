@@ -115,21 +115,20 @@ env.FEATURE_FLAGS.maxUsers; // number
 
 A **target** decides where the generated module reads its values from. Browsers have no `process.env`, and each framework exposes client variables differently, so pick the one that matches where your code runs. The default is `node`.
 
-| Target      | Reads from                    | Client-exposed keys |
-| ----------- | ----------------------------- | ------------------- |
-| `node`      | `process.env`                 | n/a (server only)   |
-| `vite`      | `import.meta.env`             | `VITE_*`            |
-| `nextjs`    | `process.env.<KEY>`           | `NEXT_PUBLIC_*`     |
-| `astro`     | `import.meta.env`             | `PUBLIC_*`          |
-| `sveltekit` | `$env/dynamic/public`         | `PUBLIC_*`          |
-| `nuxt`      | `useRuntimeConfig().public`   | `NUXT_PUBLIC_*`     |
+| Target      | Reads from                  | Client-exposed keys |
+| ----------- | --------------------------- | ------------------- |
+| `node`      | `process.env`               | n/a (server only)   |
+| `vite`      | `import.meta.env`           | `VITE_*`            |
+| `nextjs`    | `process.env.<KEY>`         | `NEXT_PUBLIC_*`     |
+| `astro`     | `import.meta.env`           | `PUBLIC_*`          |
+| `sveltekit` | `$env/dynamic/public`       | `PUBLIC_*`          |
+| `nuxt`      | `useRuntimeConfig().public` | `NUXT_PUBLIC_*`     |
 
 ```sh
 type-envgen .env.example -o src/env.ts --target vite
 ```
 
 Target notes:
-
 - **Next.js** only inlines literal `process.env.KEY` references in client bundles, so the generated file lists every key explicitly instead of passing `process.env`.
 - **Nuxt** exposes public values as camelCase runtime config, so `NUXT_PUBLIC_API_URL` becomes the schema key `apiUrl`.
 - **Vite and Astro** need the framework's client types for `import.meta.env` to typecheck (`vite/client`, or Astro's generated types).
@@ -169,15 +168,15 @@ type-envgen [input] [options]
 type-envgen init
 ```
 
-| Argument / option     | Description                                    | Default  |
-| --------------------- | ---------------------------------------------- | -------- |
-| `input`               | `.env` file to read                            | `.env`   |
-| `-o, --output <path>` | File to write                                  | `env.ts` |
-| `--target <name>`     | `node`, `vite`, `nextjs`, `astro`, `sveltekit`, `nuxt` | `node` |
-| `-w, --watch`         | Watch input file and regenerate on changes     |          |
-| `--skip-install`      | Don't add zod/type-envgen to your dependencies |          |
-| `-h, --help`          | Show help                                      |          |
-| `-v, --version`       | Show version                                   |          |
+| Argument / option     | Description                                            | Default  |
+| --------------------- | ------------------------------------------------------ | -------- |
+| `input`               | `.env` file to read                                    | `.env`   |
+| `-o, --output <path>` | File to write                                          | `env.ts` |
+| `--target <name>`     | `node`, `vite`, `nextjs`, `astro`, `sveltekit`, `nuxt` | `node`   |
+| `-w, --watch`         | Watch input file and regenerate on changes             |          |
+| `--skip-install`      | Don't add zod/type-envgen to your dependencies         |          |
+| `-h, --help`          | Show help                                              |          |
+| `-v, --version`       | Show version                                           |          |
 
 ```sh
 type-envgen                              # .env -> env.ts
@@ -194,30 +193,29 @@ type-envgen --help                       # everything the CLI can do
 
 Untagged variables are inferred from their value. Rules are checked top to bottom; the first match wins.
 
-| Example value                     | Schema                                           | TypeScript type |
-| --------------------------------- | ------------------------------------------------ | --------------- |
-| `NODE_ENV=development`            | `z.enum(["development","production","test"])`    | union           |
-| `BASE_URL=http://${HOST}`         | `z.string()` (references aren't resolved)        | `string`        |
-| `true` / `false`                  | `z.stringbool()`                                 | `boolean`       |
-| `3000`, `-42`, `0`                | `z.coerce.number().int()`                        | `number`        |
-| `3.14`                            | `z.coerce.number()`                              | `number`        |
-| `https://…`, `postgres://…`       | `z.url()`                                        | `string`        |
-| `550e8400-e29b-41d4-a716-…`       | `z.uuid()`                                       | `string`        |
-| `admin@example.com`               | `z.email()`                                      | `string`        |
-| `2026-01-31`                      | `z.iso.date()`                                   | `string`        |
-| `2026-01-31T10:00:00Z`            | `z.iso.datetime()`                               | `string`        |
-| `2026-01-31T10:00:00+01:00`       | `z.iso.datetime({ offset: true })`               | `string`        |
-| `PT30S`, `P1D`, `P1Y2M`           | `z.iso.duration()`                               | `string`        |
-| `10.0.0.0/8`                      | `z.cidrv4()`                                     | `string`        |
-| `2001:db8::/32`                   | `z.cidrv6()`                                     | `string`        |
-| `192.168.0.1`                     | `z.ipv4()`                                       | `string`        |
-| `::1`                             | `z.ipv6()`                                       | `string`        |
-| `00:1A:2B:3C:4D:5E`               | `z.mac()`                                        | `string`        |
-| `{"a":1}`, `["a","b"]`            | `json(<schema built from the value>)`            | typed object/array |
-| anything else (including empty)   | `z.string()`                                     | `string`        |
+| Example value                   | Schema                                        | TypeScript type    |
+| ------------------------------- | --------------------------------------------- | ------------------ |
+| `NODE_ENV=development`          | `z.enum(["development","production","test"])` | union              |
+| `BASE_URL=http://${HOST}`       | `z.string()` (references aren't resolved)     | `string`           |
+| `true` / `false`                | `z.stringbool()`                              | `boolean`          |
+| `3000`, `-42`, `0`              | `z.coerce.number().int()`                     | `number`           |
+| `3.14`                          | `z.coerce.number()`                           | `number`           |
+| `https://…`, `postgres://…`     | `z.url()`                                     | `string`           |
+| `550e8400-e29b-41d4-a716-…`     | `z.uuid()`                                    | `string`           |
+| `admin@example.com`             | `z.email()`                                   | `string`           |
+| `2026-01-31`                    | `z.iso.date()`                                | `string`           |
+| `2026-01-31T10:00:00Z`          | `z.iso.datetime()`                            | `string`           |
+| `2026-01-31T10:00:00+01:00`     | `z.iso.datetime({ offset: true })`            | `string`           |
+| `PT30S`, `P1D`, `P1Y2M`         | `z.iso.duration()`                            | `string`           |
+| `10.0.0.0/8`                    | `z.cidrv4()`                                  | `string`           |
+| `2001:db8::/32`                 | `z.cidrv6()`                                  | `string`           |
+| `192.168.0.1`                   | `z.ipv4()`                                    | `string`           |
+| `::1`                           | `z.ipv6()`                                    | `string`           |
+| `00:1A:2B:3C:4D:5E`             | `z.mac()`                                     | `string`           |
+| `{"a":1}`, `["a","b"]`          | `json(<schema built from the value>)`         | typed object/array |
+| anything else (including empty) | `z.string()`                                  | `string`           |
 
 Good to know:
-
 - `1` and `0` are inferred as **numbers**, not booleans. Use `# @type boolean` if you mean a flag.
 - A comma-separated value like `a,b,c` stays a `string`.
 - Every variable is **required** unless marked `# @optional`.
@@ -237,52 +235,52 @@ PORT=3000
 
 Overrides inference.
 
-| Type            | Schema                           |
-| --------------- | -------------------------------- |
-| `string`        | `z.string()`                     |
-| `number`        | `z.coerce.number()`              |
-| `int`           | `z.coerce.number().int()`        |
-| `boolean`       | `z.stringbool()`                 |
-| `url`           | `z.url()`                        |
-| `httpurl`       | `z.httpUrl()`                    |
-| `hostname`      | `z.hostname()`                   |
-| `email`         | `z.email()`                      |
-| `email(preset)` | `z.email({ pattern: z.regexes.<preset>Email })` (`html5`, `rfc5322`, `unicode`, `browser`) |
-| `uuid`          | `z.uuid()`                       |
-| `nanoid`        | `z.nanoid()`                     |
-| `cuid`          | `z.cuid()`                       |
-| `cuid2`         | `z.cuid2()`                      |
-| `ulid`          | `z.ulid()`                       |
-| `ksuid`         | `z.ksuid()`                      |
-| `xid`           | `z.xid()`                        |
-| `uuid(v1-v8)`   | `z.uuid({ version: "vN" })`      |
-| `guid`          | `z.guid()`                       |
-| `date`          | `z.iso.date()`                   |
-| `datetime`      | `z.iso.datetime()`               |
-| `datetime(opts)`| `z.iso.datetime({ ... })`        |
-| `time`          | `z.iso.time()`                   |
-| `time(precision=n)` | `z.iso.time({ precision: n })` |
-| `duration`      | `z.iso.duration()`               |
-| `ipv4`          | `z.ipv4()`                       |
-| `ipv6`          | `z.ipv6()`                       |
-| `e164`          | `z.e164()`                       |
-| `emoji`         | `z.emoji()`                      |
-| `currencycode`  | `z.currencyCode()`               |
-| `iban`          | `z.iban()`                       |
-| `creditcard`    | `z.creditCard()`                 |
-| `jwt`           | `z.jwt()`                        |
-| `jwt(alg)`      | `z.jwt({ alg: "..." })`          |
-| `hash(alg)`     | `z.hash("...")`                  |
-| `hash(alg, enc)`| `z.hash("...", { enc: "..." })`  |
-| `base64`        | `z.base64()`                     |
-| `base64url`     | `z.base64url()`                  |
-| `hex`           | `z.hex()`                        |
-| `cidrv4`        | `z.cidrv4()`                     |
-| `cidrv6`        | `z.cidrv6()`                     |
-| `mac`           | `z.mac()`                        |
-| `mac(delim)`   | `z.mac({ delimiter: "-" })` (`:`, `-` or `.`) |
-| `json`          | `json(<schema built from the value>)` |
-| `enum(a, b, c)` | `z.enum(["a","b","c"])`          |
+| Type                | Schema                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------ |
+| `string`            | `z.string()`                                                                               |
+| `number`            | `z.coerce.number()`                                                                        |
+| `int`               | `z.coerce.number().int()`                                                                  |
+| `boolean`           | `z.stringbool()`                                                                           |
+| `url`               | `z.url()`                                                                                  |
+| `httpurl`           | `z.httpUrl()`                                                                              |
+| `hostname`          | `z.hostname()`                                                                             |
+| `email`             | `z.email()`                                                                                |
+| `email(preset)`     | `z.email({ pattern: z.regexes.<preset>Email })` (`html5`, `rfc5322`, `unicode`, `browser`) |
+| `uuid`              | `z.uuid()`                                                                                 |
+| `nanoid`            | `z.nanoid()`                                                                               |
+| `cuid`              | `z.cuid()`                                                                                 |
+| `cuid2`             | `z.cuid2()`                                                                                |
+| `ulid`              | `z.ulid()`                                                                                 |
+| `ksuid`             | `z.ksuid()`                                                                                |
+| `xid`               | `z.xid()`                                                                                  |
+| `uuid(v1-v8)`       | `z.uuid({ version: "vN" })`                                                                |
+| `guid`              | `z.guid()`                                                                                 |
+| `date`              | `z.iso.date()`                                                                             |
+| `datetime`          | `z.iso.datetime()`                                                                         |
+| `datetime(opts)`    | `z.iso.datetime({ ... })`                                                                  |
+| `time`              | `z.iso.time()`                                                                             |
+| `time(precision=n)` | `z.iso.time({ precision: n })`                                                             |
+| `duration`          | `z.iso.duration()`                                                                         |
+| `ipv4`              | `z.ipv4()`                                                                                 |
+| `ipv6`              | `z.ipv6()`                                                                                 |
+| `e164`              | `z.e164()`                                                                                 |
+| `emoji`             | `z.emoji()`                                                                                |
+| `currencycode`      | `z.currencyCode()`                                                                         |
+| `iban`              | `z.iban()`                                                                                 |
+| `creditcard`        | `z.creditCard()`                                                                           |
+| `jwt`               | `z.jwt()`                                                                                  |
+| `jwt(alg)`          | `z.jwt({ alg: "..." })`                                                                    |
+| `hash(alg)`         | `z.hash("...")`                                                                            |
+| `hash(alg, enc)`    | `z.hash("...", { enc: "..." })`                                                            |
+| `base64`            | `z.base64()`                                                                               |
+| `base64url`         | `z.base64url()`                                                                            |
+| `hex`               | `z.hex()`                                                                                  |
+| `cidrv4`            | `z.cidrv4()`                                                                               |
+| `cidrv6`            | `z.cidrv6()`                                                                               |
+| `mac`               | `z.mac()`                                                                                  |
+| `mac(delim)`        | `z.mac({ delimiter: "-" })` (`:`, `-` or `.`)                                              |
+| `json`              | `json(<schema built from the value>)`                                                      |
+| `enum(a, b, c)`     | `z.enum(["a","b","c"])`                                                                    |
 
 ```sh
 # @type boolean
@@ -329,7 +327,6 @@ JWT_SECRET=please-change-me-to-something-long-enough
 ### `@pattern <regex>`
 
 Validates that a string matches a regular expression, emitted as zod's `.regex(...)`.
-
 - Valid on **strings, URLs, hostnames, emails, UUIDs, GUIDs, IDs, dates, times, durations, IPs, CIDRs, MACs, phone numbers, emoji, currency codes, IBANs, card numbers, base64, hex, JWTs and hashes**. Using `@pattern` on numbers, booleans, or other types is an error.
 - Validates that the value in `.env` (and any `@default`) matches the pattern at generation time, so typos and bad examples fail early. The value itself is never printed in the error.
 - Throws an error if the regex syntax is invalid, naming the offending key.
@@ -357,15 +354,15 @@ JWT_SECRET=please-change-me-to-something-long-enough
 
 More checks for the same string-like schemas, matching zod's [string APIs](https://zod.dev/api#strings):
 
-| Tag               | Schema                 | Fails with                       |
-| ----------------- | ---------------------- | -------------------------------- |
-| `@length <n>`     | `.length(n)`           | `must be exactly n characters`   |
-| `@nonempty`       | `.nonempty()`          | `must not be empty`              |
-| `@startswith <s>` | `.startsWith("s")`     | `must start with "s"`            |
-| `@endswith <s>`   | `.endsWith("s")`       | `must end with "s"`              |
-| `@includes <s>`   | `.includes("s")`       | `must include "s"`               |
-| `@uppercase`      | `.uppercase()`         | `must be uppercase`              |
-| `@lowercase`      | `.lowercase()`         | `must be lowercase`              |
+| Tag               | Schema             | Fails with                     |
+| ----------------- | ------------------ | ------------------------------ |
+| `@length <n>`     | `.length(n)`       | `must be exactly n characters` |
+| `@nonempty`       | `.nonempty()`      | `must not be empty`            |
+| `@startswith <s>` | `.startsWith("s")` | `must start with "s"`          |
+| `@endswith <s>`   | `.endsWith("s")`   | `must end with "s"`            |
+| `@includes <s>`   | `.includes("s")`   | `must include "s"`             |
+| `@uppercase`      | `.uppercase()`     | `must be uppercase`            |
+| `@lowercase`      | `.lowercase()`     | `must be lowercase`            |
 
 Wrap `<s>` in quotes to keep leading or trailing spaces. Like `@pattern`, the `.env` value and any `@default` are checked at generation time, without printing the value.
 
@@ -471,13 +468,12 @@ If a variable is missing or invalid, startup stops with one error listing every 
 - Generate from **`.env.example`** so teammates and CI get the same types without real secrets.
 - Use **`type-envgen --watch`** during development so `env.ts` stays in sync with your `.env`.
 - **Commit the generated file** and re-run `npm run env:generate` whenever you add or change a variable.
-- **Add your own code to it freely.** Re-running only refreshes the generated parts (the `type-envgen` import, `envSchema` and the `env` line) and keeps everything else. Edits made *inside* `envSchema` are replaced, so customize variables with [annotations](#annotations) in your `.env` instead.
+- **Add your own code to it freely.** Re-running only refreshes the generated parts (the `type-envgen` import, `envSchema` and the `env` line) and keeps everything else. Edits made _inside_ `envSchema` are replaced, so customize variables with [annotations](#annotations) in your `.env` instead.
 - In CI or a pre-commit hook, run with **`--check`** (for example `"env:check": "type-envgen .env.example -o src/env.ts --check"`) to verify the generated file is up to date without writing files or installing dependencies (exits `0` if up to date, `1` if out of date or missing).
 
 ## Contributing
 
 Contributions are welcome. Bug reports, ideas and pull requests all help.
-
 - Questions or ideas? Start a thread in [Discussions](https://github.com/OlaleyeFisayo/type-envgen/discussions).
 - Want to help? Look for [`good first issue`](https://github.com/OlaleyeFisayo/type-envgen/labels/good%20first%20issue) and [`help wanted`](https://github.com/OlaleyeFisayo/type-envgen/labels/help%20wanted) issues.
 - Read the [contributing guide](./CONTRIBUTING.md) for setup, git hooks, commit message format and PR rules.
