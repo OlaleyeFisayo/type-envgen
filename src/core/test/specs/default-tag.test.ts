@@ -52,6 +52,21 @@ describe("@default", () => {
     );
   });
 
+  it("accepts valid network defaults", () => {
+    expect(generateEnv("# @type cidrv4\n# @default 10.0.0.0/8\nX=192.168.0.0/16")).toMatch(
+      /X: z\.cidrv4\(\)\.default\("10\.0\.0\.0\/8"\)/,
+    );
+    expect(generateEnv("# @type cidrv6\n# @default 2001:db8::/32\nX=fe80::/64")).toMatch(
+      /X: z\.cidrv6\(\)\.default\("2001:db8::\/32"\)/,
+    );
+    expect(generateEnv("# @type mac\n# @default 00:1A:2B:3C:4D:5E\nX=11:22:33:44:55:66")).toMatch(
+      /X: z\.mac\(\)\.default\("00:1A:2B:3C:4D:5E"\)/,
+    );
+    expect(generateEnv("# @type mac(-)\n# @default 00-1A-2B-3C-4D-5E\nX=11-22-33-44-55-66")).toMatch(
+      /X: z\.mac\(\{ delimiter: "-" \}\)\.default\("00-1A-2B-3C-4D-5E"\)/,
+    );
+  });
+
   describe("errors", () => {
     it.each([
       ["a missing value", "# @default\nX=1", /@default for X requires a value/],
@@ -143,6 +158,26 @@ describe("@default", () => {
         /@default for X must be a valid base64url string/,
       ],
       ["a bad hex", "# @type hex\n# @default nothex\nX=deadbeef01", /@default for X must be a valid hex string/],
+      [
+        "a bad CIDRv4",
+        "# @type cidrv4\n# @default 999.9.9.9/8\nX=10.0.0.0/8",
+        /@default for X must be a valid IPv4 CIDR block/,
+      ],
+      [
+        "a bad CIDRv6",
+        "# @type cidrv6\n# @default nope/64\nX=2001:db8::/32",
+        /@default for X must be a valid IPv6 CIDR block/,
+      ],
+      [
+        "a bad MAC",
+        "# @type mac\n# @default not-a-mac\nX=00:1A:2B:3C:4D:5E",
+        /@default for X must be a valid MAC address/,
+      ],
+      [
+        "a bad MAC with delimiter",
+        "# @type mac(-)\n# @default 00:1A:2B:3C:4D:5E\nX=00-1A-2B-3C-4D-5E",
+        /@default for X must be a valid MAC address/,
+      ],
       ["a non-member enum", "# @type enum(a, b)\n# @default c\nX=a", /@default "c" for X is not in enum/],
       ["invalid JSON", '# @default {bad json}\nX={"a":1}', /@default for X must be valid JSON/],
       ["below @min", "# @min 10\n# @default 5\nX=10", /less than @min/],

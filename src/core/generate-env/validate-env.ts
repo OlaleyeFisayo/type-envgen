@@ -24,6 +24,9 @@ const FORMATS: Record<string, string> = {
   base64: "base64 string",
   base64url: "base64url string",
   hex: "hex string",
+  cidrv4: "IPv4 CIDR block",
+  cidrv6: "IPv6 CIDR block",
+  mac: "MAC address",
 };
 
 const UNITS: Record<string, string> = { string: " characters", array: " items" };

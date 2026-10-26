@@ -9,7 +9,7 @@ export type Bounds = {
 };
 
 const STRING_LIKE_REGEX =
-  /^z\.(string|url|email|uuid|nanoid|cuid|cuid2|ulid|ksuid|xid|iso\.date|iso\.datetime|ipv4|ipv6|e164|emoji|currencyCode|iban|creditCard|base64|base64url|hex|jwt|hash)\(/;
+  /^z\.(string|url|email|uuid|nanoid|cuid|cuid2|ulid|ksuid|xid|iso\.date|iso\.datetime|ipv4|ipv6|cidrv4|cidrv6|mac|e164|emoji|currencyCode|iban|creditCard|base64|base64url|hex|jwt|hash)\(/;
 const NUMBER_REGEX = /^z\.coerce\.number\(/;
 
 function parseBound(
@@ -142,6 +142,9 @@ const FORMATS: [string, z.ZodType, string][] = [
   ["z.base64()", z.base64(), "base64 string"],
   ["z.base64url()", z.base64url(), "base64url string"],
   ["z.hex()", z.hex(), "hex string"],
+  ["z.cidrv4()", z.cidrv4(), "IPv4 CIDR block"],
+  ["z.cidrv6()", z.cidrv6(), "IPv6 CIDR block"],
+  ["z.mac()", z.mac(), "MAC address"],
 ];
 
 function checkStringBounds(raw: string, bounds: Bounds, key: string) {
@@ -228,7 +231,20 @@ function formatDefault(base: string, rawInput: string, key: string, bounds: Boun
     return `.default(${JSON.stringify(raw)})`;
   }
 
-  // Date / datetime / IP
+  // MAC with optional delimiter
+  const macMatch = base.match(/^z\.mac\((.*?)\)/);
+  if (macMatch) {
+    const opts = macMatch[1].trim();
+    const delimMatch = opts.match(/delimiter:\s*"([^"]+)"/);
+    const schema = delimMatch ? z.mac({ delimiter: delimMatch[1] }) : z.mac();
+    if (!schema.safeParse(raw).success) {
+      throw new Error(`@default for ${key} must be a valid MAC address, got "${rawInput}"`);
+    }
+    checkStringBounds(raw, bounds, key);
+    return `.default(${JSON.stringify(raw)})`;
+  }
+
+  // Date / datetime / IP / CIDR
   const format = FORMATS.find(([prefix]) => base.startsWith(prefix));
   if (format) {
     const [, schema, label] = format;

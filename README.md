@@ -206,8 +206,11 @@ Untagged variables are inferred from their value. Rules are checked top to botto
 | `admin@example.com`               | `z.email()`                                      | `string`        |
 | `2026-01-31`                      | `z.iso.date()`                                   | `string`        |
 | `2026-01-31T10:00:00Z`            | `z.iso.datetime()`                               | `string`        |
+| `10.0.0.0/8`                      | `z.cidrv4()`                                     | `string`        |
+| `2001:db8::/32`                   | `z.cidrv6()`                                     | `string`        |
 | `192.168.0.1`                     | `z.ipv4()`                                       | `string`        |
 | `::1`                             | `z.ipv6()`                                       | `string`        |
+| `00:1A:2B:3C:4D:5E`               | `z.mac()`                                        | `string`        |
 | `{"a":1}`, `["a","b"]`            | `json(<schema built from the value>)`            | typed object/array |
 | anything else (including empty)   | `z.string()`                                     | `string`        |
 
@@ -263,6 +266,9 @@ Overrides inference.
 | `base64`        | `z.base64()`                     |
 | `base64url`     | `z.base64url()`                  |
 | `hex`           | `z.hex()`                        |
+| `cidrv4`        | `z.cidrv4()`                     |
+| `cidrv6`        | `z.cidrv6()`                     |
+| `mac`           | `z.mac()`                        |
 | `json`          | `json(<schema built from the value>)` |
 | `enum(a, b, c)` | `z.enum(["a","b","c"])`          |
 
@@ -279,7 +285,7 @@ Type names are case-insensitive; enum values keep their case.
 ### `@min <n>` / `@max <n>`
 
 - On **numbers**: bounds on the value, e.g. `.min(1).max(65535)`.
-- On **strings, URLs, emails, UUIDs, IDs, dates, IPs, phone numbers, emoji, currency codes, IBANs, card numbers, base64, hex, JWTs and hashes**: bounds on the length, e.g. `z.string().min(1)`.
+- On **strings, URLs, emails, UUIDs, IDs, dates, IPs, CIDRs, MACs, phone numbers, emoji, currency codes, IBANs, card numbers, base64, hex, JWTs and hashes**: bounds on the length, e.g. `z.string().min(1)`.
 - Work with inferred types too, no `@type` needed.
 
 ```sh

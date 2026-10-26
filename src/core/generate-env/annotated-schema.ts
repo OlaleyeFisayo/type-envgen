@@ -65,6 +65,10 @@ export function annotatedSchema(type: string, key: string, value: string): strin
     }
     return `z.hash("${alg}")`;
   }
+  const macDelimiter = type.match(/^mac\((.*)\)$/i)?.[1]?.trim();
+  if (macDelimiter !== undefined) {
+    return `z.mac({ delimiter: ${JSON.stringify(macDelimiter)} })`;
+  }
   const name = type.toLowerCase();
   if (name === "hash") {
     throw new Error(`@type hash requires an algorithm parameter for ${key}`);
