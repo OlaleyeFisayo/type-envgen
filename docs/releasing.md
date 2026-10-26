@@ -4,14 +4,19 @@ How to publish a new version to [npm](https://www.npmjs.com/package/type-envgen)
 
 ## TL;DR
 
+Features and fixes land on `staging` first; a release fast-forwards `main` to `staging`.
+
 ```sh
-git checkout main && git pull
+git checkout staging && git pull
+git checkout main && git pull && git merge --ff-only staging
 # 1. update CHANGELOG.md (see below), then:
 git commit -am "docs: update changelog for v1.1.0"
 # 2. release
 npm run release:patch    # 1.0.0 -> 1.0.1   bug fixes
 npm run release:minor    # 1.0.0 -> 1.1.0   new features
 npm run release:major    # 1.0.0 -> 2.0.0   breaking changes
+# 3. bring the release commit back to staging
+git checkout staging && git merge --ff-only main && git push
 ```
 
 That's it. Within a few minutes the new version is on npm and on the [GitHub Releases](https://github.com/OlaleyeFisayo/type-envgen/releases) page.
@@ -81,9 +86,10 @@ gh release view                     # latest GitHub Release
 
 ## Releasing changes from pull requests
 
-1. Merge the PRs you want in the release (squash merge; the PR title becomes the commit message).
-2. `git checkout main && git pull`
+1. Merge the PRs you want in the release into `staging` (squash merge; the PR title becomes the commit message).
+2. `git checkout main && git pull && git merge --ff-only staging`
 3. Update and commit `CHANGELOG.md` (see above), then run the right `release:*` command.
+4. Bring the release commit back: `git checkout staging && git merge --ff-only main && git push`.
 
 The GitHub Release notes list every merged PR since the last release.
 

@@ -87,9 +87,9 @@ Breaking changes get a `!`: `feat!: rename --output to --out`.
 
 ## Pull requests
 
-`main` is protected: all changes land through pull requests that the maintainer reviews and merges.
+All changes land on the **`staging`** branch through pull requests that the maintainer reviews and merges. `main` only receives `staging` when a release is cut, so a check fails any pull request opened against `main`.
 
-1. Fork the repo and create a branch from `main` (`fix/quoted-hash`, `feat/default-tag`).
+1. Fork the repo and create a branch from `staging` (`fix/quoted-hash`, `feat/default-tag`), and open your pull request against `staging`.
 2. Keep the PR focused on **one** change. Unrelated cleanups go in their own PR.
 3. Add or update tests in `src/core/test/` for any behavior change.
 4. Update the README and `--help` if user-facing behavior changes.

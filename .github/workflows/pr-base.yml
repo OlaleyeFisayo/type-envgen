@@ -1,0 +1,19 @@
+name: PR base
+
+# Pull requests target staging; only staging itself is merged into main.
+# pull_request_target runs this file from the base branch, so a PR can't skip it.
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+
+permissions: {}
+
+jobs:
+  base:
+    name: base branch
+    runs-on: ubuntu-latest
+    steps:
+      - if: github.base_ref == 'main' && (github.head_ref != 'staging' || github.event.pull_request.head.repo.full_name != github.repository)
+        run: |
+          echo "::error::Open your pull request against the staging branch, not main. Click Edit next to the PR title to change the base."
+          exit 1

@@ -1,5 +1,6 @@
 <!--
-Thanks for contributing! Please make sure the PR title follows Conventional Commits,
+Thanks for contributing! Target the `staging` branch, not `main`.
+Please make sure the PR title follows Conventional Commits,
 e.g. "feat: add @default tag" or "fix: handle # inside quoted values".
 It becomes the commit message when the PR is squash-merged.
 -->
