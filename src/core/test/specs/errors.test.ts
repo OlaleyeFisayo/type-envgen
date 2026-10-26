@@ -61,6 +61,8 @@ describe("validateEnv errors", () => {
     ["ulid", z.ulid(), "bad!", "must be a valid ULID"],
     ["ksuid", z.ksuid(), "bad!", "must be a valid KSUID"],
     ["xid", z.xid(), "bad!", "must be a valid XID"],
+    ["uuid v7", z.uuid({ version: "v7" }), "550e8400-e29b-41d4-a716-446655440000", "must be a valid UUID"],
+    ["guid", z.guid(), "nope", "must be a valid GUID"],
     ["date", z.iso.date(), "nope", "must be a valid date (YYYY-MM-DD)"],
     ["datetime", z.iso.datetime(), "nope", "must be a valid ISO datetime"],
     ["time", z.iso.time(), "nope", "must be a valid ISO time"],

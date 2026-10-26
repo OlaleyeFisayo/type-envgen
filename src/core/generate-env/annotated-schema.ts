@@ -143,6 +143,16 @@ export function annotatedSchema(type: string, key: string, value: string): strin
     const valid = Object.keys(EMAIL_PRESETS).join(", ");
     throw new Error(`Invalid email preset "${emailPreset}" for ${key} (expected one of: ${valid})`);
   }
+  const uuidVersion = type
+    .match(/^uuid\((.*)\)$/i)?.[1]
+    ?.trim()
+    .toLowerCase();
+  if (uuidVersion !== undefined) {
+    if (/^v[1-8]$/.test(uuidVersion)) {
+      return `z.uuid({ version: "${uuidVersion}" })`;
+    }
+    throw new Error(`Invalid UUID version "${uuidVersion}" for ${key} (expected v1 to v8)`);
+  }
   const name = type.toLowerCase();
   if (name === "hash") {
     throw new Error(`@type hash requires an algorithm parameter for ${key}`);

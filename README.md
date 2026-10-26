@@ -255,6 +255,8 @@ Overrides inference.
 | `ulid`          | `z.ulid()`                       |
 | `ksuid`         | `z.ksuid()`                      |
 | `xid`           | `z.xid()`                        |
+| `uuid(v1-v8)`   | `z.uuid({ version: "vN" })`      |
+| `guid`          | `z.guid()`                       |
 | `date`          | `z.iso.date()`                   |
 | `datetime`      | `z.iso.datetime()`               |
 | `datetime(opts)`| `z.iso.datetime({ ... })`        |
@@ -316,7 +318,7 @@ CUTOFF=2026-01-31T10:00:00
 ### `@min <n>` / `@max <n>`
 
 - On **numbers**: bounds on the value, e.g. `.min(1).max(65535)`.
-- On **strings, URLs, hostnames, emails, UUIDs, IDs, dates, times, durations, IPs, CIDRs, MACs, phone numbers, emoji, currency codes, IBANs, card numbers, base64, hex, JWTs and hashes**: bounds on the length, e.g. `z.string().min(1)`.
+- On **strings, URLs, hostnames, emails, UUIDs, GUIDs, IDs, dates, times, durations, IPs, CIDRs, MACs, phone numbers, emoji, currency codes, IBANs, card numbers, base64, hex, JWTs and hashes**: bounds on the length, e.g. `z.string().min(1)`.
 - Work with inferred types too, no `@type` needed.
 
 ```sh

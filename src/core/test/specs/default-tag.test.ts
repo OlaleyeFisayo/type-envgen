@@ -83,6 +83,16 @@ describe("@default", () => {
     expect(generateEnv("# @type hostname\n# @default db.internal\nX=localhost")).toMatch(
       /X: z\.hostname\(\)\.default\("db\.internal"\)/,
     );
+    expect(
+      generateEnv(
+        "# @type uuid(v7)\n# @default 0190a5d2-7c3b-7d4e-9f00-1234567890ab\nX=0190a5d2-7c3b-7d4e-9f00-1234567890ac",
+      ),
+    ).toMatch(/X: z\.uuid\(\{ version: "v7" \}\)\.default\("0190a5d2-7c3b-7d4e-9f00-1234567890ab"\)/);
+    expect(
+      generateEnv(
+        "# @type guid\n# @default 00000000-0000-0000-0000-000000000001\nX=00000000-0000-0000-0000-000000000002",
+      ),
+    ).toMatch(/X: z\.guid\(\)\.default\("00000000-0000-0000-0000-000000000001"\)/);
   });
 
   describe("errors", () => {
@@ -140,6 +150,16 @@ describe("@default", () => {
         /@default for X must be a valid KSUID/,
       ],
       ["a bad XID", "# @type xid\n# @default bad!\nX=9m4e2mr0ui3e8a215n4g", /@default for X must be a valid XID/],
+      [
+        "a bad uuid(v7)",
+        "# @type uuid(v7)\n# @default 550e8400-e29b-41d4-a716-446655440000\nX=0190a5d2-7c3b-7d4e-9f00-1234567890ab",
+        /@default for X must be a valid UUID/,
+      ],
+      [
+        "a bad GUID",
+        "# @type guid\n# @default not-a-guid\nX=00000000-0000-0000-0000-000000000001",
+        /@default for X must be a valid GUID/,
+      ],
       ["a bad date", "# @type date\n# @default notadate\nX=2026-01-31", /@default for X must be a valid ISO date/],
       [
         "a bad datetime",

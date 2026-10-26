@@ -9,7 +9,7 @@ export type Bounds = {
 };
 
 const STRING_LIKE_REGEX =
-  /^z\.(string|url|httpUrl|hostname|email|uuid|nanoid|cuid|cuid2|ulid|ksuid|xid|iso\.date|iso\.datetime|iso\.time|iso\.duration|ipv4|ipv6|cidrv4|cidrv6|mac|e164|emoji|currencyCode|iban|creditCard|base64|base64url|hex|jwt|hash)\(/;
+  /^z\.(string|url|httpUrl|hostname|email|uuid|guid|nanoid|cuid|cuid2|ulid|ksuid|xid|iso\.date|iso\.datetime|iso\.time|iso\.duration|ipv4|ipv6|cidrv4|cidrv6|mac|e164|emoji|currencyCode|iban|creditCard|base64|base64url|hex|jwt|hash)\(/;
 const NUMBER_REGEX = /^z\.coerce\.number\(/;
 
 function parseBound(
@@ -147,6 +147,7 @@ const FORMATS: [string, z.ZodType, string][] = [
   ["z.hex()", z.hex(), "hex string"],
   ["z.cidrv4()", z.cidrv4(), "IPv4 CIDR block"],
   ["z.cidrv6()", z.cidrv6(), "IPv6 CIDR block"],
+  ["z.guid()", z.guid(), "GUID"],
 ];
 
 function checkStringBounds(raw: string, bounds: Bounds, key: string) {
@@ -237,8 +238,16 @@ function formatDefault(base: string, rawInput: string, key: string, bounds: Boun
   }
 
   // UUID
-  if (base.includes("z.uuid()")) {
-    if (!z.uuid().safeParse(raw).success) {
+  const uuidMatch = base.match(/^z\.uuid\((.*?)\)/);
+  if (uuidMatch) {
+    const opts = uuidMatch[1].trim();
+    const versionMatch = opts.match(/version:\s*"([^"]+)"/);
+    const schema = versionMatch
+      ? z.uuid({
+          version: versionMatch[1] as "v1" | "v2" | "v3" | "v4" | "v5" | "v6" | "v7" | "v8",
+        })
+      : z.uuid();
+    if (!schema.safeParse(raw).success) {
       throw new Error(`@default for ${key} must be a valid UUID, got "${rawInput}"`);
     }
     checkStringBounds(raw, bounds, key);

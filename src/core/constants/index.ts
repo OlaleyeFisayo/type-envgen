@@ -25,6 +25,7 @@ export const TYPES: Record<string, string> = {
   ulid: "z.ulid()",
   ksuid: "z.ksuid()",
   xid: "z.xid()",
+  guid: "z.guid()",
   date: "z.iso.date()",
   datetime: "z.iso.datetime()",
   time: "z.iso.time()",

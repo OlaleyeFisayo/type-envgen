@@ -12,6 +12,7 @@ const FORMATS: Record<string, string> = {
   ulid: "ULID",
   ksuid: "KSUID",
   xid: "XID",
+  guid: "GUID",
   date: "date (YYYY-MM-DD)",
   datetime: "ISO datetime",
   time: "ISO time",
