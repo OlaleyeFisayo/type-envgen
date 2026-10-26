@@ -80,6 +80,11 @@ describe("@type", () => {
     expect(generateEnv("# @type mac\nX=00:1A:2B:3C:4D:5E")).toMatch(/X: z\.mac\(\)/);
   });
 
+  it("rejects unknown mac delimiters", () => {
+    expect(() => generateEnv("# @type mac(x)\nX=00:1A:2B:3C:4D:5E")).toThrow(/Unknown MAC delimiter "x" for X/);
+    expect(() => generateEnv("# @type mac()\nX=00:1A:2B:3C:4D:5E")).toThrow(/Unknown MAC delimiter "" for X/);
+  });
+
   it("rejects an unknown type", () => {
     expect(() => generateEnv("# @type nope\nX=1")).toThrow(/Unknown @type "nope" for X/);
   });

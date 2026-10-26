@@ -67,6 +67,7 @@ export function annotatedSchema(type: string, key: string, value: string): strin
   }
   const macDelimiter = type.match(/^mac\((.*)\)$/i)?.[1]?.trim();
   if (macDelimiter !== undefined) {
+    if (![":", "-", "."].includes(macDelimiter)) throw new Error(`Unknown MAC delimiter "${macDelimiter}" for ${key}`);
     return `z.mac({ delimiter: ${JSON.stringify(macDelimiter)} })`;
   }
   const name = type.toLowerCase();

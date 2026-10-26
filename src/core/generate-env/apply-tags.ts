@@ -144,7 +144,6 @@ const FORMATS: [string, z.ZodType, string][] = [
   ["z.hex()", z.hex(), "hex string"],
   ["z.cidrv4()", z.cidrv4(), "IPv4 CIDR block"],
   ["z.cidrv6()", z.cidrv6(), "IPv6 CIDR block"],
-  ["z.mac()", z.mac(), "MAC address"],
 ];
 
 function checkStringBounds(raw: string, bounds: Bounds, key: string) {
