@@ -24,7 +24,7 @@ npx type-envgen init
 
 - **Zero config**: types are inferred from your values (numbers, booleans, URLs, emails, UUIDs, dates, IPs, JSON, and more).
 - **Watch mode**: `-w, --watch` regenerates the output automatically when your `.env` changes.
-- **Annotations**: refine types with `@type`, `@default`, `@min`, `@max`, `@minlength`, `@maxlength`, `@pattern` and `@optional` comments.
+- **Annotations**: refine types with `@type`, `@default`, `@optional`, length bounds, `@pattern`, string checks like `@startswith` and transforms like `@trim`.
 - **Multiple targets**: Node, Vite, Next.js, Astro, SvelteKit and Nuxt, each reading from the right source.
 - **Guided setup**: `type-envgen init` explains each target and adds an npm script for you.
 - **Typed JSON**: JSON values get a real schema, not `any`.
@@ -353,6 +353,52 @@ JWT_SECRET=please-change-me-to-something-long-enough
 
 `@min` and `@max` on strings remain supported as aliases for backward compatibility.
 
+### String checks
+
+More checks for the same string-like schemas, matching zod's [string APIs](https://zod.dev/api#strings):
+
+| Tag               | Schema                 | Fails with                       |
+| ----------------- | ---------------------- | -------------------------------- |
+| `@length <n>`     | `.length(n)`           | `must be exactly n characters`   |
+| `@nonempty`       | `.nonempty()`          | `must not be empty`              |
+| `@startswith <s>` | `.startsWith("s")`     | `must start with "s"`            |
+| `@endswith <s>`   | `.endsWith("s")`       | `must end with "s"`              |
+| `@includes <s>`   | `.includes("s")`       | `must include "s"`               |
+| `@uppercase`      | `.uppercase()`         | `must be uppercase`              |
+| `@lowercase`      | `.lowercase()`         | `must be lowercase`              |
+
+Wrap `<s>` in quotes to keep leading or trailing spaces. Like `@pattern`, the `.env` value and any `@default` are checked at generation time, without printing the value.
+
+```sh
+# @startswith tok_
+# @length 20
+API_TOKEN=tok_0123456789abcdef
+# -> API_TOKEN: z.string().length(20).startsWith("tok_")
+
+# @type email
+# @endswith @acme.com
+SUPPORT_EMAIL=help@acme.com
+# -> SUPPORT_EMAIL: z.email().endsWith("@acme.com")
+```
+
+### Transforms
+
+`@trim`, `@tolowercase`, `@touppercase` and `@normalize [NFC|NFD|NFKC|NFKD]` change the value before it is checked, and `env` holds the result. They work on string-like schemas and on `enum(...)`. Transforms always run first (trim, then normalize, then case), whatever order the tags are in.
+
+```sh
+# @trim
+# @tolowercase
+API_KEY=SK_ABC
+# -> API_KEY: z.string().trim().toLowerCase()
+
+# @tolowercase
+# @type enum(debug, info, warn, error)
+LOG_LEVEL=INFO
+# -> LOG_LEVEL: z.string().toLowerCase().pipe(z.enum(["debug","info","warn","error"]))
+```
+
+On a format or enum the value is piped through the transforms first, so `" a@b.com "` passes `@trim` + `@type email`. A `@default` is used as written (zod doesn't transform defaults), so write it in its final form.
+
 ### `@default <value>`
 
 Provides a fallback emitted as zod's `.default(...)`, so the variable is never `undefined` when missing from the environment. The value is validated against the inferred or annotated type at generation time (for example, `@default abc` on an integer is an error).
@@ -380,6 +426,7 @@ SENTRY_DSN=https://abc@sentry.io/123
 
 - A **blank line** between the tags and the key cancels them.
 - Regular comments (without `@`) are ignored and can sit between tags.
+- Tag names are case-insensitive: `@startsWith` and `@startswith` are the same tag.
 - Mistakes fail loudly instead of being silently ignored. Each of these stops generation with an error naming the key:
   - unknown tag (`@mni`) or type (`@type nmber`)
   - combining `@default` and `@optional` on the same key
@@ -390,6 +437,9 @@ SENTRY_DSN=https://abc@sentry.io/123
   - `@pattern` on non-string schemas (`number`, `boolean`, `enum`, `json`, etc.)
   - non-numeric `@min` / `@max`, non-integer or negative `@minlength` / `@maxlength`, or min greater than max
   - `@min` / `@max` on a `boolean`, `enum` or `json`, or `@minlength` / `@maxlength` on non-string schemas
+  - string checks (`@length`, `@nonempty`, `@startswith`, `@endswith`, `@includes`, `@uppercase`, `@lowercase`) on non-string schemas, or transforms on anything but strings and enums
+  - an empty `@startswith` / `@endswith` / `@includes`, an unknown `@normalize` form, or `@tolowercase` with `@touppercase`
+  - the `.env` value or `@default` failing a string check
 
 ## Loading env at runtime
 
