@@ -11,6 +11,7 @@ Full release notes for every version, including each merged pull request, are on
 
 ### Added
 
+- `@type cidrv4`, `cidrv6`, `mac` and `mac(<delimiter>)` network formats. Untagged CIDR blocks (`10.0.0.0/8`, `2001:db8::/32`) and MAC addresses (`00:1A:2B:3C:4D:5E`) are now inferred (#23, thanks @montionugera).
 - `@type base64`, `base64url` and `hex` encoding formats, with `@default`, `@min` / `@max`, `@minlength` / `@maxlength` and `@pattern` support (#24, thanks @montionugera).
 - `@type jwt`, `jwt(<alg>)` and `hash(<alg>[, <enc>])` (algorithms `md5`, `sha1`, `sha256`, `sha384`, `sha512`; encodings `hex`, `base64`, `base64url`), with `@default`, `@min` / `@max`, `@minlength` / `@maxlength` and `@pattern` support (#25, thanks @montionugera).
 - `@type nanoid`, `cuid`, `cuid2`, `ulid`, `ksuid` and `xid` ID formats, with `@default`, `@min` / `@max`, `@minlength` / `@maxlength` and `@pattern` support (#26, thanks @montionugera).
