@@ -21,21 +21,6 @@ const FORMATS: Record<string, string> = {
   iban: "IBAN",
   credit_card: "credit card number",
   jwt: "JWT",
-  md5_hex: "md5 hash",
-  md5_base64: "md5 hash (base64)",
-  md5_base64url: "md5 hash (base64url)",
-  sha1_hex: "sha1 hash",
-  sha1_base64: "sha1 hash (base64)",
-  sha1_base64url: "sha1 hash (base64url)",
-  sha256_hex: "sha256 hash",
-  sha256_base64: "sha256 hash (base64)",
-  sha256_base64url: "sha256 hash (base64url)",
-  sha384_hex: "sha384 hash",
-  sha384_base64: "sha384 hash (base64)",
-  sha384_base64url: "sha384 hash (base64url)",
-  sha512_hex: "sha512 hash",
-  sha512_base64: "sha512 hash (base64)",
-  sha512_base64url: "sha512 hash (base64url)",
 };
 
 const UNITS: Record<string, string> = { string: " characters", array: " items" };
@@ -47,10 +32,14 @@ function describe(issue: z.core.$ZodIssue): string {
       // z.stringbool() sets `expected` at runtime, but zod's issue type doesn't declare it.
       if ("expected" in issue && issue.expected === "stringbool") return "must be true or false";
       return `must be one of: ${issue.values.join(", ")}`;
-    case "invalid_format":
+    case "invalid_format": {
       // The pattern comes from the user's own @pattern tag, so printing it is safe.
       if (issue.format === "regex" && "pattern" in issue) return `must match ${issue.pattern}`;
+      // z.hash() reports "<alg>_<enc>", e.g. sha256_hex.
+      const hash = issue.format.match(/^(md5|sha\d+)_(hex|base64|base64url)$/);
+      if (hash) return `must be a valid ${hash[1]} hash${hash[2] === "hex" ? "" : ` (${hash[2]})`}`;
       return `must be a valid ${FORMATS[issue.format] ?? issue.format}`;
+    }
     case "invalid_type":
       if (issue.expected === "int") return "must be a whole number";
       return `must be a ${issue.expected}`;

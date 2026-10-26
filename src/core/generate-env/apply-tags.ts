@@ -238,11 +238,9 @@ function formatDefault(base: string, rawInput: string, key: string, bounds: Boun
 
   // JWT
   if (base.startsWith("z.jwt(")) {
-    const algMatch = base.match(/alg:\s*"([^"]+)"/);
-    const alg = algMatch?.[1];
-    const schema = alg
-      ? z.jwt({ alg: alg as Parameters<typeof z.jwt>[0] extends { alg?: infer A } ? A : never })
-      : z.jwt();
+    // alg was validated in annotatedSchema, so the cast is safe.
+    const alg = base.match(/alg:\s*"([^"]+)"/)?.[1] as never;
+    const schema = alg ? z.jwt({ alg }) : z.jwt();
     if (!schema.safeParse(raw).success) {
       throw new Error(`@default for ${key} must be a valid JWT, got "${rawInput}"`);
     }
@@ -252,10 +250,9 @@ function formatDefault(base: string, rawInput: string, key: string, bounds: Boun
 
   // Hash
   if (base.startsWith("z.hash(")) {
-    const algMatch = base.match(/z\.hash\("([^"]+)"/);
-    const encMatch = base.match(/enc:\s*"([^"]+)"/);
-    const alg = (algMatch ? algMatch[1] : "") as Parameters<typeof z.hash>[0];
-    const enc = encMatch ? (encMatch[1] as NonNullable<Parameters<typeof z.hash>[1]>["enc"]) : undefined;
+    // alg and enc were validated in annotatedSchema, so the casts are safe.
+    const alg = base.match(/z\.hash\("([^"]+)"/)?.[1] as never;
+    const enc = base.match(/enc:\s*"([^"]+)"/)?.[1] as never;
     const schema = enc ? z.hash(alg, { enc }) : z.hash(alg);
     if (!schema.safeParse(raw).success) {
       const label = enc && enc !== "hex" ? `${alg} hash (${enc})` : `${alg} hash`;
