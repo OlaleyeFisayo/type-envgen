@@ -86,6 +86,11 @@ describe("@default", () => {
       ["a bad URL", "# @type url\n# @default not-a-url\nX=https://api.com", /@default for X must be a valid URL/],
       ["a bad email", "# @type email\n# @default not-an-email\nX=a@b.com", /@default for X must be a valid email/],
       [
+        "a bad email preset",
+        "# @type email(html5)\n# @default not-an-email\nX=a@b.com",
+        /@default for X must be a valid email/,
+      ],
+      [
         "a bad UUID",
         "# @type uuid\n# @default not-a-uuid\nX=550e8400-e29b-41d4-a716-446655440000",
         /@default for X must be a valid UUID/,

@@ -20,6 +20,13 @@ const JWT_ALGS = new Set([
 const HASH_ALGS = new Set(["md5", "sha1", "sha256", "sha384", "sha512"]);
 const HASH_ENCS = new Set(["hex", "base64", "base64url"]);
 
+const EMAIL_PRESETS: Record<string, string> = {
+  html5: "html5Email",
+  rfc5322: "rfc5322Email",
+  unicode: "unicodeEmail",
+  browser: "browserEmail",
+};
+
 export function annotatedSchema(type: string, key: string, value: string): string {
   const enumValues = type.match(/^enum\((.*)\)$/i)?.[1];
   if (enumValues !== undefined) {
@@ -123,6 +130,18 @@ export function annotatedSchema(type: string, key: string, value: string): strin
       return `z.iso.time({ precision: ${precision} })`;
     }
     throw new Error(`Invalid time parameter "${timeParam}" for ${key} (expected precision=<number>)`);
+  }
+  const emailPreset = type
+    .match(/^email\((.*)\)$/i)?.[1]
+    ?.trim()
+    .toLowerCase();
+  if (emailPreset !== undefined) {
+    const pattern = EMAIL_PRESETS[emailPreset];
+    if (pattern) {
+      return `z.email({ pattern: z.regexes.${pattern} })`;
+    }
+    const valid = Object.keys(EMAIL_PRESETS).join(", ");
+    throw new Error(`Invalid email preset "${emailPreset}" for ${key} (expected one of: ${valid})`);
   }
   const name = type.toLowerCase();
   if (name === "hash") {
