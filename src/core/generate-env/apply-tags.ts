@@ -12,9 +12,89 @@ const STRING_LIKE_REGEX =
   /^z\.(string|url|httpUrl|hostname|email|uuid|guid|nanoid|cuid|cuid2|ulid|ksuid|xid|iso\.date|iso\.datetime|iso\.time|iso\.duration|ipv4|ipv6|cidrv4|cidrv6|mac|e164|emoji|currencyCode|iban|creditCard|base64|base64url|hex|jwt|hash)\(/;
 const NUMBER_REGEX = /^z\.coerce\.number\(/;
 
+const NORMALIZE_FORMS = ["NFC", "NFD", "NFKC", "NFKD"];
+const TEXT_CHECKS = { startswith: "startsWith", endswith: "endsWith", includes: "includes" } as const;
+// zod issue format -> the tag that produced it, so generation errors can name the tag.
+const TAG_BY_FORMAT: Record<string, string> = {
+  starts_with: "startswith",
+  ends_with: "endswith",
+  includes: "includes",
+  uppercase: "uppercase",
+  lowercase: "lowercase",
+};
+
+// String checks (@length, @nonempty, @startswith, ...) and transforms (@trim, @tolowercase, ...).
+// Returns the code to emit plus matching zod schemas to validate the .env value and @default now.
+function stringTags(base: string, tags: Tags, key: string, isStringLike: boolean) {
+  const supported = (tag: string, ok: boolean) => {
+    if (!ok) throw new Error(`@${tag} is not supported for ${key} (${base})`);
+  };
+  // Transforms change the input before any check, so they also work on enums (e.g. @tolowercase).
+  const canTransform = isStringLike || base.startsWith("z.enum(");
+  let transforms = "";
+  let full = z.string();
+  if (tags.trim) {
+    supported("trim", canTransform);
+    transforms += ".trim()";
+    full = full.trim();
+  }
+  if (tags.normalize !== undefined) {
+    supported("normalize", canTransform);
+    const form = tags.normalize.trim().toUpperCase();
+    if (form && !NORMALIZE_FORMS.includes(form)) {
+      throw new Error(`@normalize for ${key} must be one of ${NORMALIZE_FORMS.join(", ")}, got "${tags.normalize}"`);
+    }
+    transforms += form ? `.normalize(${JSON.stringify(form)})` : ".normalize()";
+    full = full.normalize(form || undefined);
+  }
+  if (tags.tolowercase && tags.touppercase) throw new Error(`Cannot combine @tolowercase and @touppercase for ${key}`);
+  if (tags.tolowercase) {
+    supported("tolowercase", canTransform);
+    transforms += ".toLowerCase()";
+    full = full.toLowerCase();
+  }
+  if (tags.touppercase) {
+    supported("touppercase", canTransform);
+    transforms += ".toUpperCase()";
+    full = full.toUpperCase();
+  }
+
+  let checks = "";
+  let check = z.string();
+  const add = (tag: string, code: string, apply: (s: z.ZodString) => z.ZodString) => {
+    supported(tag, isStringLike);
+    checks += code;
+    check = apply(check);
+    full = apply(full);
+  };
+  if (tags.length !== undefined) {
+    const n = parseBound(tags.length, "length", key, true);
+    add("length", `.length(${n})`, (s) => s.length(n));
+  }
+  if (tags.nonempty) add("nonempty", ".nonempty()", (s) => s.nonempty());
+  for (const [tag, method] of Object.entries(TEXT_CHECKS) as [keyof typeof TEXT_CHECKS, string][]) {
+    const raw = tags[tag];
+    if (raw === undefined) continue;
+    const text = unquote(raw.trim());
+    if (!text) throw new Error(`@${tag} for ${key} requires a value`);
+    add(tag, `.${method}(${JSON.stringify(text)})`, (s) => s[TEXT_CHECKS[tag]](text));
+  }
+  if (tags.uppercase) add("uppercase", ".uppercase()", (s) => s.uppercase());
+  if (tags.lowercase) add("lowercase", ".lowercase()", (s) => s.lowercase());
+
+  return { transforms, checks, check, full };
+}
+
+// Names the tag behind the first failing issue of a stringTags schema.
+function failedTag(error: z.ZodError): string {
+  const issue = error.issues[0];
+  if (issue.code === "invalid_format") return TAG_BY_FORMAT[issue.format] ?? issue.format;
+  return "exact" in issue && issue.exact ? "length" : "nonempty";
+}
+
 function parseBound(
   raw: string,
-  tag: "min" | "max" | "minlength" | "maxlength",
+  tag: "min" | "max" | "minlength" | "maxlength" | "length",
   key: string,
   isStringLike: boolean,
 ): number {
@@ -90,6 +170,19 @@ export function applyTags(base: string, tags: Tags, key: string, value = ""): st
     schema += `.max(${bounds.max})`;
   }
 
+  const strings = stringTags(base, tags, key, isStringLike);
+  schema += strings.checks;
+  if (strings.checks) {
+    // Like @pattern: catch a bad value or @default now. The value isn't echoed: it may be a secret.
+    const result = strings.full.safeParse(value);
+    if (!result.success) throw new Error(`Value of ${key} does not satisfy @${failedTag(result.error)}`);
+    if (tags.default !== undefined) {
+      // .default() skips transforms and checks at runtime, so the default must pass the checks as written.
+      const def = strings.check.safeParse(unquote(tags.default.trim()));
+      if (!def.success) throw new Error(`@default for ${key} does not satisfy @${failedTag(def.error)}`);
+    }
+  }
+
   if (tags.pattern !== undefined) {
     if (!isStringLike) {
       throw new Error(`@pattern is not supported for ${key} (${base})`);
@@ -111,6 +204,15 @@ export function applyTags(base: string, tags: Tags, key: string, value = ""): st
       throw new Error(`@default for ${key} does not match @pattern`);
     }
     schema += `.regex(${regex.toString()})`;
+  }
+
+  // Transforms must run before every check, including a format's own (z.email().trim() would
+  // reject " a@b.com " before trimming), so anything but a plain string is piped through them.
+  if (strings.transforms) {
+    schema =
+      base === "z.string()"
+        ? `z.string()${strings.transforms}${schema.slice(base.length)}`
+        : `z.string()${strings.transforms}.pipe(${schema})`;
   }
 
   if (tags.default !== undefined) {

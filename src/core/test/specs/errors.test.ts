@@ -90,6 +90,14 @@ describe("validateEnv errors", () => {
     ["max number", z.coerce.number().max(5), "9", "must be at most 5"],
     ["min length", z.string().min(3), "ab", "must be at least 3 characters"],
     ["max length", z.string().max(1), "ab", "must be at most 1 characters"],
+    ["exact length short", z.string().length(3), "ab", "must be exactly 3 characters"],
+    ["exact length long", z.string().length(3), "abcd", "must be exactly 3 characters"],
+    ["nonempty", z.string().nonempty(), "", "must not be empty"],
+    ["startsWith", z.string().startsWith("sk_"), "pk_1", 'must start with "sk_"'],
+    ["endsWith", z.string().endsWith(".com"), "a.org", 'must end with ".com"'],
+    ["includes", z.string().includes("@"), "nope", 'must include "@"'],
+    ["uppercase", z.string().uppercase(), "Ab", "must be uppercase"],
+    ["lowercase", z.string().lowercase(), "Ab", "must be lowercase"],
     ["invalid json", json(z.object({ a: z.number() })), "{bad", "must be valid JSON"],
   ])("%s", (_, schema, value, message) => {
     expect(errorOf(z.object({ X: schema }), { X: value })).toContain(`  X: ${message}`);

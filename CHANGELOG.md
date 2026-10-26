@@ -11,6 +11,7 @@ Full release notes for every version, including each merged pull request, are on
 
 ### Added
 
+- String checks and transforms from zod's string API: `@length`, `@nonempty`, `@startswith`, `@endswith`, `@includes`, `@uppercase`, `@lowercase`, and the transforms `@trim`, `@tolowercase`, `@touppercase` and `@normalize [form]`. Transforms run before every check, so `@trim` works with `@type email` and `@tolowercase` with enums. Tag names are now case-insensitive.
 - `@type uuid(v1)` to `uuid(v8)` to require a UUID version, and `@type guid` for UUID-shaped IDs without a valid version or variant (#18, thanks @montionugera).
 - `@type httpurl` (http/https URLs only, via `z.httpUrl()`) and `@type hostname` (#19, thanks @montionugera).
 - `@type email(<preset>)` with zod's `html5`, `rfc5322`, `unicode` and `browser` email patterns; `@default` is checked with the same preset (#20, thanks @montionugera).
