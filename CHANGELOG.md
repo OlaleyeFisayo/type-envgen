@@ -11,6 +11,7 @@ Full release notes for every version, including each merged pull request, are on
 
 ### Added
 
+- `@type httpurl` (http/https URLs only, via `z.httpUrl()`) and `@type hostname` (#19, thanks @montionugera).
 - `@type email(<preset>)` with zod's `html5`, `rfc5322`, `unicode` and `browser` email patterns; `@default` is checked with the same preset (#20, thanks @montionugera).
 - `@type time`, `time(precision=<n>)` and `duration`. Untagged ISO 8601 durations (`PT30S`, `P1D`) are now inferred as `z.iso.duration()` (#21, thanks @montionugera).
 - `@type datetime(offset, local, precision=<n>)` for timestamps with an offset, without a timezone, or with a fixed number of fractional digits. Untagged datetimes with an offset (`2026-01-31T10:00:00+01:00`) are now inferred as `z.iso.datetime({ offset: true })` (#22, thanks @montionugera).

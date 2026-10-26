@@ -292,6 +292,8 @@ APP_ENV=staging
 
 Type names are case-insensitive; enum values keep their case.
 
+`httpurl` only accepts http(s) URLs with a domain name, so `http://localhost:3000` and IP hosts like `http://127.0.0.1:8080` fail. Use `url` for those.
+
 ### `@type datetime(opts)`
 
 `datetime` supports options for timezone offsets, local timestamps, and subsecond precision:
@@ -338,7 +340,7 @@ STRIPE_KEY=sk_test_abc123
 
 ### `@minlength <n>` / `@maxlength <n>`
 
-Bounds on the length of string-like schemas (`string`, `url`, `email`, `uuid`, `nanoid`, `cuid`, `cuid2`, `ulid`, `ksuid`, `xid`, `date`, `datetime`, `time`, `duration`, `ipv4`, `ipv6`, `cidrv4`, `cidrv6`, `mac`, `e164`, `emoji`, `currencycode`, `iban`, `creditcard`, `base64`, `base64url`, `hex`, `jwt`, `hash`). Emits `.min(n)` / `.max(n)` on the Zod schema. `<n>` must be a non-negative integer.
+Bounds on the length of string-like schemas (`string`, `url`, `httpurl`, `hostname`, `email`, `uuid`, `nanoid`, `cuid`, `cuid2`, `ulid`, `ksuid`, `xid`, `date`, `datetime`, `time`, `duration`, `ipv4`, `ipv6`, `cidrv4`, `cidrv6`, `mac`, `e164`, `emoji`, `currencycode`, `iban`, `creditcard`, `base64`, `base64url`, `hex`, `jwt`, `hash`). Emits `.min(n)` / `.max(n)` on the Zod schema. `<n>` must be a non-negative integer.
 
 ```sh
 # @minlength 8
