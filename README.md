@@ -241,6 +241,12 @@ Overrides inference.
 | `url`           | `z.url()`                        |
 | `email`         | `z.email()`                      |
 | `uuid`          | `z.uuid()`                       |
+| `nanoid`        | `z.nanoid()`                     |
+| `cuid`          | `z.cuid()`                       |
+| `cuid2`         | `z.cuid2()`                      |
+| `ulid`          | `z.ulid()`                       |
+| `ksuid`         | `z.ksuid()`                      |
+| `xid`           | `z.xid()`                        |
 | `date`          | `z.iso.date()`                   |
 | `datetime`      | `z.iso.datetime()`               |
 | `ipv4`          | `z.ipv4()`                       |
@@ -266,7 +272,7 @@ Type names are case-insensitive; enum values keep their case.
 ### `@min <n>` / `@max <n>`
 
 - On **numbers**: bounds on the value, e.g. `.min(1).max(65535)`.
-- On **strings, URLs, emails, UUIDs, dates, IPs, phone numbers, emoji, currency codes, IBANs and card numbers**: bounds on the length, e.g. `z.string().min(1)`.
+- On **strings, URLs, emails, UUIDs, IDs, dates, IPs, phone numbers, emoji, currency codes, IBANs and card numbers**: bounds on the length, e.g. `z.string().min(1)`.
 - Work with inferred types too, no `@type` needed.
 
 ```sh
@@ -278,7 +284,7 @@ JWT_SECRET=please-change-me-to-something-long-enough
 
 Validates that a string matches a regular expression, emitted as zod's `.regex(...)`.
 
-- Valid on **strings, URLs, emails, UUIDs, dates, IPs, phone numbers, emoji, currency codes, IBANs and card numbers**. Using `@pattern` on numbers, booleans, or other types is an error.
+- Valid on **strings, URLs, emails, UUIDs, IDs, dates, IPs, phone numbers, emoji, currency codes, IBANs and card numbers**. Using `@pattern` on numbers, booleans, or other types is an error.
 - Validates that the value in `.env` (and any `@default`) matches the pattern at generation time, so typos and bad examples fail early. The value itself is never printed in the error.
 - Throws an error if the regex syntax is invalid, naming the offending key.
 

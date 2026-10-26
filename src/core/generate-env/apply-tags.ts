@@ -9,7 +9,7 @@ export type Bounds = {
 };
 
 const STRING_LIKE_REGEX =
-  /^z\.(string|url|email|uuid|iso\.date|iso\.datetime|ipv4|ipv6|e164|emoji|currencyCode|iban|creditCard)\(/;
+  /^z\.(string|url|email|uuid|nanoid|cuid|cuid2|ulid|ksuid|xid|iso\.date|iso\.datetime|ipv4|ipv6|e164|emoji|currencyCode|iban|creditCard)\(/;
 const NUMBER_REGEX = /^z\.coerce\.number\(/;
 
 function parseBound(
@@ -124,6 +124,12 @@ export function applyTags(base: string, tags: Tags, key: string, value = ""): st
 const unquote = (s: string) => (s.length >= 2 && /^(["']).*\1$/s.test(s) ? s.slice(1, -1) : s);
 
 const FORMATS: [string, z.ZodType, string][] = [
+  ["z.nanoid()", z.nanoid(), "nanoid"],
+  ["z.cuid()", z.cuid(), "cuid"],
+  ["z.cuid2()", z.cuid2(), "cuid2"],
+  ["z.ulid()", z.ulid(), "ULID"],
+  ["z.ksuid()", z.ksuid(), "KSUID"],
+  ["z.xid()", z.xid(), "XID"],
   ["z.iso.datetime()", z.iso.datetime(), "ISO datetime"],
   ["z.iso.date()", z.iso.date(), "ISO date"],
   ["z.ipv4()", z.ipv4(), "IPv4 address"],
