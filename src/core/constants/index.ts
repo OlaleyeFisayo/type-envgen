@@ -33,6 +33,9 @@ export const TYPES: Record<string, string> = {
   iban: "z.iban()",
   creditcard: "z.creditCard()",
   jwt: "z.jwt()",
+  base64: "z.base64()",
+  base64url: "z.base64url()",
+  hex: "z.hex()",
 };
 
 const camel = (s: string) => s.toLowerCase().replace(/_+([a-z0-9])/g, (_, c: string) => c.toUpperCase());

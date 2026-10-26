@@ -9,7 +9,7 @@ export type Bounds = {
 };
 
 const STRING_LIKE_REGEX =
-  /^z\.(string|url|email|uuid|nanoid|cuid|cuid2|ulid|ksuid|xid|iso\.date|iso\.datetime|ipv4|ipv6|e164|emoji|currencyCode|iban|creditCard|jwt|hash)\(/;
+  /^z\.(string|url|email|uuid|nanoid|cuid|cuid2|ulid|ksuid|xid|iso\.date|iso\.datetime|ipv4|ipv6|e164|emoji|currencyCode|iban|creditCard|base64|base64url|hex|jwt|hash)\(/;
 const NUMBER_REGEX = /^z\.coerce\.number\(/;
 
 function parseBound(
@@ -139,6 +139,9 @@ const FORMATS: [string, z.ZodType, string][] = [
   ["z.currencyCode()", z.currencyCode(), "currency code"],
   ["z.iban()", z.iban(), "IBAN"],
   ["z.creditCard()", z.creditCard(), "credit card number"],
+  ["z.base64()", z.base64(), "base64 string"],
+  ["z.base64url()", z.base64url(), "base64url string"],
+  ["z.hex()", z.hex(), "hex string"],
 ];
 
 function checkStringBounds(raw: string, bounds: Bounds, key: string) {

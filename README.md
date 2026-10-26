@@ -260,6 +260,9 @@ Overrides inference.
 | `jwt(alg)`      | `z.jwt({ alg: "..." })`          |
 | `hash(alg)`     | `z.hash("...")`                  |
 | `hash(alg, enc)`| `z.hash("...", { enc: "..." })`  |
+| `base64`        | `z.base64()`                     |
+| `base64url`     | `z.base64url()`                  |
+| `hex`           | `z.hex()`                        |
 | `json`          | `json(<schema built from the value>)` |
 | `enum(a, b, c)` | `z.enum(["a","b","c"])`          |
 
@@ -276,7 +279,7 @@ Type names are case-insensitive; enum values keep their case.
 ### `@min <n>` / `@max <n>`
 
 - On **numbers**: bounds on the value, e.g. `.min(1).max(65535)`.
-- On **strings, URLs, emails, UUIDs, IDs, dates, IPs, phone numbers, emoji, currency codes, IBANs, card numbers, JWTs and hashes**: bounds on the length, e.g. `z.string().min(1)`.
+- On **strings, URLs, emails, UUIDs, IDs, dates, IPs, phone numbers, emoji, currency codes, IBANs, card numbers, base64, hex, JWTs and hashes**: bounds on the length, e.g. `z.string().min(1)`.
 - Work with inferred types too, no `@type` needed.
 
 ```sh

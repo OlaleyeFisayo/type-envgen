@@ -21,6 +21,9 @@ const FORMATS: Record<string, string> = {
   iban: "IBAN",
   credit_card: "credit card number",
   jwt: "JWT",
+  base64: "base64 string",
+  base64url: "base64url string",
+  hex: "hex string",
 };
 
 const UNITS: Record<string, string> = { string: " characters", array: " items" };

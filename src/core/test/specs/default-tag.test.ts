@@ -132,6 +132,17 @@ describe("@default", () => {
         "# @type hash(sha256, base64)\n# @default not-base64-hash\nX=test",
         /@default for X must be a valid sha256 hash \(base64\)/,
       ],
+      [
+        "a bad base64",
+        "# @type base64\n# @default not-valid-base64!\nX=q83vEjRWeJA=",
+        /@default for X must be a valid base64 string/,
+      ],
+      [
+        "a bad base64url",
+        "# @type base64url\n# @default bad+base64=\nX=q83vEjRWeJA",
+        /@default for X must be a valid base64url string/,
+      ],
+      ["a bad hex", "# @type hex\n# @default nothex\nX=deadbeef01", /@default for X must be a valid hex string/],
       ["a non-member enum", "# @type enum(a, b)\n# @default c\nX=a", /@default "c" for X is not in enum/],
       ["invalid JSON", '# @default {bad json}\nX={"a":1}', /@default for X must be valid JSON/],
       ["below @min", "# @min 10\n# @default 5\nX=10", /less than @min/],
