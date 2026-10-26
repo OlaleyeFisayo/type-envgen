@@ -296,7 +296,7 @@ STRIPE_KEY=sk_test_abc123
 
 ### `@minlength <n>` / `@maxlength <n>`
 
-Bounds on the length of string-like schemas (`string`, `url`, `email`, `uuid`, `date`, `datetime`, `ipv4`, `ipv6`, `e164`, `emoji`, `currencycode`, `iban`, `creditcard`). Emits `.min(n)` / `.max(n)` on the Zod schema. `<n>` must be a non-negative integer.
+Bounds on the length of string-like schemas (`string`, `url`, `email`, `uuid`, `nanoid`, `cuid`, `cuid2`, `ulid`, `ksuid`, `xid`, `date`, `datetime`, `ipv4`, `ipv6`, `e164`, `emoji`, `currencycode`, `iban`, `creditcard`). Emits `.min(n)` / `.max(n)` on the Zod schema. `<n>` must be a non-negative integer.
 
 ```sh
 # @minlength 8

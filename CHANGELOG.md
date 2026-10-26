@@ -11,6 +11,7 @@ Full release notes for every version, including each merged pull request, are on
 
 ### Added
 
+- `@type nanoid`, `cuid`, `cuid2`, `ulid`, `ksuid` and `xid` ID formats, with `@default`, `@min` / `@max`, `@minlength` / `@maxlength` and `@pattern` support (#26, thanks @montionugera).
 - `@type e164`, `emoji`, `currencycode`, `iban` and `creditcard` string formats, with `@default`, `@min` / `@max`, `@minlength` / `@maxlength` and `@pattern` support (#27, thanks @montionugera).
 
 ## [2.0.0] - 2026-10-13
