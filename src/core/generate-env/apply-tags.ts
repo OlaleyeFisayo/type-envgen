@@ -238,15 +238,10 @@ function formatDefault(base: string, rawInput: string, key: string, bounds: Boun
   }
 
   // UUID
-  const uuidMatch = base.match(/^z\.uuid\((.*?)\)/);
-  if (uuidMatch) {
-    const opts = uuidMatch[1].trim();
-    const versionMatch = opts.match(/version:\s*"([^"]+)"/);
-    const schema = versionMatch
-      ? z.uuid({
-          version: versionMatch[1] as "v1" | "v2" | "v3" | "v4" | "v5" | "v6" | "v7" | "v8",
-        })
-      : z.uuid();
+  if (base.startsWith("z.uuid(")) {
+    // version was validated in annotatedSchema, so the cast is safe.
+    const version = base.match(/version:\s*"([^"]+)"/)?.[1] as never;
+    const schema = version ? z.uuid({ version }) : z.uuid();
     if (!schema.safeParse(raw).success) {
       throw new Error(`@default for ${key} must be a valid UUID, got "${rawInput}"`);
     }
