@@ -11,6 +11,7 @@ Full release notes for every version, including each merged pull request, are on
 
 ### Added
 
+- `@type base64`, `base64url` and `hex` encoding formats, with `@default`, `@min` / `@max`, `@minlength` / `@maxlength` and `@pattern` support (#24, thanks @montionugera).
 - `@type jwt`, `jwt(<alg>)` and `hash(<alg>[, <enc>])` (algorithms `md5`, `sha1`, `sha256`, `sha384`, `sha512`; encodings `hex`, `base64`, `base64url`), with `@default`, `@min` / `@max`, `@minlength` / `@maxlength` and `@pattern` support (#25, thanks @montionugera).
 - `@type nanoid`, `cuid`, `cuid2`, `ulid`, `ksuid` and `xid` ID formats, with `@default`, `@min` / `@max`, `@minlength` / `@maxlength` and `@pattern` support (#26, thanks @montionugera).
 - `@type e164`, `emoji`, `currencycode`, `iban` and `creditcard` string formats, with `@default`, `@min` / `@max`, `@minlength` / `@maxlength` and `@pattern` support (#27, thanks @montionugera).

@@ -291,7 +291,7 @@ JWT_SECRET=please-change-me-to-something-long-enough
 
 Validates that a string matches a regular expression, emitted as zod's `.regex(...)`.
 
-- Valid on **strings, URLs, emails, UUIDs, IDs, dates, IPs, phone numbers, emoji, currency codes, IBANs, card numbers, JWTs and hashes**. Using `@pattern` on numbers, booleans, or other types is an error.
+- Valid on **strings, URLs, emails, UUIDs, IDs, dates, IPs, phone numbers, emoji, currency codes, IBANs, card numbers, base64, hex, JWTs and hashes**. Using `@pattern` on numbers, booleans, or other types is an error.
 - Validates that the value in `.env` (and any `@default`) matches the pattern at generation time, so typos and bad examples fail early. The value itself is never printed in the error.
 - Throws an error if the regex syntax is invalid, naming the offending key.
 
@@ -303,7 +303,7 @@ STRIPE_KEY=sk_test_abc123
 
 ### `@minlength <n>` / `@maxlength <n>`
 
-Bounds on the length of string-like schemas (`string`, `url`, `email`, `uuid`, `nanoid`, `cuid`, `cuid2`, `ulid`, `ksuid`, `xid`, `date`, `datetime`, `ipv4`, `ipv6`, `e164`, `emoji`, `currencycode`, `iban`, `creditcard`, `jwt`, `hash`). Emits `.min(n)` / `.max(n)` on the Zod schema. `<n>` must be a non-negative integer.
+Bounds on the length of string-like schemas (`string`, `url`, `email`, `uuid`, `nanoid`, `cuid`, `cuid2`, `ulid`, `ksuid`, `xid`, `date`, `datetime`, `ipv4`, `ipv6`, `e164`, `emoji`, `currencycode`, `iban`, `creditcard`, `base64`, `base64url`, `hex`, `jwt`, `hash`). Emits `.min(n)` / `.max(n)` on the Zod schema. `<n>` must be a non-negative integer.
 
 ```sh
 # @minlength 8
