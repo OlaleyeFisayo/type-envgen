@@ -45,6 +45,11 @@ function describe(issue: z.core.$ZodIssue): string {
     case "invalid_format": {
       // The pattern comes from the user's own @pattern tag, so printing it is safe.
       if (issue.format === "regex" && "pattern" in issue) return `must match ${issue.pattern}`;
+      // Same for @startswith / @endswith / @includes text.
+      if ("prefix" in issue) return `must start with ${JSON.stringify(issue.prefix)}`;
+      if ("suffix" in issue) return `must end with ${JSON.stringify(issue.suffix)}`;
+      if ("includes" in issue) return `must include ${JSON.stringify(issue.includes)}`;
+      if (issue.format === "uppercase" || issue.format === "lowercase") return `must be ${issue.format}`;
       // z.hash() reports "<alg>_<enc>", e.g. sha256_hex.
       const hash = issue.format.match(/^(md5|sha\d+)_(hex|base64|base64url)$/);
       if (hash) return `must be a valid ${hash[1]} hash${hash[2] === "hex" ? "" : ` (${hash[2]})`}`;
@@ -54,9 +59,10 @@ function describe(issue: z.core.$ZodIssue): string {
       if (issue.expected === "int") return "must be a whole number";
       return `must be a ${issue.expected}`;
     case "too_small":
-      return `must be at least ${issue.minimum}${UNITS[issue.origin] ?? ""}`;
+      if (issue.origin === "string" && issue.minimum === 1 && !issue.exact) return "must not be empty";
+      return `must be ${issue.exact ? "exactly" : "at least"} ${issue.minimum}${UNITS[issue.origin] ?? ""}`;
     case "too_big":
-      return `must be at most ${issue.maximum}${UNITS[issue.origin] ?? ""}`;
+      return `must be ${issue.exact ? "exactly" : "at most"} ${issue.maximum}${UNITS[issue.origin] ?? ""}`;
     default:
       return issue.message;
   }

@@ -31,8 +31,13 @@ ${Object.entries(TARGETS)
   # @pattern <regex>   Regex pattern constraint (.regex(...), string schemas only)
   # @minlength <n>     Minimum length for string-like schemas
   # @maxlength <n>     Maximum length for string-like schemas
+  # @length <n>        Exact length for string-like schemas
+  # @nonempty          String must not be empty
+  # @startswith <s>    Must start with, end with or include <s> (also @endswith, @includes)
+  # @uppercase         Must be all uppercase (also @lowercase)
+  # @trim              Transform before checking (also @tolowercase, @touppercase, @normalize [form])
   # @optional          Key may be missing
-  Untagged keys are inferred from their value and required.
+  Untagged keys are inferred from their value and required. Tag names are case-insensitive.
 
 Examples:
   type-envgen
