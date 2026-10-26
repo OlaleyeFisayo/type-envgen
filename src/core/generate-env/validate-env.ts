@@ -20,6 +20,22 @@ const FORMATS: Record<string, string> = {
   currency_code: "currency code",
   iban: "IBAN",
   credit_card: "credit card number",
+  jwt: "JWT",
+  md5_hex: "md5 hash",
+  md5_base64: "md5 hash (base64)",
+  md5_base64url: "md5 hash (base64url)",
+  sha1_hex: "sha1 hash",
+  sha1_base64: "sha1 hash (base64)",
+  sha1_base64url: "sha1 hash (base64url)",
+  sha256_hex: "sha256 hash",
+  sha256_base64: "sha256 hash (base64)",
+  sha256_base64url: "sha256 hash (base64url)",
+  sha384_hex: "sha384 hash",
+  sha384_base64: "sha384 hash (base64)",
+  sha384_base64url: "sha384 hash (base64url)",
+  sha512_hex: "sha512 hash",
+  sha512_base64: "sha512 hash (base64)",
+  sha512_base64url: "sha512 hash (base64url)",
 };
 
 const UNITS: Record<string, string> = { string: " characters", array: " items" };

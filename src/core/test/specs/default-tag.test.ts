@@ -40,6 +40,18 @@ describe("@default", () => {
     );
   });
 
+  it("accepts valid jwt and hash defaults", () => {
+    const validJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.c2ln";
+    expect(generateEnv(`# @type jwt\n# @default ${validJwt}\nX=${validJwt}`)).toContain(
+      `X: z.jwt().default("${validJwt}")`,
+    );
+
+    const validHash = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08";
+    expect(generateEnv(`# @type hash(sha256)\n# @default ${validHash}\nX=${validHash}`)).toContain(
+      `X: z.hash("sha256").default("${validHash}")`,
+    );
+  });
+
   describe("errors", () => {
     it.each([
       ["a missing value", "# @default\nX=1", /@default for X requires a value/],
@@ -108,6 +120,17 @@ describe("@default", () => {
         "a bad credit card",
         "# @type creditcard\n# @default notacard\nX=4532015112830366",
         /@default for X must be a valid credit card number/,
+      ],
+      ["a bad JWT", "# @type jwt\n# @default not-a-jwt\nX=test", /@default for X must be a valid JWT/],
+      [
+        "a bad hash",
+        "# @type hash(sha256)\n# @default not-a-hash\nX=test",
+        /@default for X must be a valid sha256 hash/,
+      ],
+      [
+        "a bad base64 hash",
+        "# @type hash(sha256, base64)\n# @default not-base64-hash\nX=test",
+        /@default for X must be a valid sha256 hash \(base64\)/,
       ],
       ["a non-member enum", "# @type enum(a, b)\n# @default c\nX=a", /@default "c" for X is not in enum/],
       ["invalid JSON", '# @default {bad json}\nX={"a":1}', /@default for X must be valid JSON/],

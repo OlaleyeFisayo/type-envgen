@@ -256,6 +256,10 @@ Overrides inference.
 | `currencycode`  | `z.currencyCode()`               |
 | `iban`          | `z.iban()`                       |
 | `creditcard`    | `z.creditCard()`                 |
+| `jwt`           | `z.jwt()`                        |
+| `jwt(alg)`      | `z.jwt({ alg: "..." })`          |
+| `hash(alg)`     | `z.hash("...")`                  |
+| `hash(alg, enc)`| `z.hash("...", { enc: "..." })`  |
 | `json`          | `json(<schema built from the value>)` |
 | `enum(a, b, c)` | `z.enum(["a","b","c"])`          |
 
