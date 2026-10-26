@@ -206,6 +206,7 @@ Untagged variables are inferred from their value. Rules are checked top to botto
 | `admin@example.com`               | `z.email()`                                      | `string`        |
 | `2026-01-31`                      | `z.iso.date()`                                   | `string`        |
 | `2026-01-31T10:00:00Z`            | `z.iso.datetime()`                               | `string`        |
+| `2026-01-31T10:00:00+01:00`       | `z.iso.datetime({ offset: true })`               | `string`        |
 | `10.0.0.0/8`                      | `z.cidrv4()`                                     | `string`        |
 | `2001:db8::/32`                   | `z.cidrv6()`                                     | `string`        |
 | `192.168.0.1`                     | `z.ipv4()`                                       | `string`        |
@@ -252,6 +253,7 @@ Overrides inference.
 | `xid`           | `z.xid()`                        |
 | `date`          | `z.iso.date()`                   |
 | `datetime`      | `z.iso.datetime()`               |
+| `datetime(opts)`| `z.iso.datetime({ ... })`        |
 | `ipv4`          | `z.ipv4()`                       |
 | `ipv6`          | `z.ipv6()`                       |
 | `e164`          | `z.e164()`                       |
@@ -282,6 +284,25 @@ APP_ENV=staging
 ```
 
 Type names are case-insensitive; enum values keep their case.
+
+### `@type datetime(opts)`
+
+`datetime` supports options for timezone offsets, local timestamps, and subsecond precision:
+- `offset`: allows explicit timezone offsets (e.g. `+01:00` or `-05:00`)
+- `local`: allows timestamps without timezone indicators
+- `precision=<n>`: enforces exact fractional second digits, where `<n>` is a non-negative integer
+
+Options are comma-separated and can be combined:
+
+```sh
+# @type datetime(offset)
+LAUNCH_AT=2026-01-31T10:00:00+01:00
+# -> LAUNCH_AT: z.iso.datetime({ offset: true })
+
+# @type datetime(local, precision=0)
+CUTOFF=2026-01-31T10:00:00
+# -> CUTOFF: z.iso.datetime({ local: true, precision: 0 })
+```
 
 ### `@min <n>` / `@max <n>`
 

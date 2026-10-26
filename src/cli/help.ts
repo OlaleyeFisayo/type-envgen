@@ -24,7 +24,7 @@ ${Object.entries(TARGETS)
   .join("\n")}
 
 .env tags (comment lines directly above a key):
-  # @type <type>       string, number, int, boolean, url, email, uuid, nanoid, cuid, cuid2, ulid, ksuid, xid, date, datetime, ipv4, ipv6, cidrv4, cidrv6, mac, mac(delim), e164, emoji, currencycode, iban, creditcard, base64, base64url, hex, jwt, jwt(alg), hash(alg[, enc]), json, enum(a, b, c)
+  # @type <type>       string, number, int, boolean, url, email, uuid, nanoid, cuid, cuid2, ulid, ksuid, xid, date, datetime, ipv4, ipv6, cidrv4, cidrv6, mac, mac(delim), e164, emoji, currencycode, iban, creditcard, base64, base64url, hex, jwt, jwt(alg), hash(alg[, enc]), datetime(offset, local, precision=n), json, enum(a, b, c)
   # @default <value>   Fallback default value (.default(...), key is never undefined)
   # @min <n>           Minimum value (numbers) or length (strings)
   # @max <n>           Maximum value (numbers) or length (strings)

@@ -243,7 +243,26 @@ function formatDefault(base: string, rawInput: string, key: string, bounds: Boun
     return `.default(${JSON.stringify(raw)})`;
   }
 
-  // Date / datetime / IP / CIDR
+  // Datetime (supports options: offset, local, precision)
+  if (base.startsWith("z.iso.datetime(")) {
+    let schema = z.iso.datetime();
+    const optsMatch = base.match(/^z\.iso\.datetime\((\{.*?\})\)/);
+    if (optsMatch) {
+      const optsObj: { offset?: boolean; local?: boolean; precision?: number } = {};
+      if (optsMatch[1].includes("offset: true")) optsObj.offset = true;
+      if (optsMatch[1].includes("local: true")) optsObj.local = true;
+      const precMatch = optsMatch[1].match(/precision:\s*(\d+)/);
+      if (precMatch) optsObj.precision = Number(precMatch[1]);
+      schema = z.iso.datetime(optsObj);
+    }
+    if (!schema.safeParse(raw).success) {
+      throw new Error(`@default for ${key} must be a valid ISO datetime, got "${rawInput}"`);
+    }
+    checkStringBounds(raw, bounds, key);
+    return `.default(${JSON.stringify(raw)})`;
+  }
+
+  // Date / IP / CIDR / other plain formats
   const format = FORMATS.find(([prefix]) => base.startsWith(prefix));
   if (format) {
     const [, schema, label] = format;
