@@ -15,6 +15,8 @@ export const TYPES: Record<string, string> = {
   int: "z.coerce.number().int()",
   boolean: "z.stringbool()",
   url: "z.url()",
+  httpurl: "z.httpUrl()",
+  hostname: "z.hostname()",
   email: "z.email()",
   uuid: "z.uuid()",
   nanoid: "z.nanoid()",

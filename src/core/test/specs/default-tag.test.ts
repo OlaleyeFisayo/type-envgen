@@ -76,6 +76,15 @@ describe("@default", () => {
     );
   });
 
+  it("accepts valid httpurl and hostname defaults", () => {
+    expect(generateEnv("# @type httpurl\n# @default https://example.com\nX=https://api.example.com")).toMatch(
+      /X: z\.httpUrl\(\)\.default\("https:\/\/example\.com"\)/,
+    );
+    expect(generateEnv("# @type hostname\n# @default db.internal\nX=localhost")).toMatch(
+      /X: z\.hostname\(\)\.default\("db\.internal"\)/,
+    );
+  });
+
   describe("errors", () => {
     it.each([
       ["a missing value", "# @default\nX=1", /@default for X requires a value/],
@@ -84,6 +93,16 @@ describe("@default", () => {
       ["a non-number", "# @type number\n# @default abc\nX=1.5", /@default for X must be a number/],
       ["a non-boolean", "# @type boolean\n# @default nope\nX=true", /@default for X must be a boolean/],
       ["a bad URL", "# @type url\n# @default not-a-url\nX=https://api.com", /@default for X must be a valid URL/],
+      [
+        "a bad HTTP URL",
+        "# @type httpurl\n# @default ftp://example.com\nX=https://api.com",
+        /@default for X must be a valid HTTP URL/,
+      ],
+      [
+        "a bad hostname",
+        "# @type hostname\n# @default -invalid\nX=db.internal",
+        /@default for X must be a valid hostname/,
+      ],
       ["a bad email", "# @type email\n# @default not-an-email\nX=a@b.com", /@default for X must be a valid email/],
       [
         "a bad email preset",

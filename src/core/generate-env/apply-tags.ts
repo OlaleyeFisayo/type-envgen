@@ -9,7 +9,7 @@ export type Bounds = {
 };
 
 const STRING_LIKE_REGEX =
-  /^z\.(string|url|email|uuid|nanoid|cuid|cuid2|ulid|ksuid|xid|iso\.date|iso\.datetime|iso\.time|iso\.duration|ipv4|ipv6|cidrv4|cidrv6|mac|e164|emoji|currencyCode|iban|creditCard|base64|base64url|hex|jwt|hash)\(/;
+  /^z\.(string|url|httpUrl|hostname|email|uuid|nanoid|cuid|cuid2|ulid|ksuid|xid|iso\.date|iso\.datetime|iso\.time|iso\.duration|ipv4|ipv6|cidrv4|cidrv6|mac|e164|emoji|currencyCode|iban|creditCard|base64|base64url|hex|jwt|hash)\(/;
 const NUMBER_REGEX = /^z\.coerce\.number\(/;
 
 function parseBound(
@@ -124,6 +124,8 @@ export function applyTags(base: string, tags: Tags, key: string, value = ""): st
 const unquote = (s: string) => (s.length >= 2 && /^(["']).*\1$/s.test(s) ? s.slice(1, -1) : s);
 
 const FORMATS: [string, z.ZodType, string][] = [
+  ["z.httpUrl()", z.httpUrl(), "HTTP URL"],
+  ["z.hostname()", z.hostname(), "hostname"],
   ["z.nanoid()", z.nanoid(), "nanoid"],
   ["z.cuid()", z.cuid(), "cuid"],
   ["z.cuid2()", z.cuid2(), "cuid2"],

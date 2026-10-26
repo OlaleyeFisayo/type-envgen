@@ -244,6 +244,8 @@ Overrides inference.
 | `int`           | `z.coerce.number().int()`        |
 | `boolean`       | `z.stringbool()`                 |
 | `url`           | `z.url()`                        |
+| `httpurl`       | `z.httpUrl()`                    |
+| `hostname`      | `z.hostname()`                   |
 | `email`         | `z.email()`                      |
 | `email(preset)` | `z.email({ pattern: z.regexes.<preset>Email })` (`html5`, `rfc5322`, `unicode`, `browser`) |
 | `uuid`          | `z.uuid()`                       |
@@ -312,7 +314,7 @@ CUTOFF=2026-01-31T10:00:00
 ### `@min <n>` / `@max <n>`
 
 - On **numbers**: bounds on the value, e.g. `.min(1).max(65535)`.
-- On **strings, URLs, emails, UUIDs, IDs, dates, times, durations, IPs, CIDRs, MACs, phone numbers, emoji, currency codes, IBANs, card numbers, base64, hex, JWTs and hashes**: bounds on the length, e.g. `z.string().min(1)`.
+- On **strings, URLs, hostnames, emails, UUIDs, IDs, dates, times, durations, IPs, CIDRs, MACs, phone numbers, emoji, currency codes, IBANs, card numbers, base64, hex, JWTs and hashes**: bounds on the length, e.g. `z.string().min(1)`.
 - Work with inferred types too, no `@type` needed.
 
 ```sh
@@ -324,7 +326,7 @@ JWT_SECRET=please-change-me-to-something-long-enough
 
 Validates that a string matches a regular expression, emitted as zod's `.regex(...)`.
 
-- Valid on **strings, URLs, emails, UUIDs, IDs, dates, times, durations, IPs, CIDRs, MACs, phone numbers, emoji, currency codes, IBANs, card numbers, base64, hex, JWTs and hashes**. Using `@pattern` on numbers, booleans, or other types is an error.
+- Valid on **strings, URLs, hostnames, emails, UUIDs, IDs, dates, times, durations, IPs, CIDRs, MACs, phone numbers, emoji, currency codes, IBANs, card numbers, base64, hex, JWTs and hashes**. Using `@pattern` on numbers, booleans, or other types is an error.
 - Validates that the value in `.env` (and any `@default`) matches the pattern at generation time, so typos and bad examples fail early. The value itself is never printed in the error.
 - Throws an error if the regex syntax is invalid, naming the offending key.
 
