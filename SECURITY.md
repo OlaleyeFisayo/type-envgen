@@ -13,7 +13,6 @@ Report them privately through GitHub:
 (Security tab → "Report a vulnerability").
 
 Please include:
-
 - what the issue is and its impact
 - steps or a minimal `.env` / command to reproduce it
 - the `type-envgen` and Node.js versions you used
