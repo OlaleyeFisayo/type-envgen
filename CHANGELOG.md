@@ -11,6 +11,7 @@ Full release notes for every version, including each merged pull request, are on
 
 ### Added
 
+- `@type uuid(v1)` to `uuid(v8)` to require a UUID version, and `@type guid` for UUID-shaped IDs without a valid version or variant (#18, thanks @montionugera).
 - `@type httpurl` (http/https URLs only, via `z.httpUrl()`) and `@type hostname` (#19, thanks @montionugera).
 - `@type email(<preset>)` with zod's `html5`, `rfc5322`, `unicode` and `browser` email patterns; `@default` is checked with the same preset (#20, thanks @montionugera).
 - `@type time`, `time(precision=<n>)` and `duration`. Untagged ISO 8601 durations (`PT30S`, `P1D`) are now inferred as `z.iso.duration()` (#21, thanks @montionugera).
