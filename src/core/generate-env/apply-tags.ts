@@ -130,7 +130,6 @@ const FORMATS: [string, z.ZodType, string][] = [
   ["z.ulid()", z.ulid(), "ULID"],
   ["z.ksuid()", z.ksuid(), "KSUID"],
   ["z.xid()", z.xid(), "XID"],
-  ["z.iso.datetime()", z.iso.datetime(), "ISO datetime"],
   ["z.iso.date()", z.iso.date(), "ISO date"],
   ["z.ipv4()", z.ipv4(), "IPv4 address"],
   ["z.ipv6()", z.ipv6(), "IPv6 address"],
