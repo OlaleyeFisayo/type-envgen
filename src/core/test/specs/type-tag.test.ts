@@ -26,6 +26,12 @@ describe("@type", () => {
     expect(env.TEST_CARD).toBe("4532015112830366");
   });
 
+  it("treats misc formats as string-like", () => {
+    expect(generateEnv("# @type currencycode\n# @minlength 3\n# @pattern ^[A-Z]{3}$\nX=USD")).toContain(
+      "X: z.currencyCode().min(3).regex(/^[A-Z]{3}$/)",
+    );
+  });
+
   it("rejects an unknown type", () => {
     expect(() => generateEnv("# @type nope\nX=1")).toThrow(/Unknown @type "nope" for X/);
   });

@@ -9,6 +9,10 @@ Full release notes for every version, including each merged pull request, are on
 
 ## [Unreleased]
 
+### Added
+
+- `@type e164`, `emoji`, `currencycode`, `iban` and `creditcard` string formats, with `@default`, `@min` / `@max`, `@minlength` / `@maxlength` and `@pattern` support (#27, thanks @montionugera).
+
 ## [2.0.0] - 2026-10-13
 
 ### Breaking
