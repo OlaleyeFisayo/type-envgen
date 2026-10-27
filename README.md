@@ -316,13 +316,22 @@ CUTOFF=2026-01-31T10:00:00
 ### `@min <n>` / `@max <n>`
 
 - On **numbers**: bounds on the value, e.g. `.min(1).max(65535)`.
-- On **strings, URLs, hostnames, emails, UUIDs, GUIDs, IDs, dates, times, durations, IPs, CIDRs, MACs, phone numbers, emoji, currency codes, IBANs, card numbers, base64, hex, JWTs and hashes**: bounds on the length, e.g. `z.string().min(1)`.
+- On **strings, URLs, hostnames, emails, UUIDs, GUIDs, IDs, dates, times, durations, IPs, CIDRs, MACs, phone numbers, emoji, currency codes, IBANs, card numbers, base64, hex, JWTs and hashes**: bounds on the length, e.g. `z.string().min(1)`. The length must be a non-negative integer.
 - Work with inferred types too, no `@type` needed.
 
 ```sh
+# @min 1
+# @max 65535
+PORT=3000
+# -> PORT: z.coerce.number().int().min(1).max(65535)
+
 # @min 32
+# @max 128
 JWT_SECRET=please-change-me-to-something-long-enough
+# -> JWT_SECRET: z.string().min(32).max(128)
 ```
+
+`@minlength` / `@maxlength` were removed in 2.1.0: use `@min` / `@max`, which already bound string length.
 
 ### `@pattern <regex>`
 
@@ -336,19 +345,6 @@ Validates that a string matches a regular expression, emitted as zod's `.regex(.
 STRIPE_KEY=sk_test_abc123
 # -> STRIPE_KEY: z.string().regex(/^sk_(live|test)_[A-Za-z0-9]+$/)
 ```
-
-### `@minlength <n>` / `@maxlength <n>`
-
-Bounds on the length of string-like schemas (`string`, `url`, `httpurl`, `hostname`, `email`, `uuid`, `guid`, `nanoid`, `cuid`, `cuid2`, `ulid`, `ksuid`, `xid`, `date`, `datetime`, `time`, `duration`, `ipv4`, `ipv6`, `cidrv4`, `cidrv6`, `mac`, `e164`, `emoji`, `currencycode`, `iban`, `creditcard`, `base64`, `base64url`, `hex`, `jwt`, `hash`). Emits `.min(n)` / `.max(n)` on the Zod schema. `<n>` must be a non-negative integer.
-
-```sh
-# @minlength 8
-# @maxlength 64
-JWT_SECRET=please-change-me-to-something-long-enough
-# -> JWT_SECRET: z.string().min(8).max(64)
-```
-
-`@min` and `@max` on strings remain supported as aliases for backward compatibility.
 
 ### String checks
 
@@ -427,13 +423,13 @@ SENTRY_DSN=https://abc@sentry.io/123
 - Mistakes fail loudly instead of being silently ignored. Each of these stops generation with an error naming the key:
   - unknown tag (`@mni`) or type (`@type nmber`)
   - combining `@default` and `@optional` on the same key
-  - invalid `@default` value (non-integer on an int, out of bounds with `@min`/`@max` or `@minlength`/`@maxlength`, invalid URL/email/UUID, invalid enum option, or invalid JSON)
+  - invalid `@default` value (non-integer on an int, out of bounds with `@min`/`@max`, invalid URL/email/UUID, invalid enum option, or invalid JSON)
   - empty `enum()`
   - invalid regex syntax, empty pattern, or the `g`/`y` flag on `@pattern`
   - the `.env` value or `@default` not matching `@pattern`
   - `@pattern` on non-string schemas (`number`, `boolean`, `enum`, `json`, etc.)
-  - non-numeric `@min` / `@max`, non-integer or negative `@minlength` / `@maxlength`, or min greater than max
-  - `@min` / `@max` on a `boolean`, `enum` or `json`, or `@minlength` / `@maxlength` on non-string schemas
+  - non-numeric `@min` / `@max`, a non-integer or negative length on a string, or min greater than max
+  - `@min` / `@max` on a `boolean`, `enum` or `json`
   - string checks (`@length`, `@nonempty`, `@startswith`, `@endswith`, `@includes`, `@uppercase`, `@lowercase`) on non-string schemas, or transforms on anything but strings and enums
   - an empty `@startswith` / `@endswith` / `@includes`, an unknown `@normalize` form, or `@tolowercase` with `@touppercase`
   - the `.env` value or `@default` failing a string check

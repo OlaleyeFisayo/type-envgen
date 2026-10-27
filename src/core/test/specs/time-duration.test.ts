@@ -42,8 +42,8 @@ describe("@type time and @type duration", () => {
     expect(generateEnv("BACKUP_AT=10:30")).toMatch(/BACKUP_AT: z\.string\(\)/);
   });
 
-  it("supports @minlength, @maxlength, and @pattern constraints", () => {
-    const res = generateEnv("# @type time\n# @minlength 8\n# @maxlength 12\n# @pattern ^02:\nBACKUP_AT=02:30:00");
+  it("supports @min, @max and @pattern constraints", () => {
+    const res = generateEnv("# @type time\n# @min 8\n# @max 12\n# @pattern ^02:\nBACKUP_AT=02:30:00");
     expect(res).toMatch(/BACKUP_AT: z\.iso\.time\(\)\.min\(8\)\.max\(12\)\.regex\(\/\^02:\/\)/);
   });
 });

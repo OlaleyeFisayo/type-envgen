@@ -27,7 +27,7 @@ describe("@type", () => {
   });
 
   it("treats misc formats as string-like", () => {
-    expect(generateEnv("# @type currencycode\n# @minlength 3\n# @pattern ^[A-Z]{3}$\nX=USD")).toContain(
+    expect(generateEnv("# @type currencycode\n# @min 3\n# @pattern ^[A-Z]{3}$\nX=USD")).toContain(
       "X: z.currencyCode().min(3).regex(/^[A-Z]{3}$/)",
     );
   });
@@ -64,7 +64,7 @@ describe("@type", () => {
   });
 
   it("supports constraints and pattern on jwt and hash", () => {
-    const jwtWithConstraints = generateEnv("# @type jwt\n# @minlength 10\n# @maxlength 500\nTOKEN=eyJ");
+    const jwtWithConstraints = generateEnv("# @type jwt\n# @min 10\n# @max 500\nTOKEN=eyJ");
     expect(jwtWithConstraints).toContain("TOKEN: z.jwt().min(10).max(500)");
 
     const hashWithPattern = generateEnv(
@@ -162,7 +162,7 @@ describe("@type", () => {
     expect(generateEnv("# @type httpurl\n# @min 10\n# @max 100\nAPI_URL=https://api.example.com")).toMatch(
       /API_URL: z\.httpUrl\(\)\.min\(10\)\.max\(100\)/,
     );
-    expect(generateEnv("# @type hostname\n# @minlength 3\n# @maxlength 30\nDB_HOST=db.internal")).toMatch(
+    expect(generateEnv("# @type hostname\n# @min 3\n# @max 30\nDB_HOST=db.internal")).toMatch(
       /DB_HOST: z\.hostname\(\)\.min\(3\)\.max\(30\)/,
     );
   });

@@ -1,12 +1,7 @@
 import { z } from "zod";
 import type { Tags } from "./read-tags.ts";
 
-export type Bounds = {
-  min?: number;
-  max?: number;
-  minTag?: "min" | "minlength";
-  maxTag?: "max" | "maxlength";
-};
+export type Bounds = { min?: number; max?: number };
 
 const STRING_LIKE_REGEX =
   /^z\.(string|url|httpUrl|hostname|email|uuid|guid|nanoid|cuid|cuid2|ulid|ksuid|xid|iso\.date|iso\.datetime|iso\.time|iso\.duration|ipv4|ipv6|cidrv4|cidrv6|mac|e164|emoji|currencyCode|iban|creditCard|base64|base64url|hex|jwt|hash)\(/;
@@ -92,12 +87,7 @@ function failedTag(error: z.ZodError): string {
   return "exact" in issue && issue.exact ? "length" : "nonempty";
 }
 
-function parseBound(
-  raw: string,
-  tag: "min" | "max" | "minlength" | "maxlength" | "length",
-  key: string,
-  isStringLike: boolean,
-): number {
+function parseBound(raw: string, tag: "min" | "max" | "length", key: string, isStringLike: boolean): number {
   if (isStringLike) {
     const trimmed = raw.trim();
     const n = Number(trimmed);
@@ -114,7 +104,12 @@ function parseBound(
 }
 
 export function applyTags(base: string, tags: Tags, key: string, value = ""): string {
-  if (tags.unknown) throw new Error(`Unknown tag @${tags.unknown} for ${key}`);
+  if (tags.unknown) {
+    // Removed in 2.1.0: @min / @max already bound the length of strings.
+    const moved = tags.unknown.toLowerCase().match(/^(min|max)length$/)?.[1];
+    if (moved) throw new Error(`@${tags.unknown} was removed, use @${moved} for ${key}`);
+    throw new Error(`Unknown tag @${tags.unknown} for ${key}`);
+  }
   if (tags.default !== undefined && tags.optional) {
     throw new Error(`Cannot combine @default and @optional for ${key}`);
   }
@@ -122,19 +117,6 @@ export function applyTags(base: string, tags: Tags, key: string, value = ""): st
   const isStringLike = STRING_LIKE_REGEX.test(base);
   const isNumber = NUMBER_REGEX.test(base);
 
-  if (tags.min !== undefined && tags.minlength !== undefined) {
-    throw new Error(`Cannot combine @min and @minlength for ${key}`);
-  }
-  if (tags.max !== undefined && tags.maxlength !== undefined) {
-    throw new Error(`Cannot combine @max and @maxlength for ${key}`);
-  }
-
-  if (tags.minlength !== undefined && !isStringLike) {
-    throw new Error(`@minlength is not supported for ${key} (${base})`);
-  }
-  if (tags.maxlength !== undefined && !isStringLike) {
-    throw new Error(`@maxlength is not supported for ${key} (${base})`);
-  }
   if (tags.min !== undefined && !isNumber && !isStringLike) {
     throw new Error(`@min is not supported for ${key} (${base})`);
   }
@@ -144,22 +126,11 @@ export function applyTags(base: string, tags: Tags, key: string, value = ""): st
 
   const bounds: Bounds = {};
 
-  const minRaw = tags.minlength ?? tags.min;
-  const minTag = tags.minlength !== undefined ? "minlength" : "min";
-  if (minRaw !== undefined) {
-    bounds.min = parseBound(minRaw, minTag, key, isStringLike);
-    bounds.minTag = minTag;
-  }
-
-  const maxRaw = tags.maxlength ?? tags.max;
-  const maxTag = tags.maxlength !== undefined ? "maxlength" : "max";
-  if (maxRaw !== undefined) {
-    bounds.max = parseBound(maxRaw, maxTag, key, isStringLike);
-    bounds.maxTag = maxTag;
-  }
+  if (tags.min !== undefined) bounds.min = parseBound(tags.min, "min", key, isStringLike);
+  if (tags.max !== undefined) bounds.max = parseBound(tags.max, "max", key, isStringLike);
 
   if (bounds.min !== undefined && bounds.max !== undefined && bounds.min > bounds.max) {
-    throw new Error(`@${bounds.minTag} (${bounds.min}) is greater than @${bounds.maxTag} (${bounds.max}) for ${key}`);
+    throw new Error(`@min (${bounds.min}) is greater than @max (${bounds.max}) for ${key}`);
   }
 
   let schema = base;
@@ -254,14 +225,10 @@ const FORMATS: [string, z.ZodType, string][] = [
 
 function checkStringBounds(raw: string, bounds: Bounds, key: string) {
   if (bounds.min !== undefined && raw.length < bounds.min) {
-    throw new Error(
-      `@default length (${raw.length}) is less than @${bounds.minTag ?? "min"} (${bounds.min}) for ${key}`,
-    );
+    throw new Error(`@default length (${raw.length}) is less than @min (${bounds.min}) for ${key}`);
   }
   if (bounds.max !== undefined && raw.length > bounds.max) {
-    throw new Error(
-      `@default length (${raw.length}) is greater than @${bounds.maxTag ?? "max"} (${bounds.max}) for ${key}`,
-    );
+    throw new Error(`@default length (${raw.length}) is greater than @max (${bounds.max}) for ${key}`);
   }
 }
 
