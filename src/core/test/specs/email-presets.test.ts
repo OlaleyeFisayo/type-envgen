@@ -43,9 +43,9 @@ describe("@type email(<preset>)", () => {
     ).toThrow(/@default for CONTACT_EMAIL must be a valid email/);
   });
 
-  it("supports @minlength, @maxlength, and @pattern constraints", () => {
+  it("supports @min, @max and @pattern constraints", () => {
     const res = generateEnv(
-      "# @type email(html5)\n# @minlength 5\n# @maxlength 50\n# @pattern ^[a-z]+@\nCONTACT_EMAIL=test@example.com",
+      "# @type email(html5)\n# @min 5\n# @max 50\n# @pattern ^[a-z]+@\nCONTACT_EMAIL=test@example.com",
     );
     expect(res).toMatch(
       /CONTACT_EMAIL: z\.email\(\{ pattern: z\.regexes\.html5Email \}\)\.min\(5\)\.max\(50\)\.regex\(\/\^\[a-z\]\+@\/\)/,

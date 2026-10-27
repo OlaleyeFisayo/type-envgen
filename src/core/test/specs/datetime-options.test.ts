@@ -65,9 +65,9 @@ describe("@type datetime options", () => {
     );
   });
 
-  it("supports string-like tags (@minlength, @maxlength, @pattern)", () => {
+  it("supports string-like tags (@min, @max, @pattern)", () => {
     const output = generateEnv(
-      '# @type datetime(offset)\n# @minlength 10\n# @maxlength 40\n# @pattern "^[0-9]{4}-"\nX=2026-01-31T10:00:00+01:00',
+      '# @type datetime(offset)\n# @min 10\n# @max 40\n# @pattern "^[0-9]{4}-"\nX=2026-01-31T10:00:00+01:00',
     );
     expect(output).toMatch(
       /X: z\.iso\.datetime\(\{ offset: true \}\)\.min\(10\)\.max\(40\)\.regex\(\/\^\[0-9\]\{4\}-\/\)/,

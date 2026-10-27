@@ -55,8 +55,6 @@ describe("cli", () => {
     expect(help.stdout).toMatch(/@default/);
     expect(help.stdout).toMatch(/@optional/);
     expect(help.stdout).toMatch(/@pattern/);
-    expect(help.stdout).toMatch(/@minlength/);
-    expect(help.stdout).toMatch(/@maxlength/);
     expect(help.stdout).toMatch(/nanoid, cuid, cuid2, ulid, ksuid, xid/);
     expect(help.stdout).toMatch(/date, datetime, time, duration, ipv4, ipv6/);
     expect(help.stdout).toMatch(/httpurl, hostname/);

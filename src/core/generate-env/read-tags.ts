@@ -3,8 +3,6 @@ const VALUE_TAGS = [
   "type",
   "min",
   "max",
-  "minlength",
-  "maxlength",
   "length",
   "pattern",
   "startswith",
