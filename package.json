@@ -1,6 +1,6 @@
 {
   "name": "type-envgen",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "CLI that generates a typesafe env file validated with zod",
   "type": "module",
   "license": "MIT",
