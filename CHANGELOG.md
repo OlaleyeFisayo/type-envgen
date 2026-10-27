@@ -9,9 +9,11 @@ Full release notes for every version, including each merged pull request, are on
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-10-27
+
 ### Added
 
-- String checks and transforms from zod's string API: `@length`, `@nonempty`, `@startswith`, `@endswith`, `@includes`, `@uppercase`, `@lowercase`, and the transforms `@trim`, `@tolowercase`, `@touppercase` and `@normalize [form]`. Transforms run before every check, so `@trim` works with `@type email` and `@tolowercase` with enums. Tag names are now case-insensitive.
+- String checks and transforms from zod's string API: `@length`, `@nonempty`, `@startswith`, `@endswith`, `@includes`, `@uppercase`, `@lowercase`, and the transforms `@trim`, `@tolowercase`, `@touppercase` and `@normalize [form]`. Transforms run before every check, so `@trim` works with `@type email` and `@tolowercase` with enums. Tag names are now case-insensitive (#43).
 - `@type uuid(v1)` to `uuid(v8)` to require a UUID version, and `@type guid` for UUID-shaped IDs without a valid version or variant (#18, thanks @montionugera).
 - `@type httpurl` (http/https URLs only, via `z.httpUrl()`) and `@type hostname` (#19, thanks @montionugera).
 - `@type email(<preset>)` with zod's `html5`, `rfc5322`, `unicode` and `browser` email patterns; `@default` is checked with the same preset (#20, thanks @montionugera).
@@ -22,6 +24,10 @@ Full release notes for every version, including each merged pull request, are on
 - `@type jwt`, `jwt(<alg>)` and `hash(<alg>[, <enc>])` (algorithms `md5`, `sha1`, `sha256`, `sha384`, `sha512`; encodings `hex`, `base64`, `base64url`), with `@default`, length bounds (`@min` / `@max`) and `@pattern` support (#25, thanks @montionugera).
 - `@type nanoid`, `cuid`, `cuid2`, `ulid`, `ksuid` and `xid` ID formats, with `@default`, length bounds (`@min` / `@max`) and `@pattern` support (#26, thanks @montionugera).
 - `@type e164`, `emoji`, `currencycode`, `iban` and `creditcard` string formats, with `@default`, length bounds (`@min` / `@max`) and `@pattern` support (#27, thanks @montionugera).
+
+### Changed
+
+- A failing `@min 1` / `@nonempty` on a string now reports `must not be empty` instead of `must be at least 1 characters`.
 
 ### Removed
 
@@ -98,7 +104,8 @@ First public release.
 - Adds `zod@^4` to your project automatically if it's missing, using npm, pnpm, yarn or bun
   (`--skip-install` to opt out).
 
-[Unreleased]: https://github.com/OlaleyeFisayo/type-envgen/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/OlaleyeFisayo/type-envgen/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.0.1...v1.1.0
