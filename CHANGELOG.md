@@ -9,6 +9,12 @@ Full release notes for every version, including each merged pull request, are on
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-10-28
+
+### Fixed
+
+- Untagged values with a leading zero (`ZIP=01234`) are now inferred as strings instead of ints, so the zero is no longer dropped. A plain `0` is still a number, and `@type` still overrides.
+
 ## [2.1.0] - 2026-10-27
 
 ### Added
@@ -104,7 +110,8 @@ First public release.
 - Adds `zod@^4` to your project automatically if it's missing, using npm, pnpm, yarn or bun
   (`--skip-install` to opt out).
 
-[Unreleased]: https://github.com/OlaleyeFisayo/type-envgen/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/OlaleyeFisayo/type-envgen/compare/v2.1.1...HEAD
+[2.1.1]: https://github.com/OlaleyeFisayo/type-envgen/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/OlaleyeFisayo/type-envgen/compare/v1.1.0...v1.2.0
