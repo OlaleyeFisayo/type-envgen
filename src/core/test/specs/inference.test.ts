@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { TYPES } from "../../constants/index.ts";
+import { inferSchema } from "../../generate-env/infer-schema.ts";
 import { loadGenerated } from "../utils/helpers.ts";
 
 const { output, env } = await loadGenerated("inference");
@@ -10,6 +12,11 @@ describe("type inference", () => {
     expect(env.FEATURE_FLAG).toBe(false);
     expect(env.FLOAT).toBe(3.14);
     expect(typeof env.APP_NAME).toBe("string");
+  });
+
+  it("keeps numbers with a leading zero as strings", () => {
+    expect(inferSchema("ZIP", "01234")).toBe(TYPES.string);
+    expect(inferSchema("ZERO", "0")).toBe(TYPES.int);
   });
 
   it("infers typed JSON", () => {

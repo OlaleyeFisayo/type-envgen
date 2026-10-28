@@ -8,7 +8,8 @@ export function inferSchema(key: string, value: string): string {
   if (value.includes("${")) return TYPES.string; // ponytail: references aren't resolved, so the real format is unknown
   if (/^(true|false)$/i.test(value)) return TYPES.boolean;
   // ponytail: z.coerce.number() turns "" into 0; switch to a stricter number pipe if that bites
-  if (/^-?\d+$/.test(value)) return TYPES.int;
+  // A leading zero (ZIP=01234) means an identifier, not a number, so it stays a string.
+  if (/^-?(0|[1-9]\d*)$/.test(value)) return TYPES.int;
   if (/^-?\d*\.\d+$/.test(value)) return TYPES.number;
   if (value.includes("://") && z.url().safeParse(value).success) return TYPES.url;
   if (z.uuid().safeParse(value).success) return TYPES.uuid;
